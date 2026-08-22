@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Burnshield surfaces — light mode default */
+  /* Burn Shield surfaces — light mode default */
   --color-page: #ffffff;
   --color-card: #ffffff;
   --color-card-2: #f8fafc;

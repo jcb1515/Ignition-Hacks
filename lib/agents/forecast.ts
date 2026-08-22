@@ -35,7 +35,7 @@ export interface ForecastResult {
   monteCarlo: Record<string, MonteCarloBand>;
   /**
    * Historical burn, oldest first. `burn` is everything; `vendorSpend` is the
-   * slice Runway Radar can actually act on — payroll swamps it in the total,
+   * slice Burn Shield can actually act on — payroll swamps it in the total,
    * so the chart needs both lines to tell the story.
    */
   history: Array<{ month: string; burn: number; vendorSpend: number }>;

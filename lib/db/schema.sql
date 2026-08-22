@@ -1,4 +1,4 @@
--- Runway Radar schema. Four tables, matching context.md.
+-- Burn Shield schema. Four tables, matching context.md.
 
 CREATE TABLE IF NOT EXISTS vendors (
   id                TEXT PRIMARY KEY,

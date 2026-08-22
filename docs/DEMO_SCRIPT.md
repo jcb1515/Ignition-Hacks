@@ -1,4 +1,4 @@
-# Runway Radar — Demo Script & Judging Checklist
+# Burn Shield — Demo Script & Judging Checklist
 
 Five minutes. One click path. Every number below comes from the seeded dataset and
 is byte-identical on every run in demo mode, so what you rehearse is what judges see.
@@ -26,7 +26,7 @@ Also: laptop on power, notifications off, browser zoom 110%, backup video open i
 
 1. **Landing → Dashboard** (10s)
    "Most startups don't die from one big mistake. They die from slow leakage nobody audits
-   until it's too late. Runway Radar is an agent that watches vendor spend continuously and
+   until it's too late. Burn Shield is an agent that watches vendor spend continuously and
    only escalates the decisions that actually need a human."
 
 2. **Point at the data-source badge** (10s)

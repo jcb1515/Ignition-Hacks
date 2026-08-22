@@ -1,10 +1,10 @@
-# Burnshield: 24 Hour Build Plan
+# Burn Shield: 24 Hour Build Plan
 
 ## Overview
 
-Burnshield is an agentic cash burn auditor and vendor renegotiation copilot for early-stage startups. It watches transactions continuously, flags wasteful or anomalous vendor spend, drafts renegotiation or cancellation emails, and projects financial runway across multiple scenarios. The goal is to catch the slow, quiet cash leakage that kills most startups before it becomes fatal.
+Burn Shield is an agentic cash burn auditor and vendor renegotiation copilot for early-stage startups. It watches transactions continuously, flags wasteful or anomalous vendor spend, drafts renegotiation or cancellation emails, and projects financial runway across multiple scenarios. The goal is to catch the slow, quiet cash leakage that kills most startups before it becomes fatal.
 
-Most startups do not fail from one dramatic mistake. They fail from slow, quiet cash leakage that nobody watches closely enough to catch. By the time a human audits vendor spend, it is often too late to matter. Burnshield is an agent that watches continuously and only escalates the decisions that actually need a human. That is a genuinely different value proposition than a dashboard someone has to remember to check.
+Most startups do not fail from one dramatic mistake. They fail from slow, quiet cash leakage that nobody watches closely enough to catch. By the time a human audits vendor spend, it is often too late to matter. Burn Shield is an agent that watches continuously and only escalates the decisions that actually need a human. That is a genuinely different value proposition than a dashboard someone has to remember to check.
 
 ## Complexity philosophy
 

@@ -1,4 +1,4 @@
-// Core domain types for Runway Radar.
+// Core domain types for Burn Shield.
 // Mirrors the four-table schema in lib/db/schema.sql.
 
 export type VendorStatus = "safe" | "flagged" | "negotiating" | "cancelled";

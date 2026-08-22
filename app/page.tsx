@@ -125,7 +125,7 @@ export default function Home() {
 
   const vendors = useMemo(() => state?.vendors ?? [], [state]);
   const transactions = useMemo(() => state?.transactions ?? [], [state]);
-  const actions = liveActions.length > 0 ? [...liveActions].reverse() : (state?.actions ?? []);
+  const actions = hasRunAudit ? [...liveActions].reverse() : [];
 
   const current = state?.forecast.scenarios[0];
   const burn = current?.monthlyBurn ?? 0;
@@ -158,15 +158,6 @@ export default function Home() {
     setAuditComplete(false);
     setLiveActions([]);
     try {
-      if (plaid.accessToken) {
-        const sync = await fetch("/api/sync", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ accessToken: plaid.accessToken }),
-        });
-        if (!sync.ok) throw new Error("Bank sync failed");
-      }
-
       const res = await fetch("/api/audit", { method: "POST" });
       if (!res.ok || !res.body) throw new Error("Audit failed");
 
@@ -702,7 +693,7 @@ export default function Home() {
                     {
                       id: "draft",
                       label: "Draft",
-                      content: draftVendor ? (
+                      content: auditComplete && draftVendor ? (
                         <EmailPreview vendor={draftVendor} />
                       ) : (
                         <p className="py-8 text-center text-sm text-muted">
@@ -710,7 +701,7 @@ export default function Home() {
                         </p>
                       ),
                     },
-                    { id: "flags", label: "Flags", content: <TransactionFeed transactions={flaggedTx} /> },
+                    { id: "flags", label: "Flags", content: <TransactionFeed transactions={auditComplete ? flaggedTx : []} /> },
                   ]}
                 />
               </PointerPanel>

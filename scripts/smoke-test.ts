@@ -35,7 +35,7 @@ function section(title: string) {
 }
 
 async function main() {
-  console.log("Runway Radar smoke test\n" + "=".repeat(50));
+  console.log("Burn Shield smoke test\n" + "=".repeat(50));
 
   /* ---- seed ---- */
   section("Seed");

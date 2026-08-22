@@ -249,7 +249,7 @@ export async function ask(question: string): Promise<Answer> {
 
   const r = await generate({
     system:
-      "You are Runway Radar, a cash-burn auditing agent. Answer the user's question in two or three plain sentences " +
+      "You are Burn Shield, a cash-burn auditing agent. Answer the user's question in two or three plain sentences " +
       "using ONLY the facts below. If the facts don't cover it, say so in one sentence. Never invent numbers.",
     user: `Facts:\n${contextBlob(c)}\n\nQuestion: ${q}`,
     fallback,

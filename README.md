@@ -1,10 +1,10 @@
-# Runway Radar
+# Burn Shield
 
 Agentic cash-burn auditor and vendor renegotiation copilot for early-stage startups.
 
 Most startups do not fail from one dramatic mistake. They fail from slow, quiet
 cash leakage nobody is watching closely enough to catch, and by the time someone
-audits vendor spend it is often too late to matter. Runway Radar watches
+audits vendor spend it is often too late to matter. Burn Shield watches
 continuously and escalates only the decisions that actually need a human.
 
 ## Quick start

@@ -31,7 +31,7 @@ function check(name: string, ok: boolean, detail = "") {
 const section = (t: string) => console.log(`\n${t}`);
 
 async function main() {
-  console.log("Runway Radar integration smoke test\n" + "=".repeat(50));
+  console.log("Burn Shield integration smoke test\n" + "=".repeat(50));
 
   /* ---- Plaid import, offline ---- */
   section("Plaid import (fake payload)");

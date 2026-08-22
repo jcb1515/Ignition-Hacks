@@ -119,7 +119,7 @@ export function buildInvestorUpdate(): InvestorUpdate {
   const narrative = !audited
     ? ["Run an audit from the dashboard to populate this update."]
     : [
-        `Runway Radar audited ${vendors.length} vendors (${formatCurrency(f.vendorSpend)}/mo of tooling spend) against ${period} billing data.`,
+        `Burn Shield audited ${vendors.length} vendors (${formatCurrency(f.vendorSpend)}/mo of tooling spend) against ${period} billing data.`,
         flags.length
           ? `It flagged ${flags.length}: ${flags.map((x) => x.vendorName).join(", ")}. Each flag carries a feature-level breakdown of why it fired.`
           : "Nothing exceeded the anomaly thresholds.",
