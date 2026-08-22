@@ -48,10 +48,13 @@ const run = (label: string, args: string[], extraEnv: Record<string, string> = {
     ok(label, false, out.split("\n").filter((l) => l.includes("FAIL")).join(" | ").slice(0, 300));
   }
 };
-run("agents + seed (npm run smoke)", ["scripts/smoke-test.ts"]);
+// Both suites run on throwaway DBs so they can never race the dev server
+// (which holds runway.db open) or wipe the data a presenter just seeded.
+const smokeDb = join(process.cwd(), ".preflight-smoke.db");
 const scratchDb = join(process.cwd(), ".preflight-int.db");
+run("agents + seed (npm run smoke)", ["scripts/smoke-test.ts"], { DATABASE_PATH: smokeDb });
 run("integrations + ask + slide", ["scripts/smoke-integrations.ts"], { DATABASE_PATH: scratchDb });
-for (const f of [scratchDb, `${scratchDb}-wal`, `${scratchDb}-shm`]) rmSync(f, { force: true });
+for (const db of [smokeDb, scratchDb]) for (const f of [db, `${db}-wal`, `${db}-shm`]) rmSync(f, { force: true });
 
 /* ---- server ---- */
 console.log(`\nServer (${BASE})`);

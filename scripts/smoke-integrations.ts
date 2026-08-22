@@ -7,7 +7,7 @@
  * (scripts/preflight.ts sets DATABASE_PATH for you.)
  */
 import { execFileSync } from "node:child_process";
-import { importSpend } from "../lib/integrations/sync";
+import { importSpend, runLiveSync } from "../lib/integrations/sync";
 import { stripeConfigured, pullTestRevenue } from "../lib/integrations/stripe";
 import { plaidConfigured } from "../lib/integrations/plaid";
 import { ask } from "../lib/ask";
@@ -54,6 +54,12 @@ async function main() {
   const r2 = importSpend(fake);
   check("rerun is idempotent", r2.vendorsCreated === 0 && getTransactionsForVendor("plaid-datadog").length === 2);
   check("rerun preserves agent-set status", getVendor("plaid-datadog")?.status === "flagged");
+
+  const demoSync = await runLiveSync();
+  check("runLiveSync is a no-op in demo mode", demoSync.mode === "demo" && demoSync.plaid.transactionsSeen === 0);
+  const linkedSync = await runLiveSync({ accessToken: "access-sandbox-not-real" });
+  check("linked access token is honoured even in demo mode (mode=linked)", linkedSync.mode === "linked");
+  check("linked sync without Plaid keys reports, never throws", !plaidConfigured() ? linkedSync.plaid.transactionsSeen === 0 && !linkedSync.plaid.error : true);
 
   /* ---- Stripe guard ---- */
   section("Stripe guard");

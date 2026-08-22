@@ -46,3 +46,4 @@ runway.db
 runway.db-wal
 runway.db-shm
 .preflight-int.db*
+.preflight-smoke.db*

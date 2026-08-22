@@ -18,11 +18,11 @@
  */
 import { DEMO_MODE } from "@/lib/company";
 import { getVendor, upsertTransaction, upsertVendor } from "@/lib/db/queries";
-import { plaidConfigured, pullSandboxSpend, type PlaidTransaction } from "./plaid";
+import { fetchTransactions, plaidConfigured, pullSandboxSpend, type PlaidTransaction } from "./plaid";
 import { pullTestRevenue, stripeConfigured, type StripeRevenue } from "./stripe";
 
 export interface SyncResult {
-  mode: "demo" | "live";
+  mode: "demo" | "live" | "linked";
   plaid: { configured: boolean; transactionsSeen: number; transactionsUpserted: number; vendorsCreated: number; error?: string };
   stripe: { configured: boolean; revenue?: StripeRevenue; error?: string };
 }
@@ -128,18 +128,26 @@ export function importSpend(txs: PlaidTransaction[]): { upserted: number; vendor
   return { upserted, vendorsCreated };
 }
 
-export async function runLiveSync(): Promise<SyncResult> {
+/**
+ * @param opts.accessToken  a Plaid access token the user obtained by linking a
+ *   bank through Plaid Link in the browser (the landing page's BankPanel). When
+ *   present, the sync pulls that Item specifically — and runs even in DEMO_MODE,
+ *   because the user has just explicitly connected a bank; refusing would make
+ *   the Link button a dead end. Nothing else bypasses the demo guard.
+ */
+export async function runLiveSync(opts: { accessToken?: string } = {}): Promise<SyncResult> {
+  const linked = Boolean(opts.accessToken);
   const result: SyncResult = {
-    mode: DEMO_MODE ? "demo" : "live",
+    mode: linked ? "linked" : DEMO_MODE ? "demo" : "live",
     plaid: { configured: plaidConfigured(), transactionsSeen: 0, transactionsUpserted: 0, vendorsCreated: 0 },
     stripe: { configured: stripeConfigured() },
   };
 
-  if (DEMO_MODE) return result;
+  if (DEMO_MODE && !linked) return result;
 
   if (result.plaid.configured) {
     try {
-      const txs = await pullSandboxSpend();
+      const txs = opts.accessToken ? await fetchTransactions(opts.accessToken) : await pullSandboxSpend();
       result.plaid.transactionsSeen = txs.length;
       const { upserted, vendorsCreated } = importSpend(txs);
       result.plaid.transactionsUpserted = upserted;
@@ -149,7 +157,7 @@ export async function runLiveSync(): Promise<SyncResult> {
     }
   }
 
-  if (result.stripe.configured) {
+  if (result.stripe.configured && !DEMO_MODE) {
     try {
       result.stripe.revenue = await pullTestRevenue();
     } catch (err) {
