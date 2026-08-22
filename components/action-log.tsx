@@ -4,21 +4,21 @@ import type { AgentAction } from "@/lib/data";
 
 export default function ActionLog({ actions }: { actions: AgentAction[] }) {
   return (
-    <div className="divide-y divide-border-card">
+    <div className="max-h-[420px] divide-y divide-border-card overflow-y-auto pr-1">
       {actions.map((action) => (
-        <div key={action.id} className="py-4 first:pt-0 last:pb-0">
+        <div key={action.id} className="group animate-fade-in py-4 transition-colors duration-300 first:pt-0 last:pb-0 hover:bg-card-2">
           <div className="mb-2 flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 font-mono text-xs font-medium uppercase tracking-tight text-muted">
-              <Bot size={12} className="text-mint" />
+            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-muted">
+              <Bot size={12} className="text-azure" />
               {action.agent}
             </span>
-            <span className="text-xs text-slate">{action.timestamp}</span>
+            <span className="font-mono text-[10px] text-slate">{action.timestamp}</span>
           </div>
-          <p className="mb-2 text-sm font-medium text-on-card">
-            {action.type}
+          <p className="mb-2 font-mono text-xs uppercase tracking-[0.08em] text-on-card">
+            {action.type.replaceAll("_", " ")}
             {action.target && ` · ${action.target}`}
           </p>
-          <p className="mb-3 text-sm leading-relaxed text-muted">
+          <p className="mb-3 text-sm leading-relaxed text-muted transition-colors group-hover:text-on-card">
             {action.reasoning}
           </p>
           <div className="flex items-center justify-between pt-2">
@@ -27,10 +27,10 @@ export default function ActionLog({ actions }: { actions: AgentAction[] }) {
                 ? formatCurrency(Math.abs(action.dollarImpact))
                 : "—"}
             </span>
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-muted">
+            <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">
               {action.humanApproved ? (
                 <>
-                  <CheckCircle2 size={12} className="text-mint" /> Approved
+                  <CheckCircle2 size={12} className="text-azure" /> Approved
                 </>
               ) : (
                 <>

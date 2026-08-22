@@ -31,54 +31,61 @@ export default function RunwayChart({
         >
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="rgba(255, 255, 255, 0.1)"
+            stroke="rgba(244, 247, 251, 0.09)"
           />
           <XAxis
             dataKey="month"
-            stroke="#6b7280"
-            tick={{ fill: "#9ca3af", fontSize: 12 }}
+            stroke="#626e85"
+            tick={{ fill: "#94a0b8", fontSize: 11 }}
           />
           <YAxis
             tickFormatter={(v) => `$${v / 1000}k`}
-            stroke="#6b7280"
-            tick={{ fill: "#9ca3af", fontSize: 12 }}
+            stroke="#626e85"
+            tick={{ fill: "#94a0b8", fontSize: 11 }}
           />
           <Tooltip
+            cursor={{ stroke: "#3d7bff", strokeWidth: 1 }}
             contentStyle={{
-              backgroundColor: "#18181b",
-              border: "1px solid #2a2a32",
-              borderRadius: "8px",
-              color: "#ffffff",
+              backgroundColor: "#0d1017",
+              border: "1px solid #232b38",
+              borderRadius: "0px",
+              color: "#f4f7fb",
             }}
             formatter={(value: number | string | ReadonlyArray<number | string> | undefined, name: number | string | undefined) => [
               value === undefined ? "—" : formatCurrency(Number(Array.isArray(value) ? value[0] : value)),
               name,
             ]}
           />
-          <Legend wrapperStyle={{ fontSize: "12px", color: "#9ca3af" }} />
+          <Legend wrapperStyle={{ fontSize: "11px", color: "#94a0b8" }} />
           <Line
             type="monotone"
             dataKey="current"
             name="Current"
-            stroke="#34d399"
+            stroke="#3d7bff"
             strokeWidth={2}
             dot={false}
+            animationDuration={1600}
+            activeDot={{ r: 5, fill: "#3d7bff", stroke: "#0d1017", strokeWidth: 2 }}
           />
           <Line
             type="monotone"
             dataKey="aggressiveCut"
             name="Aggressive cut"
-            stroke="#60a5fa"
+            stroke="#7ee3ff"
             strokeWidth={2}
             dot={false}
+            animationDuration={1900}
+            activeDot={{ r: 5, fill: "#7ee3ff", stroke: "#0d1017", strokeWidth: 2 }}
           />
           <Line
             type="monotone"
             dataKey="hiringFreeze"
             name="Hiring freeze"
-            stroke="#f472b6"
+            stroke="#8f7dff"
             strokeWidth={2}
             dot={false}
+            animationDuration={2200}
+            activeDot={{ r: 5, fill: "#8f7dff", stroke: "#0d1017", strokeWidth: 2 }}
           />
         </LineChart>
       </ResponsiveContainer>

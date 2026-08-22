@@ -1,33 +1,35 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Michele dashboard palette */
-  --color-page: #eeece4;
-  --color-card: #121312;
-  --color-card-2: #1b1d1b;
-  --color-card-3: #282b27;
-  --color-ink: #101210;
-  --color-canvas: #f8f7f1;
-  --color-on-card: #f8f7f1;
-  --color-muted: #9a9d94;
-  --color-slate: #686c64;
-  --color-hairline: rgba(248, 247, 241, 0.14);
-  --color-border: #cfcfc5;
-  --color-border-card: #32352f;
+  /* Runway Radar surfaces */
+  --color-page: #eceef2;
+  --color-card: #0d1017;
+  --color-card-2: #151a24;
+  --color-card-3: #1d2430;
+  --color-ink: #0b0e14;
+  --color-canvas: #f7f9fc;
+  --color-on-card: #f4f7fb;
+  --color-muted: #94a0b8;
+  --color-slate: #626e85;
+  --color-hairline: rgba(244, 247, 251, 0.14);
+  --color-border: #c9cfda;
+  --color-border-card: #232b38;
 
   /* Accents */
-  --color-mint: #cef84f;
-  --color-pink: #e869cd;
-  --color-blue: #8eb5ff;
-  --color-yellow: #f6d84d;
-  --color-orange: #f28b58;
-  --color-red: #f05f55;
-  --color-lime: #cef84f;
-  --color-coral: #ef6f54;
+  --color-azure: #3d7bff;
+  --color-sky: #56b8ff;
+  --color-cyan: #7ee3ff;
+  --color-mint: #3d7bff;
+  --color-pink: #8f7dff;
+  --color-blue: #56b8ff;
+  --color-yellow: #f2c94c;
+  --color-orange: #f2994a;
+  --color-red: #ff5f6d;
+  --color-coral: #ff6b57;
 
   /* Theme */
-  --color-background: #eeece4;
-  --color-foreground: #101210;
+  --color-background: #eceef2;
+  --color-foreground: #0b0e14;
 
   /* Typography */
   --font-display: "Arial Narrow", "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui,
@@ -39,8 +41,8 @@
 }
 
 body {
-  background-color: #eeece4;
-  color: #101210;
+  background-color: #eceef2;
+  color: #0b0e14;
   font-family: var(--font-body);
   line-height: 1.5;
   letter-spacing: -0.01em;
@@ -61,6 +63,8 @@ li {
   text-wrap: pretty;
 }
 
+/* ---------- Keyframes ---------- */
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -72,12 +76,258 @@ li {
   }
 }
 
+@keyframes sweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ping-ring {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.55;
+  }
+  80% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes marquee-track {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+@keyframes grid-pan {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 38px 38px;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(320%);
+  }
+}
+
+@keyframes caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes trace {
+  from {
+    stroke-dashoffset: 1200;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- Animation utilities ---------- */
+
 .animate-fade-in {
   animation: fade-in 0.35s ease-out;
 }
 
+.animate-sweep {
+  animation: sweep 7s linear infinite;
+}
+
+.animate-drift {
+  animation: drift 7s ease-in-out infinite;
+}
+
+.animate-caret {
+  animation: caret 1s steps(1) infinite;
+}
+
+.animate-trace {
+  stroke-dasharray: 1200;
+  animation: trace 2.6s ease-out forwards;
+}
+
+.ping-ring {
+  animation: ping-ring 2.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+.bar-grow {
+  transform-origin: left center;
+  animation: bar-grow 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Scroll reveal */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal="visible"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Ambient signal grid */
 .signal-grid {
-  background-image: linear-gradient(rgba(248, 247, 241, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(248, 247, 241, 0.08) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(244, 247, 251, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 247, 251, 0.09) 1px, transparent 1px);
   background-size: 38px 38px;
   mask-image: radial-gradient(circle at center, black, transparent 78%);
+  animation: grid-pan 12s linear infinite;
+}
+
+/* Pointer-reactive panel glow */
+.pointer-panel {
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.35s ease, background-color 0.35s ease;
+}
+
+.pointer-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    340px circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    rgba(61, 123, 255, 0.18),
+    transparent 70%
+  );
+}
+
+.pointer-panel:hover::after {
+  opacity: 1;
+}
+
+/* Light-surface variant */
+.pointer-panel-light::after {
+  background: radial-gradient(
+    340px circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    rgba(61, 123, 255, 0.13),
+    transparent 70%
+  );
+}
+
+/* Marquee */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-track var(--marquee-duration, 34s) linear infinite;
+}
+
+.marquee-host:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Underline sweep for links */
+.link-sweep {
+  position: relative;
+}
+
+.link-sweep::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.link-sweep:hover::after {
+  transform: scaleX(1);
+}
+
+/* Shimmer bar for running states */
+.shimmer-host {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-host::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(126, 227, 255, 0.35),
+    transparent
+  );
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* Row hover for data tables */
+.data-row {
+  transition: background-color 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.3s ease;
+}
+
+.data-row:hover {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
 }
