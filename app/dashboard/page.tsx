@@ -343,6 +343,7 @@ export default function Dashboard() {
                 drafts={queue}
                 threshold={state.config.approvalThreshold}
                 onDecide={decide}
+                onNegotiated={load}
               />
             </div>
           </section>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Mail, ShieldAlert, X } from "lucide-react";
 import { formatCurrency } from "@/lib/types";
 import type { Draft } from "@/lib/db/queries";
+import NegotiationThread from "@/components/negotiation-thread";
 
 export interface QueueItem extends Draft {
   savings: number;
@@ -16,11 +17,13 @@ export interface QueueItem extends Draft {
  * path from this button to a real vendor's inbox.
  */
 export default function ApprovalQueue({
-  drafts, threshold, onDecide,
+  drafts, threshold, onDecide, onNegotiated,
 }: {
   drafts: QueueItem[];
   threshold: number;
   onDecide: (draftId: string, decision: "approve" | "reject") => Promise<void>;
+  /** Called when a negotiation round or a human deal decision changes state. */
+  onNegotiated?: () => void;
 }) {
   const [openId, setOpenId] = useState<string | null>(drafts[0]?.id ?? null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -122,6 +125,15 @@ export default function ApprovalQueue({
                     Decision recorded. {d.sent ? "Delivered to the Mailtrap sandbox inbox." : "Not transmitted — no sandbox inbox configured."}
                   </p>
                 )}
+
+                {/* The email is the opening ask; this is the rest of the conversation. */}
+                <div className="mt-4">
+                  <NegotiationThread
+                    vendorId={d.vendorId}
+                    vendorName={d.subject.split(" — ")[0]}
+                    onDone={onNegotiated}
+                  />
+                </div>
               </div>
             )}
           </div>
