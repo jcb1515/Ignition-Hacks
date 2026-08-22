@@ -129,7 +129,7 @@ export function PointerPanel({
   children,
   className = "",
   variant = "dark",
-  tilt = 3,
+  tilt = 1,
 }: {
   children: ReactNode;
   className?: string;
@@ -148,9 +148,10 @@ export function PointerPanel({
     node.style.setProperty("--pointer-y", `${y}px`);
 
     if (tilt > 0 && !prefersReducedMotion()) {
-      const rotateY = ((x / rect.width) * 2 - 1) * tilt;
-      const rotateX = ((y / rect.height) * 2 - 1) * -tilt;
-      node.style.transform = `perspective(1100px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
+      const damp = 0.5;
+      const rotateY = ((x / rect.width) * 2 - 1) * tilt * damp;
+      const rotateX = ((y / rect.height) * 2 - 1) * -tilt * damp;
+      node.style.transform = `perspective(1400px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-2px)`;
     }
   };
 

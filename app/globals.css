@@ -317,6 +317,31 @@ li {
   transform: translateX(4px);
 }
 
+/* Themed scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d1017;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #232b38;
+  border-radius: 4px;
+  border: 2px solid #0d1017;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3d7bff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #232b38 #0d1017;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
