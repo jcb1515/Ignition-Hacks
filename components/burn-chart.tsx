@@ -7,8 +7,7 @@ import { formatCurrency } from "@/lib/types";
 
 /**
  * Total burn and the vendor slice of it. Both lines matter: payroll dominates
- * the total, so a single "burn" line hides the only number this product can
- * actually move.
+ * the total, so a single "burn" line hides the only number this product moves.
  */
 export default function BurnChart({
   data,
@@ -20,36 +19,44 @@ export default function BurnChart({
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
           <defs>
-            <linearGradient id="gBurn" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#2d9bd2" stopOpacity={0.3} />
+            <linearGradient id="colorBurn" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#2d9bd2" stopOpacity={0.4} />
               <stop offset="95%" stopColor="#2d9bd2" stopOpacity={0} />
             </linearGradient>
-            <linearGradient id="gVendor" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#d2562d" stopOpacity={0.35} />
+            <linearGradient id="colorVendor" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#d2562d" stopOpacity={0.4} />
               <stop offset="95%" stopColor="#d2562d" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(248,247,241,0.08)" />
-          <XAxis dataKey="month" stroke="#9a9d94" fontSize={11} tickLine={false} axisLine={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(244, 247, 251, 0.09)" />
+          <XAxis dataKey="month" stroke="#626e85" tick={{ fill: "#94a0b8", fontSize: 11 }} />
           <YAxis
-            stroke="#9a9d94" fontSize={11} tickLine={false} axisLine={false}
-            tickFormatter={(v: number) => `$${Math.round(v / 1000)}k`}
+            tickFormatter={(v) => `$${Math.round(Number(v) / 1000)}k`}
+            stroke="#626e85"
+            tick={{ fill: "#94a0b8", fontSize: 11 }}
           />
           <Tooltip
+            cursor={{ stroke: "#3d7bff", strokeWidth: 1 }}
             contentStyle={{
-              background: "#1b1d1b", border: "1px solid #32352f",
-              borderRadius: 8, fontSize: 12, color: "#f8f7f1",
+              backgroundColor: "#0d1017",
+              border: "1px solid #232b38",
+              borderRadius: "0px",
+              color: "#f4f7fb",
             }}
             formatter={(v, name) => [formatCurrency(Number(v ?? 0)), String(name)]}
           />
-          <Legend wrapperStyle={{ fontSize: 11, color: "#9a9d94" }} />
+          <Legend wrapperStyle={{ fontSize: 11, color: "#94a0b8" }} />
           <Area
             type="monotone" dataKey="burn" name="Total burn"
-            stroke="#2d9bd2" strokeWidth={2} fill="url(#gBurn)"
+            stroke="#2d9bd2" strokeWidth={2} fillOpacity={1} fill="url(#colorBurn)"
+            animationDuration={1600}
+            activeDot={{ r: 5, fill: "#7ee3ff", stroke: "#0d1017", strokeWidth: 2 }}
           />
           <Area
             type="monotone" dataKey="vendorSpend" name="Vendor spend"
-            stroke="#d2562d" strokeWidth={2} fill="url(#gVendor)"
+            stroke="#d2562d" strokeWidth={2} fillOpacity={1} fill="url(#colorVendor)"
+            animationDuration={1600}
+            activeDot={{ r: 5, fill: "#f2994a", stroke: "#0d1017", strokeWidth: 2 }}
           />
         </AreaChart>
       </ResponsiveContainer>

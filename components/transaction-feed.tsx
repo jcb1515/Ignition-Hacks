@@ -12,33 +12,34 @@ export default function TransactionFeed({
       {transactions.map((tx) => (
         <div
           key={tx.id}
-          className={`flex items-start justify-between rounded-lg border p-3 ${
+          className={`data-row flex items-start justify-between border p-3 ${
             tx.flagged
-              ? "border-red bg-red/5"
-              : "border-border-card bg-card-2"
+              ? "border-red/60 bg-red/5 hover:border-red"
+              : "border-border-card bg-card-2 hover:border-azure"
           }`}
         >
           <div>
             <p className="font-medium text-on-card">{tx.vendorName}</p>
-            <p className="text-xs text-muted">
+            <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">
               {tx.date} · {tx.source}
+              {tx.confidence ? ` · ${Math.round(tx.confidence * 100)}% confidence` : ""}
             </p>
             {tx.flagged && tx.reason && (
-              <p className="mt-1 text-xs text-red">{tx.reason}</p>
+              <p className="mt-1.5 text-xs leading-relaxed text-red">{tx.reason}</p>
             )}
           </div>
           <div className="text-right">
             <p
-              className={`font-semibold ${
+              className={`font-mono font-semibold ${
                 tx.flagged ? "text-red" : "text-on-card"
               }`}
             >
               {formatCurrency(tx.amount)}
             </p>
             {tx.flagged ? (
-              <AlertTriangle size={14} className="ml-auto text-red" />
+              <AlertTriangle size={14} className="ml-auto mt-1 text-red" />
             ) : (
-              <CheckCircle2 size={14} className="ml-auto text-mint" />
+              <CheckCircle2 size={14} className="ml-auto mt-1 text-azure" />
             )}
           </div>
         </div>

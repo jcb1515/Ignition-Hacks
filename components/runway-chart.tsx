@@ -21,24 +21,30 @@ export default function RunwayChart({
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(248,247,241,0.08)" />
-          <XAxis dataKey="month" stroke="#9a9d94" fontSize={11} tickLine={false} axisLine={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(244, 247, 251, 0.09)" />
+          <XAxis dataKey="month" stroke="#626e85" tick={{ fill: "#94a0b8", fontSize: 11 }} />
           <YAxis
-            stroke="#9a9d94" fontSize={11} tickLine={false} axisLine={false}
-            tickFormatter={(v: number) => `$${Math.round(v / 1000)}k`}
+            tickFormatter={(v) => `$${Math.round(Number(v) / 1000)}k`}
+            stroke="#626e85"
+            tick={{ fill: "#94a0b8", fontSize: 11 }}
           />
           <Tooltip
+            cursor={{ stroke: "#3d7bff", strokeWidth: 1 }}
             contentStyle={{
-              background: "#1b1d1b", border: "1px solid #32352f",
-              borderRadius: 8, fontSize: 12, color: "#f8f7f1",
+              backgroundColor: "#0d1017",
+              border: "1px solid #232b38",
+              borderRadius: "0px",
+              color: "#f4f7fb",
             }}
             formatter={(v, name) => [formatCurrency(Number(v ?? 0)), String(name)]}
           />
-          <Legend wrapperStyle={{ fontSize: 11, color: "#9a9d94" }} />
+          <Legend wrapperStyle={{ fontSize: 11, color: "#94a0b8" }} />
           {series.map((s) => (
             <Line
               key={s.key} type="monotone" dataKey={s.key} name={s.key}
               stroke={s.color} strokeWidth={2} dot={false}
+              animationDuration={1600}
+              activeDot={{ r: 5, fill: s.color, stroke: "#0d1017", strokeWidth: 2 }}
             />
           ))}
         </LineChart>

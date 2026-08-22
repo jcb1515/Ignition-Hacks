@@ -197,7 +197,7 @@ export default function Dashboard() {
         <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-6 py-6 sm:px-10 lg:flex-row lg:items-center lg:justify-between lg:px-14">
           <div>
             <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-page/55">
-              <span className="h-1.5 w-1.5 rounded-full bg-lime" />
+              <span className="h-1.5 w-1.5 rounded-full bg-azure" />
               {state.company.name} / {state.company.headcount} people
             </p>
             <h1 className="mt-2 font-display text-4xl font-medium leading-none tracking-[-0.05em] sm:text-5xl">
@@ -220,7 +220,7 @@ export default function Dashboard() {
             <button
               onClick={runAudit}
               disabled={running}
-              className="inline-flex items-center gap-2 bg-lime px-5 py-2.5 text-sm font-medium text-ink transition-opacity hover:opacity-90 disabled:opacity-60"
+              className="inline-flex items-center gap-2 bg-azure px-5 py-2.5 text-sm font-medium text-on-card transition-opacity hover:opacity-90 disabled:opacity-60"
             >
               <Play size={14} />
               {running ? "Auditing..." : "Run audit"}

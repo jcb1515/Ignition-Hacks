@@ -12,7 +12,7 @@
  * deployment would need considerably stronger guardrails.
  */
 import { randomUUID } from "node:crypto";
-import { APPROVAL_THRESHOLD, DEMO_MODE } from "@/lib/company";
+import { APPROVAL_THRESHOLD, AUDIT_PACE_MS, DEMO_MODE } from "@/lib/company";
 import { llmAvailable } from "@/lib/llm";
 import { classify } from "@/lib/agents/classifier";
 import { forecast, estimateSavings } from "@/lib/agents/forecast";
@@ -39,6 +39,12 @@ export interface AuditSummary {
   runwayAfter: number;
   monthsGained: number;
   mode: "demo" | "live";
+}
+
+/** Paces the stream so the log builds visibly instead of arriving all at once. */
+function pace(): Promise<void> {
+  if (AUDIT_PACE_MS <= 0) return Promise.resolve();
+  return new Promise((r) => setTimeout(r, AUDIT_PACE_MS));
 }
 
 /** Clock is injectable so the smoke test produces stable timestamps. */
@@ -79,12 +85,21 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
   };
 
   /* ---- 1. Classify ---- */
+  await pace();
   yield { type: "status", message: "Classifier scanning latest billing period..." };
+  await pace();
 
   clearFlags();
   clearUnactionedDrafts(); // this run supersedes the last one
   const flags = classify();
   const vendors = getVendors();
+
+  // Capture each vendor's status *before* this run overwrites it with "flagged".
+  // The negotiate loop below needs to know whether a human already actioned the
+  // vendor on a previous cycle, and that information is destroyed a few lines
+  // down. Reading it off `vendors` later happens to work only because the
+  // snapshot predates the writes, which is too fragile to rely on.
+  const priorStatus = new Map(vendors.map((v) => [v.id, v.status]));
 
   for (const flag of flags) {
     if (flag.transactionId) {
@@ -93,6 +108,7 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
     setVendorStatus(flag.vendorId, "flagged");
 
     const top = flag.features[0];
+    await pace();
     yield {
       type: "action",
       action: record(
@@ -124,7 +140,9 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
   }
 
   /* ---- 2. Forecast ---- */
+  await pace();
   yield { type: "status", message: "Forecast agent projecting runway scenarios..." };
+  await pace();
 
   const f = forecast(flags);
   const [current, cut, freeze] = f.scenarios;
@@ -140,6 +158,7 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
   }
 
   const mcCurrent = f.monteCarlo[current.label];
+  await pace();
   yield {
     type: "action",
     action: record(
@@ -160,6 +179,25 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
     if (!vendor) continue;
 
     const savings = estimateSavings(flag, vendors);
+
+    // A human already approved or rejected something for this vendor, so the
+    // conversation is open and a second draft would be noise. The finding stays
+    // flagged; only the repeat outreach is suppressed.
+    const prior = priorStatus.get(vendor.id);
+    if (prior === "negotiating" || prior === "cancelled") {
+      await pace();
+      yield {
+        type: "action",
+        action: record(
+          "Orchestrator", "draft_skipped",
+          `Skipped drafting for ${vendor.name}. A human already actioned this vendor and it is marked ${prior}, so the agent is not opening a second thread. The finding stands; the outreach does not repeat.`,
+          { target: vendor.name, humanApproved: true }
+        ),
+      };
+      continue;
+    }
+
+    await pace();
     yield { type: "status", message: `Negotiator drafting for ${vendor.name}...` };
 
     const draft = await negotiate(flag, vendor, vendors);
@@ -177,6 +215,7 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
     });
     draftsCreated += 1;
 
+    await pace();
     yield {
       type: "action",
       action: record(
@@ -191,6 +230,7 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
     if (needsApproval) {
       pendingApproval += 1;
       setVendorStatus(vendor.id, "negotiating");
+      await pace();
       yield {
         type: "action",
         action: record(
@@ -200,6 +240,7 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
         ),
       };
     } else {
+      await pace();
       yield {
         type: "action",
         action: record(
@@ -214,6 +255,7 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
   /* ---- 4. Wrap up ---- */
   const monthsGained = Math.round((cut.runwayMonths - current.runwayMonths) * 10) / 10;
 
+  await pace();
   yield {
     type: "action",
     action: record(
