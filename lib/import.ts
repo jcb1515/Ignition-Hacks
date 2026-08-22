@@ -23,7 +23,7 @@
  * same vendor in one month are summed.
  */
 import { resetDb } from "@/lib/db";
-import { getVendor, setSetting, upsertTransaction, upsertVendor } from "@/lib/db/queries";
+import { getSetting, getVendor, setSetting, upsertTransaction, upsertVendor } from "@/lib/db/queries";
 import { functionTagFor, slug } from "@/lib/integrations/sync";
 
 export interface SpendRow {
@@ -231,7 +231,14 @@ export function mergeVendorMetadata(rows: SpendRow[], records: Record<string, un
  * uploaded spend; without it the upload merges into whatever is there.
  */
 export function importSpendRows(rows: SpendRow[], opts: { replace?: boolean } = {}): Omit<ImportResult, "rowsRead" | "rowsSkipped" | "warnings"> {
-  if (opts.replace ?? true) resetDb();
+  if (opts.replace ?? true) {
+    // Replace the spend, not the facts synced from elsewhere: the Stripe
+    // revenue pull would otherwise vanish until the next sync and the forecast
+    // would silently fall back to the seeded MRR.
+    const stripe = getSetting("stripe_revenue");
+    resetDb();
+    if (stripe) setSetting("stripe_revenue", stripe);
+  }
 
   const byVendor = new Map<string, SpendRow[]>();
   for (const r of rows) {
