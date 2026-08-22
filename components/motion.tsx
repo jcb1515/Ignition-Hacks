@@ -176,7 +176,7 @@ export function PointerPanel({
 export function MagneticButton({
   children,
   className = "",
-  strength = 7,
+  strength = 2,
   onClick,
   disabled,
   type = "button",
@@ -194,8 +194,8 @@ export function MagneticButton({
     const node = ref.current;
     if (!node || prefersReducedMotion()) return;
     const rect = node.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width - 0.5) * strength * 2;
-    const y = ((event.clientY - rect.top) / rect.height - 0.5) * strength * 2;
+    const x = ((event.clientX - rect.left) / rect.width - 0.5) * strength;
+    const y = ((event.clientY - rect.top) / rect.height - 0.5) * strength;
     node.style.transform = `translate(${x}px, ${y}px)`;
   };
 

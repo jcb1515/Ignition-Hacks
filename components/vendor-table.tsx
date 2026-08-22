@@ -32,11 +32,11 @@ export default function VendorTable({ vendors }: { vendors: Vendor[] }) {
               </td>
               <td className="py-3 text-center">
                 {vendor.status === "flagged" ? (
-                  <span className="inline-flex items-center gap-1 bg-red/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-red">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-red/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-red">
                     <AlertTriangle size={12} /> Flagged
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 bg-azure/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-azure">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-azure/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-azure">
                     <CheckCircle2 size={12} /> Safe
                   </span>
                 )}

@@ -46,7 +46,7 @@ const tiers = [
 export default function PricingPage() {
   return (
     <div className="bg-page">
-      <section className="border-b border-page/15 bg-ink text-page">
+      <section className="border-b border-border bg-page text-ink">
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
           <Reveal>
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-azure">
@@ -60,7 +60,7 @@ export default function PricingPage() {
               </h1>
             </Reveal>
             <Reveal delay={160}>
-              <p className="max-w-md text-xl leading-snug tracking-[-0.025em] text-page/65">
+              <p className="max-w-md text-xl leading-snug tracking-[-0.025em] text-slate">
                 Start with visibility, then expand the agent system as your operations
                 get more complex.
               </p>
@@ -84,7 +84,7 @@ export default function PricingPage() {
                 <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.14em]">
                   <span>0{index + 1} / plan</span>
                   {tier.featured ? (
-                    <span className="bg-azure px-2 py-1 text-page">Most selected</span>
+                    <span className="rounded-full bg-azure px-2 py-1 text-white">Most selected</span>
                   ) : null}
                 </div>
                 <div className="mt-14">
@@ -109,10 +109,10 @@ export default function PricingPage() {
                 </ul>
                 <Link
                   href="/"
-                  className={`group mt-auto inline-flex items-center justify-between px-5 py-4 text-sm font-medium transition-colors duration-300 ${
+                  className={`group mt-auto inline-flex items-center justify-between rounded-full px-5 py-4 text-sm font-medium transition-colors duration-300 ${
                     tier.featured
-                      ? "bg-azure text-page hover:bg-cyan hover:text-ink"
-                      : "bg-ink text-page hover:bg-azure"
+                      ? "bg-azure text-white hover:bg-cyan hover:text-ink"
+                      : "bg-ink text-white hover:bg-azure"
                   }`}
                 >
                   {tier.cta}

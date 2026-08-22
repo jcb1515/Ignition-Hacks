@@ -46,10 +46,10 @@ export default function RunwayChart({
           <Tooltip
             cursor={{ stroke: "#3d7bff", strokeWidth: 1 }}
             contentStyle={{
-              backgroundColor: "#0d1017",
-              border: "1px solid #232b38",
-              borderRadius: "0px",
-              color: "#f4f7fb",
+              backgroundColor: "#ffffff",
+              border: "1px solid #e2e8f0",
+              borderRadius: "10px",
+              color: "#0f172a",
             }}
             formatter={(value: number | string | ReadonlyArray<number | string> | undefined, name: number | string | undefined) => [
               value === undefined ? "—" : formatCurrency(Number(Array.isArray(value) ? value[0] : value)),
@@ -64,8 +64,8 @@ export default function RunwayChart({
             stroke="#3d7bff"
             strokeWidth={2}
             dot={false}
-            animationDuration={1600}
-            activeDot={{ r: 5, fill: "#3d7bff", stroke: "#0d1017", strokeWidth: 2 }}
+            animationDuration={700}
+            activeDot={{ r: 5, fill: "#3d7bff", stroke: "#0f172a", strokeWidth: 2 }}
           />
           <Line
             type="monotone"
@@ -74,8 +74,8 @@ export default function RunwayChart({
             stroke="#7ee3ff"
             strokeWidth={2}
             dot={false}
-            animationDuration={1900}
-            activeDot={{ r: 5, fill: "#7ee3ff", stroke: "#0d1017", strokeWidth: 2 }}
+            animationDuration={900}
+            activeDot={{ r: 5, fill: "#7ee3ff", stroke: "#0f172a", strokeWidth: 2 }}
           />
           <Line
             type="monotone"
@@ -84,8 +84,8 @@ export default function RunwayChart({
             stroke="#8f7dff"
             strokeWidth={2}
             dot={false}
-            animationDuration={2200}
-            activeDot={{ r: 5, fill: "#8f7dff", stroke: "#0d1017", strokeWidth: 2 }}
+            animationDuration={1100}
+            activeDot={{ r: 5, fill: "#8f7dff", stroke: "#0f172a", strokeWidth: 2 }}
           />
         </LineChart>
       </ResponsiveContainer>

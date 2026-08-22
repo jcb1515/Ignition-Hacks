@@ -12,7 +12,7 @@ export default function TransactionFeed({
       {transactions.map((tx) => (
         <div
           key={tx.id}
-          className={`data-row flex items-start justify-between border p-3 ${
+          className={`data-row flex items-start justify-between rounded-xl border p-3 ${
             tx.flagged
               ? "border-red/60 bg-red/5 hover:border-red"
               : "border-border-card bg-card-2 hover:border-azure"

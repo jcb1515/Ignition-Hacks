@@ -27,7 +27,7 @@ export default function BankPanel() {
     <div className="grid gap-6 lg:grid-cols-[1fr_1.65fr]">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
-          <div className="border border-border-card bg-card-2 p-4">
+          <div className="rounded-xl border border-border-card bg-card-2 p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
               Bank balance
             </p>
@@ -35,7 +35,7 @@ export default function BankPanel() {
               {loading ? "—" : formatCurrency(balance)}
             </p>
           </div>
-          <div className="border border-border-card bg-card-2 p-4">
+          <div className="rounded-xl border border-border-card bg-card-2 p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
               Accounts
             </p>
@@ -46,7 +46,7 @@ export default function BankPanel() {
         </div>
 
         {accounts.length > 0 && (
-          <div className="border border-border-card bg-card-2 p-4">
+          <div className="rounded-xl border border-border-card bg-card-2 p-4">
             <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
               Connected accounts
             </p>
@@ -74,7 +74,7 @@ export default function BankPanel() {
         </button>
       </div>
 
-      <div className="border border-border-card bg-card-2 p-4">
+      <div className="rounded-xl border border-border-card bg-card-2 p-4">
         <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
           Recent bank transactions
         </p>

@@ -6,7 +6,7 @@ export default function ActionLog({ actions }: { actions: AgentAction[] }) {
   return (
     <div className="max-h-[420px] divide-y divide-border-card overflow-y-auto pr-1">
       {actions.map((action) => (
-        <div key={action.id} className="group animate-fade-in py-4 transition-colors duration-300 first:pt-0 last:pb-0 hover:bg-card-2">
+        <div key={action.id} className="group py-4 transition-colors duration-200 first:pt-0 last:pb-0 hover:bg-card-2">
           <div className="mb-2 flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-muted">
               <Bot size={12} className="text-azure" />
@@ -18,7 +18,7 @@ export default function ActionLog({ actions }: { actions: AgentAction[] }) {
             {action.type.replaceAll("_", " ")}
             {action.target && ` · ${action.target}`}
           </p>
-          <p className="mb-3 text-sm leading-relaxed text-muted transition-colors group-hover:text-on-card">
+          <p className="mb-3 text-sm leading-relaxed text-muted">
             {action.reasoning}
           </p>
           <div className="flex items-center justify-between pt-2">

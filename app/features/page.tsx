@@ -45,7 +45,7 @@ const agents = [
 export default function FeaturesPage() {
   return (
     <div className="bg-page">
-      <section className="border-b border-page/15 bg-ink text-page">
+      <section className="border-b border-border bg-page text-ink">
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
           <Reveal>
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-azure">
@@ -59,18 +59,18 @@ export default function FeaturesPage() {
               </h1>
             </Reveal>
             <Reveal delay={160}>
-              <p className="max-w-md text-xl leading-snug tracking-[-0.025em] text-page/65">
+              <p className="max-w-md text-xl leading-snug tracking-[-0.025em] text-slate">
                 Each agent has a single job, so every recommendation can be traced,
                 questioned, and approved by a human.
               </p>
             </Reveal>
           </div>
         </div>
-        <div className="border-t border-page/15 py-3">
+        <div className="border-t border-border py-3">
           <Marquee
             items={["Classifier", "Negotiator", "Forecast", "Orchestrator", "Explainability", "Approval gate"]}
             duration={26}
-            className="text-page/55"
+            className="text-muted"
           />
         </div>
       </section>
@@ -95,10 +95,10 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      <section className="border-y border-page/15 bg-azure text-page">
+      <section className="border-y border-border bg-card text-ink">
         <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-16 sm:px-10 lg:grid-cols-[0.8fr_1.2fr] lg:px-14 lg:py-20">
           <Reveal>
-            <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em]">
+            <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-muted">
               The operating loop
             </p>
           </Reveal>
@@ -111,7 +111,7 @@ export default function FeaturesPage() {
             <Reveal delay={160}>
               <Link
                 href="/"
-                className="group mt-10 inline-flex items-center gap-3 border border-page/50 px-5 py-4 text-sm font-medium transition-colors duration-300 hover:bg-ink hover:text-page"
+                className="group mt-10 inline-flex items-center gap-3 rounded-full border border-ink/20 bg-page px-5 py-4 text-sm font-medium shadow-sm transition-colors duration-300 hover:bg-ink hover:text-white"
               >
                 Open the live dashboard
                 <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

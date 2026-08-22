@@ -161,14 +161,13 @@ export default function Home() {
   return (
     <div className="relative overflow-hidden bg-page text-ink">
       {/* Hero */}
-      <section className="relative border-b border-page/20 bg-ink text-page">
+      <section className="relative border-b border-border bg-page text-ink">
         <div className="mx-auto grid max-w-[1440px] gap-12 px-6 py-16 sm:px-10 lg:grid-cols-[1.06fr_0.94fr] lg:px-14 lg:py-24">
           <div className="flex flex-col justify-between">
             <div>
               <Reveal>
-                <p className="mb-8 flex items-center gap-3 font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-page/55">
+                <p className="mb-8 flex items-center gap-3 font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
                   <span className="relative flex h-2 w-2">
-                    <span className="ping-ring absolute inset-0 rounded-full bg-azure" />
                     <span className="relative h-2 w-2 rounded-full bg-azure" />
                   </span>
                   Agent online / watching spend
@@ -185,14 +184,14 @@ export default function Home() {
             </div>
             <Reveal delay={160}>
               <div className="mt-14 flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
-                <p className="max-w-sm text-lg leading-snug tracking-[-0.025em] text-page/70">
+                <p className="max-w-sm text-lg leading-snug tracking-[-0.025em] text-slate">
                   An agentic cash burn auditor that finds waste, drafts the fix, and
                   turns it into another month of runway.
                 </p>
                 <MagneticButton
                   onClick={runAudit}
                   disabled={isRunning}
-                  className="group inline-flex shrink-0 items-center justify-between gap-8 border border-page/35 px-5 py-4 text-sm font-medium hover:border-azure hover:bg-azure hover:text-ink disabled:cursor-wait disabled:opacity-60"
+                  className="group inline-flex shrink-0 items-center justify-between gap-8 rounded-full border border-border bg-card px-5 py-4 text-sm font-medium text-on-card shadow-sm transition-colors hover:border-azure hover:bg-azure hover:text-white disabled:cursor-wait disabled:opacity-60"
                 >
                   <span>{isRunning ? "Auditing..." : "Run a live audit"}</span>
                   <ArrowUpRight size={18} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -203,36 +202,32 @@ export default function Home() {
 
           {/* Radar */}
           <Reveal delay={220}>
-            <PointerPanel className="relative h-full min-h-[430px] overflow-hidden border border-page/20 bg-[#0f131b] p-5 sm:p-7">
-              <div className="signal-grid absolute inset-0 opacity-60" />
+            <PointerPanel className="relative h-full min-h-[430px] overflow-hidden border border-border bg-card p-5 sm:p-7">
               <div className="relative flex h-full flex-col justify-between">
-                <div className="flex items-start justify-between border-b border-page/15 pb-4 font-mono text-[10px] uppercase tracking-[0.14em] text-page/60">
+                <div className="flex items-start justify-between border-b border-border pb-4 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
                   <span>Runway radar / live</span>
                   <span className="text-azure">{isRunning ? "Scanning" : "Nominal"}</span>
                 </div>
-                <div className="animate-drift relative mx-auto flex h-64 w-64 items-center justify-center sm:h-72 sm:w-72">
-                  <div className="absolute inset-0 rounded-full border border-page/15" />
-                  <div className="absolute inset-5 rounded-full border border-page/15" />
-                  <div className="absolute inset-12 rounded-full border border-page/15" />
-                  <div className="animate-sweep absolute inset-0">
-                    <div className="absolute left-1/2 top-1/2 h-[1px] w-1/2 origin-left bg-gradient-to-r from-azure to-transparent" />
-                  </div>
-                  <span className="ping-ring absolute left-[25%] top-[29%] h-2.5 w-2.5 rounded-full bg-azure" />
+                <div className="relative mx-auto flex h-64 w-64 items-center justify-center sm:h-72 sm:w-72">
+                  <div className="absolute inset-0 rounded-full border border-ink/10" />
+                  <div className="absolute inset-5 rounded-full border border-ink/10" />
+                  <div className="absolute inset-12 rounded-full border border-ink/10" />
+                  <div className="absolute left-1/2 top-1/2 h-[1px] w-1/2 origin-left bg-gradient-to-r from-azure to-transparent" style={{ transform: "rotate(45deg)" }} />
                   <span className="absolute left-[25%] top-[29%] h-2.5 w-2.5 rounded-full bg-azure" />
-                  <span className="absolute right-[19%] top-[44%] h-2 w-2 rounded-full bg-page/80" />
-                  <span className="absolute bottom-[22%] right-[35%] h-1.5 w-1.5 rounded-full bg-page/50" />
-                  <div className="relative flex h-32 w-32 flex-col items-center justify-center rounded-full border border-page/20 bg-ink/85 text-center backdrop-blur">
+                  <span className="absolute right-[19%] top-[44%] h-2 w-2 rounded-full bg-slate" />
+                  <span className="absolute bottom-[22%] right-[35%] h-1.5 w-1.5 rounded-full bg-slate/70" />
+                  <div className="relative flex h-32 w-32 flex-col items-center justify-center rounded-full border border-border bg-card-2 text-center shadow-sm">
                     <CountUp
                       value={runway}
                       format={(n) => n.toFixed(0).padStart(2, "0")}
-                      className="font-display text-5xl leading-none tracking-[-0.06em]"
+                      className="font-display text-5xl leading-none tracking-[-0.06em] text-on-card"
                     />
-                    <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.12em] text-page/55">
+                    <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.12em] text-muted">
                       months out
                     </span>
                   </div>
                 </div>
-                <div className={`grid gap-px border border-page/15 bg-page/15 ${plaidReady ? "grid-cols-4" : "grid-cols-3"}`}>
+                <div className={`grid gap-px overflow-hidden border border-border bg-card-2 ${plaidReady ? "grid-cols-4" : "grid-cols-3"}`}>
                   <Metric label="Monthly burn" value={burn} format={formatCurrency} />
                   <Metric label="Flagged" value={flagged} format={(n) => `${Math.round(n)} vendors`} />
                   <Metric label="Savings found" value={savings} format={formatCurrency} />
@@ -245,7 +240,7 @@ export default function Home() {
           </Reveal>
         </div>
 
-        <div className="border-t border-page/15 py-3">
+        <div className="border-t border-border py-3">
           <Marquee
             items={[
               "Plaid sandbox connected",
@@ -256,7 +251,7 @@ export default function Home() {
               "Segment usage flatlined",
               "Human approval required",
             ]}
-            className="text-page/55"
+            className="text-muted"
           />
         </div>
       </section>
@@ -280,7 +275,7 @@ export default function Home() {
               <MagneticButton
                 onClick={runAudit}
                 disabled={isRunning}
-                className="inline-flex items-center gap-2 bg-ink px-5 py-3.5 text-sm font-medium text-page hover:bg-azure disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3.5 text-sm font-medium text-white hover:bg-azure disabled:opacity-60"
               >
                 <Play size={15} />
                 {isRunning ? "Running..." : "Run audit"}
@@ -600,13 +595,13 @@ export default function Home() {
       </section>
 
       {/* Operating loop */}
-      <section className="bg-ink text-page">
+      <section className="border-t border-border bg-page text-ink">
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-24">
           <div className="grid gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-20">
             <div className="flex flex-col justify-between">
               <Reveal>
                 <div>
-                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-page/55">
+                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-muted">
                     Agentic, not automatic
                   </p>
                   <h2 className="mt-7 max-w-xl font-display text-5xl font-medium leading-[0.9] tracking-[-0.06em] sm:text-7xl">
@@ -615,21 +610,21 @@ export default function Home() {
                 </div>
               </Reveal>
               <Reveal delay={120}>
-                <p className="mt-12 max-w-md text-lg leading-snug tracking-[-0.025em] text-page/65">
+                <p className="mt-12 max-w-md text-lg leading-snug tracking-[-0.025em] text-slate">
                   Every flag carries its benchmark, confidence, and dollar impact. Nothing
                   leaves the building without your approval.
                 </p>
               </Reveal>
             </div>
-            <div className="border-t border-page/20">
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
               {agentSteps.map((step, index) => (
                 <Reveal key={step.number} delay={index * 110}>
-                  <div className="group grid grid-cols-[56px_1fr] gap-4 border-b border-page/20 py-7 transition-colors duration-300 hover:bg-page/5 sm:grid-cols-[72px_1fr_1.1fr] sm:gap-7">
+                  <div className="group grid grid-cols-[56px_1fr] gap-4 border-b border-border py-7 transition-colors last:border-b-0 hover:bg-card-2 sm:grid-cols-[72px_1fr_1.1fr] sm:gap-7">
                     <span className="font-mono text-[10px] tracking-[0.12em] text-azure">{step.number}</span>
-                    <h3 className="font-display text-2xl tracking-[-0.04em] transition-transform duration-300 group-hover:translate-x-1 sm:text-3xl">
+                    <h3 className="font-display text-2xl tracking-[-0.04em] sm:text-3xl">
                       {step.title}
                     </h3>
-                    <p className="col-span-2 text-sm leading-relaxed text-page/55 sm:col-auto">{step.copy}</p>
+                    <p className="col-span-2 text-sm leading-relaxed text-muted sm:col-auto">{step.copy}</p>
                   </div>
                 </Reveal>
               ))}
@@ -638,7 +633,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-t border-ink/20 bg-azure text-page">
+      <section className="border-t border-border bg-card text-ink">
         <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-6 py-14 sm:px-10 md:flex-row md:items-end lg:px-14 lg:py-16">
           <Reveal>
             <p className="max-w-3xl font-display text-4xl font-medium leading-[0.9] tracking-[-0.055em] sm:text-6xl">
@@ -646,7 +641,7 @@ export default function Home() {
             </p>
           </Reveal>
           <Reveal delay={120}>
-            <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em]">
+            <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
               <Bot size={15} /> Runway Radar / 2026
             </div>
           </Reveal>
@@ -666,9 +661,9 @@ function Metric({
   format: (n: number) => string;
 }) {
   return (
-    <div className="bg-ink/90 px-3 py-3 transition-colors duration-300 hover:bg-ink/60 sm:px-4 sm:py-4">
-      <p className="font-mono text-[8px] uppercase tracking-[0.11em] text-page/45">{label}</p>
-      <CountUp value={value} format={format} className="mt-2 block text-sm font-medium tracking-[-0.02em] text-page sm:text-base" />
+    <div className="bg-card-2 px-3 py-3 transition-colors duration-300 hover:bg-card-3 sm:px-4 sm:py-4">
+      <p className="font-mono text-[8px] uppercase tracking-[0.11em] text-muted">{label}</p>
+      <CountUp value={value} format={format} className="mt-2 block text-sm font-medium tracking-[-0.02em] text-on-card sm:text-base" />
     </div>
   );
 }
@@ -805,8 +800,7 @@ function FlagRow({
 function QuickAction({ label }: { label: string }) {
   return (
     <MagneticButton
-      strength={4}
-      className="border border-border-card bg-card-2 px-4 py-3 text-center text-sm font-medium text-on-card hover:border-azure hover:bg-azure hover:text-ink"
+      className="rounded-lg border border-border-card bg-card-2 px-4 py-3 text-center text-sm font-medium text-on-card transition-colors hover:border-azure hover:bg-azure hover:text-white"
     >
       {label}
     </MagneticButton>

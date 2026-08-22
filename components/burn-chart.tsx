@@ -46,10 +46,10 @@ export default function BurnChart({
           <Tooltip
             cursor={{ stroke: "#3d7bff", strokeWidth: 1 }}
             contentStyle={{
-              backgroundColor: "#0d1017",
-              border: "1px solid #232b38",
-              borderRadius: "0px",
-              color: "#f4f7fb",
+              backgroundColor: "#ffffff",
+              border: "1px solid #e2e8f0",
+              borderRadius: "10px",
+              color: "#0f172a",
             }}
             formatter={(value: number | string | ReadonlyArray<number | string> | undefined, name: number | string | undefined) => [
               value === undefined ? "—" : formatCurrency(Number(Array.isArray(value) ? value[0] : value)),
@@ -64,8 +64,8 @@ export default function BurnChart({
             strokeWidth={2}
             fillOpacity={1}
             fill="url(#colorBurn)"
-            animationDuration={1600}
-            activeDot={{ r: 5, fill: "#7ee3ff", stroke: "#0d1017", strokeWidth: 2 }}
+            animationDuration={700}
+            activeDot={{ r: 5, fill: "#7ee3ff", stroke: "#0f172a", strokeWidth: 2 }}
           />
         </AreaChart>
       </ResponsiveContainer>
