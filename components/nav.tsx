@@ -38,6 +38,14 @@ export default function Nav() {
               </Link>
             );
           })}
+          <Link
+            href="/dashboard"
+            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 hover:border-azure hover:bg-azure hover:text-white ${
+              pathname === "/dashboard" ? "border-azure text-azure" : "border-border text-fg"
+            }`}
+          >
+            Try Runway
+          </Link>
         </nav>
         <div className="flex items-center gap-3">
           <ThemeToggle />
