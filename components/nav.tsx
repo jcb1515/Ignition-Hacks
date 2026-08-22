@@ -42,6 +42,14 @@ export default function Nav() {
           })}
           <Link
             href="/#try"
+            onClick={(e) => {
+              // Same-page hash navigation through the router uses pushState and never
+              // fires hashchange, so the home page would not switch to the agent view.
+              if (pathname !== "/") return;
+              e.preventDefault();
+              if (window.location.hash === "#try") window.dispatchEvent(new HashChangeEvent("hashchange"));
+              else window.location.hash = "try";
+            }}
             className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-fg transition-colors duration-300 hover:border-azure hover:bg-azure hover:text-white"
           >
             Try Runway
