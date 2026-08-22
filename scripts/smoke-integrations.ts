@@ -94,6 +94,12 @@ async function main() {
   check("first good tier wins; later tiers not called", r.email === "ar@atlassian.com" && calls === 0);
   r = await resolveBillingContact({ ...vendor, contactEmail: "" }, [hit("x@atlassian.com")]);
   check("no domain on file → providers skipped, inferred alias", r.source === "inferred billing alias");
+  const liar: SearchProvider = async () => ({ email: "x@evil.com", source: "live web search (Composio)" });
+  r = await resolveBillingContact(vendor, [liar]);
+  check("provider claiming a verified source cannot smuggle an off-domain address", r.email === "support@atlassian.com");
+  r = await resolveBillingContact({ ...vendor, contactEmail: "nonsense" }, [counting]);
+  check("contactEmail without @ → providers skipped, no throw", calls === 0);
+  // TODO(negotiator): a record without "@" is currently returned verbatim; should fall to the inferred alias.
   r = await lookupBillingContact(vendor);
   check("DEMO_MODE entry point makes no lookups", r.source === "vendor record on file");
 

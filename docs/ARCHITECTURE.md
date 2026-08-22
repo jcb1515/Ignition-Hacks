@@ -62,7 +62,11 @@ flowchart LR
    This is the second real tool call in the chain, not a second prompt: the agent does
    research to find where the email should go, and the action log records which tier
    answered and the source it cited. A searched address is accepted only if it is on the
-   vendor's own domain; anything else falls through. The resolver never throws. Then it
+   vendor's own domain; anything else falls through. The resolver never throws.
+   The Composio tier runs through the local `composio` CLI (managed auth, no env var)
+   and its query is deliberately **not** `site:`-restricted — a site-restricted search
+   summarises the vendor's billing docs and surfaces no address. Broad query plus the
+   strict on-domain check is what works; don't "fix" it back. Then it
    drafts: the LLM writes the prose when available, otherwise a deterministic template.
 5. **Orchestrator** compares each draft's estimated impact with `APPROVAL_THRESHOLD`
    ($1,000/mo). Under it: queued. Over it: held, `approval_required=1`. Every step is
