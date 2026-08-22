@@ -5,7 +5,7 @@ import type { Vendor } from "@/lib/types";
 export default function VendorTable({ vendors }: { vendors: Vendor[] }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="w-full min-w-[520px] text-sm">
         <thead>
           <tr className="border-b border-border-card text-left">
             <th className="pb-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">

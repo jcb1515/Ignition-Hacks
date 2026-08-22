@@ -26,7 +26,7 @@ export default function BankPanel() {
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_1.65fr]">
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
+        <div className="grid gap-3 min-[380px]:grid-cols-2 lg:grid-cols-1">
           <div className="rounded-xl border border-border-card bg-card-2 p-4">
             <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Bank balance
@@ -54,10 +54,10 @@ export default function BankPanel() {
               {accounts.map((account) => (
                 <div
                   key={account.account_id}
-                  className="flex items-center justify-between border-b border-border-card pb-2 last:border-b-0 last:pb-0 text-sm"
+                  className="flex min-w-0 items-center justify-between gap-3 border-b border-border-card pb-2 text-sm last:border-b-0 last:pb-0"
                 >
-                  <span className="text-muted">{account.name}</span>
-                  <span className="font-sans text-on-card">
+                  <span className="min-w-0 truncate text-muted">{account.name}</span>
+                  <span className="shrink-0 font-sans text-on-card">
                     {formatCurrency(account.balances.current)}
                   </span>
                 </div>
@@ -74,7 +74,7 @@ export default function BankPanel() {
         </button>
       </div>
 
-      <div className="rounded-xl border border-border-card bg-card-2 p-4">
+      <div className="min-w-0 rounded-xl border border-border-card bg-card-2 p-3 sm:p-4">
         <p className="mb-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">
           Recent bank transactions
         </p>

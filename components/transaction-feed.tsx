@@ -12,14 +12,14 @@ export default function TransactionFeed({
       {transactions.map((tx) => (
         <div
           key={tx.id}
-          className={`data-row flex items-start justify-between rounded-xl border p-3 ${
+          className={`data-row flex min-w-0 items-start justify-between gap-3 rounded-xl border p-3 ${
             tx.flagged
               ? "border-red/60 bg-red/5 hover:border-red"
               : "border-border-card bg-card-2 hover:border-azure"
           }`}
         >
-          <div>
-            <p className="font-medium text-on-card">{tx.vendorName}</p>
+          <div className="min-w-0">
+            <p className="break-words font-medium text-on-card">{tx.vendorName}</p>
             <p className="mt-0.5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               {tx.date} · {tx.source}
               {tx.confidence ? ` · ${Math.round(tx.confidence * 100)}% confidence` : ""}
@@ -28,7 +28,7 @@ export default function TransactionFeed({
               <p className="mt-1.5 text-xs leading-relaxed text-red">{tx.reason}</p>
             )}
           </div>
-          <div className="text-right">
+          <div className="shrink-0 text-right">
             <p
               className={`font-sans font-semibold ${
                 tx.flagged ? "text-red" : "text-on-card"

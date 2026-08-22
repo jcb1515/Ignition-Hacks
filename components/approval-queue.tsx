@@ -46,14 +46,14 @@ export default function ApprovalQueue({
           <div key={d.id} className="border border-border-card bg-card-2">
             <button
               onClick={() => setOpenId(open ? null : d.id)}
-              className="flex w-full items-start justify-between gap-4 p-4 text-left transition-colors hover:bg-card-3"
+              className="flex w-full min-w-0 items-start justify-between gap-3 p-3 text-left transition-colors hover:bg-card-3 sm:gap-4 sm:p-4"
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <Mail size={13} className="shrink-0 text-muted" />
-                  <span className="font-medium text-on-card">{d.subject}</span>
+                  <span className="break-words font-medium text-on-card">{d.subject}</span>
                 </div>
-                <p className="mt-1 font-sans text-[11px] text-muted">To: {d.toEmail}</p>
+                <p className="mt-1 break-all font-sans text-[11px] text-muted">To: {d.toEmail}</p>
               </div>
               <div className="shrink-0 text-right">
                 <p className="font-sans text-sm text-[var(--color-series-2)]">
@@ -80,8 +80,8 @@ export default function ApprovalQueue({
             </button>
 
             {open && (
-              <div className="border-t border-border-card p-4">
-                <pre className="mb-4 whitespace-pre-wrap border border-border-card bg-card p-4 font-body text-sm leading-relaxed text-on-card">
+              <div className="border-t border-border-card p-3 sm:p-4">
+                <pre className="mb-4 overflow-x-auto whitespace-pre-wrap break-words border border-border-card bg-card p-3 font-body text-sm leading-relaxed text-on-card sm:p-4">
 {d.body}
                 </pre>
 
@@ -104,7 +104,7 @@ export default function ApprovalQueue({
                         await onDecide(d.id, "approve");
                         setBusy(null);
                       }}
-                      className="inline-flex items-center gap-2 bg-on-card px-4 py-2.5 text-sm font-medium text-card transition-opacity hover:opacity-90 disabled:opacity-50"
+                      className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-on-card px-4 py-2.5 text-sm font-medium text-card transition-opacity hover:opacity-90 disabled:opacity-50 sm:w-auto"
                     >
                       <Check size={14} /> Approve and send to sandbox
                     </button>
@@ -115,7 +115,7 @@ export default function ApprovalQueue({
                         await onDecide(d.id, "reject");
                         setBusy(null);
                       }}
-                      className="inline-flex items-center gap-2 border border-border-card px-4 py-2.5 text-sm font-medium text-muted transition-colors hover:text-on-card disabled:opacity-50"
+                      className="inline-flex min-h-11 w-full items-center justify-center gap-2 border border-border-card px-4 py-2.5 text-sm font-medium text-muted transition-colors hover:text-on-card disabled:opacity-50 sm:w-auto"
                     >
                       <X size={14} /> Reject
                     </button>
