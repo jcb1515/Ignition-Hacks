@@ -79,9 +79,7 @@ export default function BankPanel() {
           Recent bank transactions
         </p>
         {txs.length > 0 ? (
-          <div className="max-h-[300px] overflow-y-auto pr-1">
-            <TransactionFeed transactions={txs} />
-          </div>
+          <TransactionFeed transactions={txs} />
         ) : loading ? (
           <p className="text-sm text-muted">Loading bank transactions...</p>
         ) : (

@@ -6,9 +6,9 @@ import ThemeToggle from "@/components/theme-toggle";
 import { usePathname } from "next/navigation";
 
 const links = [
-  { href: "/", label: "Dashboard" },
-  { href: "/features", label: "Agents" },
-  { href: "/pricing", label: "Access" },
+  { href: "/", label: "Overview" },
+  { href: "/features", label: "Workflow" },
+  { href: "/pricing", label: "Pricing" },
 ];
 
 export default function Nav() {
