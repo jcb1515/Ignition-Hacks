@@ -50,8 +50,8 @@ export default function RunwayChart({
               borderRadius: "8px",
               color: "#ffffff",
             }}
-            formatter={(value: any, name: any) => [
-              formatCurrency(Number(value)),
+            formatter={(value: number | string | ReadonlyArray<number | string> | undefined, name: number | string | undefined) => [
+              value === undefined ? "—" : formatCurrency(Number(Array.isArray(value) ? value[0] : value)),
               name,
             ]}
           />

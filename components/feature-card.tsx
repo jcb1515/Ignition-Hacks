@@ -12,14 +12,12 @@ export default function FeatureCard({
   description,
 }: FeatureCardProps) {
   return (
-    <div className="rounded-lg bg-card p-6">
-      <div className="mb-4 text-mint">
-        <Icon size={22} strokeWidth={1.5} />
+    <div className="group flex min-h-64 flex-col justify-between border border-page/20 bg-card p-6 transition-colors hover:bg-card-2">
+      <Icon size={24} strokeWidth={1.4} className="text-lime" />
+      <div className="mt-12">
+        <h3 className="font-display text-3xl leading-none tracking-[-0.045em] text-on-card">{title}</h3>
+        <p className="mt-4 text-sm leading-relaxed text-muted">{description}</p>
       </div>
-      <h3 className="mb-2 font-body text-xl font-medium text-on-card">
-        {title}
-      </h3>
-      <p className="text-sm leading-relaxed text-muted">{description}</p>
     </div>
   );
 }

@@ -2,33 +2,35 @@
 
 @theme inline {
   /* Michele dashboard palette */
-  --color-page: #f2f2f2;
-  --color-card: #18181b;
-  --color-card-2: #232329;
-  --color-card-3: #27272e;
-  --color-ink: #171717;
-  --color-canvas: #ffffff;
-  --color-on-card: #ffffff;
-  --color-muted: #9ca3af;
-  --color-slate: #6b7280;
-  --color-hairline: rgba(255, 255, 255, 0.1);
-  --color-border: #e5e5e5;
-  --color-border-card: #2a2a32;
+  --color-page: #eeece4;
+  --color-card: #121312;
+  --color-card-2: #1b1d1b;
+  --color-card-3: #282b27;
+  --color-ink: #101210;
+  --color-canvas: #f8f7f1;
+  --color-on-card: #f8f7f1;
+  --color-muted: #9a9d94;
+  --color-slate: #686c64;
+  --color-hairline: rgba(248, 247, 241, 0.14);
+  --color-border: #cfcfc5;
+  --color-border-card: #32352f;
 
   /* Accents */
-  --color-mint: #34d399;
-  --color-pink: #f472b6;
-  --color-blue: #60a5fa;
-  --color-yellow: #facc15;
-  --color-orange: #fb923c;
-  --color-red: #ef4444;
+  --color-mint: #cef84f;
+  --color-pink: #e869cd;
+  --color-blue: #8eb5ff;
+  --color-yellow: #f6d84d;
+  --color-orange: #f28b58;
+  --color-red: #f05f55;
+  --color-lime: #cef84f;
+  --color-coral: #ef6f54;
 
   /* Theme */
-  --color-background: #f2f2f2;
-  --color-foreground: #171717;
+  --color-background: #eeece4;
+  --color-foreground: #101210;
 
   /* Typography */
-  --font-display: "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui,
+  --font-display: "Arial Narrow", "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui,
     sans-serif;
   --font-body: "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui,
     sans-serif;
@@ -37,8 +39,8 @@
 }
 
 body {
-  background-color: #f2f2f2;
-  color: #171717;
+  background-color: #eeece4;
+  color: #101210;
   font-family: var(--font-body);
   line-height: 1.5;
   letter-spacing: -0.01em;
@@ -72,4 +74,10 @@ li {
 
 .animate-fade-in {
   animation: fade-in 0.35s ease-out;
+}
+
+.signal-grid {
+  background-image: linear-gradient(rgba(248, 247, 241, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(248, 247, 241, 0.08) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(circle at center, black, transparent 78%);
 }

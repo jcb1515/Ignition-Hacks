@@ -1,119 +1,69 @@
-import { Check } from "lucide-react";
+import { ArrowUpRight, Check } from "lucide-react";
 import Link from "next/link";
+
+const tiers = [
+  {
+    name: "Seed",
+    price: "$0",
+    description: "For teams building a disciplined cash operating system.",
+    features: ["Up to $50k monthly spend", "Classifier and Forecast agents", "Five vendor reviews monthly", "Shared action log"],
+    cta: "Start observing",
+  },
+  {
+    name: "Growth",
+    price: "$99",
+    description: "For teams with enough moving parts to need a second set of eyes.",
+    features: ["Up to $500k monthly spend", "Full agent system", "Unlimited recommendation drafts", "Slack-ready alerts", "Priority support"],
+    cta: "Start a trial",
+    featured: true,
+  },
+  {
+    name: "Scale",
+    price: "Custom",
+    description: "For multi-entity operations that require custom policies and control.",
+    features: ["Unlimited spend scanning", "Custom policies and thresholds", "SSO and audit archive", "Dedicated rollout support"],
+    cta: "Talk to us",
+  },
+];
 
 export default function PricingPage() {
   return (
-    <div className="min-h-full bg-page px-6 py-12">
-      <div className="mx-auto max-w-5xl">
-        <p className="mb-4 font-mono text-xs font-medium uppercase tracking-tight text-slate">
-          Pricing
-        </p>
-        <h1 className="mb-6 font-display text-5xl font-medium leading-none tracking-[-0.02em] text-ink">
-          Simple, startup-friendly pricing
-        </h1>
-        <p className="mb-16 max-w-2xl text-lg leading-relaxed text-slate">
-          Pay for what you save. Runway Radar is free until our agents find
-          actionable cost reductions.
-        </p>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          <PricingCard
-            name="Seed"
-            price="$0"
-            description="For startups finding product-market fit."
-            features={[
-              "Up to $50k/month scanned",
-              "Classifier + Forecast agents",
-              "5 vendor renegotiations/mo",
-              "Email support",
-            ]}
-            cta="Start free"
-          />
-          <PricingCard
-            name="Series A"
-            price="$99"
-            description="For growing teams with complex spend."
-            features={[
-              "Up to $500k/month scanned",
-              "All four agents",
-              "Unlimited renegotiations",
-              "Slack alerts",
-              "Priority support",
-            ]}
-            cta="Start trial"
-            highlighted
-          />
-          <PricingCard
-            name="Scale"
-            price="Custom"
-            description="For multi-entity companies."
-            features={[
-              "Unlimited spend scanning",
-              "Custom agent policies",
-              "SSO + audit logs",
-              "Dedicated success manager",
-            ]}
-            cta="Talk to sales"
-          />
+    <div className="bg-page">
+      <section className="border-b border-page/20 bg-ink text-page">
+        <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-lime">Access / runway radar</p>
+          <div className="mt-10 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+            <h1 className="max-w-4xl font-display text-[clamp(4rem,8vw,8.5rem)] font-medium leading-[0.84] tracking-[-0.07em]">Price your runway in months, not missed signals.</h1>
+            <p className="max-w-md text-xl leading-snug tracking-[-0.025em] text-page/65">Start with visibility, then expand the agent system as your operations become more complex.</p>
+          </div>
         </div>
-      </div>
-    </div>
-  );
-}
+      </section>
 
-function PricingCard({
-  name,
-  price,
-  description,
-  features,
-  cta,
-  highlighted,
-}: {
-  name: string;
-  price: string;
-  description: string;
-  features: string[];
-  cta: string;
-  highlighted?: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-3xl p-8 ${
-        highlighted
-          ? "border border-mint bg-card"
-          : "bg-card"
-      }`}
-    >
-      <h3 className="font-body text-2xl font-medium text-on-card">{name}</h3>
-      <p className="mt-2 text-sm text-muted">{description}</p>
-      <p className="mt-6 font-display text-4xl font-medium leading-none text-on-card">
-        {price}
-        <span className="ml-1 font-body text-base font-medium text-muted">
-          {price === "Custom" ? "" : "/mo"}
-        </span>
-      </p>
-      <ul className="mt-8 space-y-4">
-        {features.map((f) => (
-          <li key={f} className="flex items-start gap-3 text-muted">
-            <Check
-              size={16}
-              className="mt-1 shrink-0 text-mint"
-              strokeWidth={2}
-            />
-            {f}
-          </li>
-        ))}
-      </ul>
-      <Link
-        href="/"
-        className={`mt-10 block w-full rounded-full py-2.5 text-center text-sm font-medium ${
-          highlighted
-            ? "bg-on-card text-card hover:bg-canvas"
-            : "border border-border-card text-on-card hover:bg-card-2"
-        }`}
-      >
-        {cta}
-      </Link>
+      <section className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
+        <div className="grid gap-5 lg:grid-cols-3">
+          {tiers.map((tier, index) => (
+            <article key={tier.name} className={`flex min-h-[480px] flex-col border p-7 ${tier.featured ? "border-ink bg-ink text-page" : "border-ink/20 bg-page"}`}>
+              <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.14em]">
+                <span>0{index + 1} / plan</span>
+                {tier.featured ? <span className="bg-lime px-2 py-1 text-ink">Most selected</span> : null}
+              </div>
+              <div className="mt-14">
+                <h2 className="font-display text-5xl leading-none tracking-[-0.06em]">{tier.name}</h2>
+                <p className={`mt-4 max-w-xs text-sm leading-relaxed ${tier.featured ? "text-page/60" : "text-ink/60"}`}>{tier.description}</p>
+                <p className="mt-10 font-display text-6xl leading-none tracking-[-0.07em]">{tier.price}<span className={`ml-2 font-mono text-[10px] uppercase tracking-[0.1em] ${tier.featured ? "text-page/50" : "text-ink/45"}`}>{tier.price === "Custom" || tier.price === "$0" ? "" : "per month"}</span></p>
+              </div>
+              <ul className={`mt-10 space-y-4 border-t pt-6 text-sm ${tier.featured ? "border-page/20 text-page/75" : "border-ink/20 text-ink/70"}`}>
+                {tier.features.map((feature) => (
+                  <li key={feature} className="flex gap-3"><Check size={16} className="mt-0.5 shrink-0 text-lime" />{feature}</li>
+                ))}
+              </ul>
+              <Link href="/" className={`mt-auto inline-flex items-center justify-between px-5 py-4 text-sm font-medium transition-colors ${tier.featured ? "bg-lime text-ink hover:bg-page" : "bg-ink text-page hover:bg-coral"}`}>
+                {tier.cta}<ArrowUpRight size={17} />
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
