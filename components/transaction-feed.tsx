@@ -30,7 +30,7 @@ export default function TransactionFeed({
           </div>
           <div className="text-right">
             <p
-              className={`font-mono font-semibold ${
+              className={`font-sans font-semibold ${
                 tx.flagged ? "text-red" : "text-on-card"
               }`}
             >

@@ -14,6 +14,7 @@ import { formatCurrency } from "@/lib/types";
 import type { AgentAction, Transaction, Vendor } from "@/lib/types";
 import { usePlaid } from "@/lib/use-plaid";
 import ActionLog from "@/components/action-log";
+import AgentDashboard from "@/components/agent-dashboard";
 import BankPanel from "@/components/bank-panel";
 import BurnChart from "@/components/burn-chart";
 import EmailPreview from "@/components/email-preview";
@@ -69,6 +70,7 @@ interface State {
 export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
   const [state, setState] = useState<State | null>(null);
+  const [view, setView] = useState<"main" | "agents">("main");
   const plaid = usePlaid();
 
   const load = useCallback(async () => {
@@ -279,28 +281,48 @@ export default function Home() {
                 Live burn dashboard
               </p>
               <h2 className="mt-4 font-display text-5xl font-medium leading-none tracking-[-0.055em] sm:text-6xl">
-                Burn dashboard
+                {view === "main" ? "Burn dashboard" : "Agent dashboard"}
               </h2>
             </div>
-            <div className="flex flex-wrap items-center gap-8">
-              <StatPill label="Burn" value={burn} format={formatCurrency} />
-              <StatPill label="Runway" value={runway} format={(n) => `${Math.round(n)} mo`} />
-              <StatPill label="Flags" value={flagged} format={(n) => `${Math.round(n)}`} />
-              <MagneticButton
-                onClick={runAudit}
-                disabled={isRunning}
-                className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3.5 text-sm font-medium text-white hover:bg-azure disabled:opacity-60"
-              >
-                <Play size={15} />
-                {isRunning ? "Scanning..." : "Run burn check"}
-              </MagneticButton>
+            <div className="flex flex-wrap items-center gap-4 sm:gap-8">
+              {view === "main" ? (
+                <>
+                  <StatPill label="Burn" value={burn} format={formatCurrency} />
+                  <StatPill label="Runway" value={runway} format={(n) => `${Math.round(n)} mo`} />
+                  <StatPill label="Flags" value={flagged} format={(n) => `${Math.round(n)}`} />
+                  <MagneticButton
+                    onClick={runAudit}
+                    disabled={isRunning}
+                    className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3.5 text-sm font-medium text-white hover:bg-azure disabled:opacity-60"
+                  >
+                    <Play size={15} />
+                    {isRunning ? "Scanning..." : "Run burn check"}
+                  </MagneticButton>
+                  <MagneticButton
+                    onClick={() => setView("agents")}
+                    className="inline-flex items-center gap-2 rounded-full border border-fg px-5 py-3.5 text-sm font-medium text-fg hover:bg-ink hover:text-white"
+                  >
+                    Agent dashboard
+                  </MagneticButton>
+                </>
+              ) : (
+                <MagneticButton
+                  onClick={() => setView("main")}
+                  className="inline-flex items-center gap-2 rounded-full border border-fg px-5 py-3.5 text-sm font-medium text-fg hover:bg-ink hover:text-white"
+                >
+                  Burn dashboard
+                </MagneticButton>
+              )}
             </div>
           </div>
         </Reveal>
 
-        {isRunning ? (
-          <div className="shimmer-host mb-6 h-0.5 w-full bg-ink/10" />
-        ) : null}
+        <div key={view} className="animate-fade-in">
+          {view === "main" ? (
+            <>
+            {isRunning ? (
+              <div className="shimmer-host mb-6 h-0.5 w-full bg-ink/10" />
+            ) : null}
 
         {/* Top grid */}
         <div className="mb-6 grid gap-6 lg:grid-cols-3">
@@ -605,6 +627,12 @@ export default function Home() {
             </PointerPanel>
           </Reveal>
         </div>
+
+        </>
+      ) : (
+        <AgentDashboard />
+      )}
+      </div>
       </section>
 
       {/* Operating loop */}

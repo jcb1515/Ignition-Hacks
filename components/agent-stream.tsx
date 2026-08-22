@@ -28,13 +28,13 @@ export default function AgentStream({
       {running && (
         <div className="mb-3 flex items-center gap-2 border border-border-card bg-card-2 px-3 py-2">
           <Loader2 size={13} className="animate-spin text-on-card" />
-          <span className="font-mono text-[11px] text-muted">{status || "Working..."}</span>
+          <span className="font-sans text-[11px] text-muted">{status || "Working..."}</span>
         </div>
       )}
 
       {actions.length === 0 && !running && (
         <div className="flex flex-1 items-center justify-center border border-dashed border-border-card p-8 text-center">
-          <p className="max-w-xs text-sm leading-relaxed text-slate">
+          <p className="max-w-xs text-sm leading-relaxed text-muted">
             No audit has run yet. Start one to see each agent&apos;s reasoning as it works.
           </p>
         </div>
@@ -44,12 +44,12 @@ export default function AgentStream({
         {actions.map((a) => (
           <div key={a.id} className="py-4 first:pt-0">
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em]">
+              <span className="inline-flex items-center gap-1.5 font-sans text-[10px] font-medium uppercase tracking-[0.1em]">
                 <Bot size={11} style={{ color: AGENT_COLOR[a.agent] }} />
                 <span style={{ color: AGENT_COLOR[a.agent] }}>{a.agent}</span>
-                <span className="text-slate">/ {a.type.replaceAll("_", " ")}</span>
+                <span className="text-muted">/ {a.type.replaceAll("_", " ")}</span>
               </span>
-              <span className="font-mono text-[10px] text-slate">{a.timestamp}</span>
+              <span className="font-sans text-[10px] text-muted">{a.timestamp}</span>
             </div>
 
             {a.target && (
@@ -58,15 +58,15 @@ export default function AgentStream({
             <p className="text-sm leading-relaxed text-muted">{a.reasoning}</p>
 
             <div className="mt-3 flex items-center justify-between">
-              <span className="font-mono text-xs text-slate">
+              <span className="font-sans text-xs text-muted">
                 {a.dollarImpact !== 0 ? formatCurrency(Math.abs(a.dollarImpact)) + "/mo" : "—"}
               </span>
               {a.approvalRequired && !a.humanApproved ? (
-                <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--color-series-1)]">
+                <span className="inline-flex items-center gap-1 font-sans text-[10px] uppercase tracking-[0.08em] text-[var(--color-series-1)]">
                   <ShieldAlert size={11} /> Awaiting human
                 </span>
               ) : a.humanApproved ? (
-                <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--color-series-2)]">
+                <span className="inline-flex items-center gap-1 font-sans text-[10px] uppercase tracking-[0.08em] text-[var(--color-series-2)]">
                   <CircleCheck size={11} /> Cleared
                 </span>
               ) : null}

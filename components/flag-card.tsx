@@ -46,19 +46,19 @@ export default function FlagCard({ flag }: { flag: FlagView }) {
           <div className="flex flex-wrap items-center gap-2">
             <TriangleAlert size={14} className="shrink-0 text-[var(--color-series-1)]" />
             <span className="font-medium text-on-card">{flag.vendorName}</span>
-            <span className="border border-border-card px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">
+            <span className="border border-border-card px-2 py-0.5 font-sans text-[10px] uppercase tracking-[0.08em] text-muted">
               {KIND_LABEL[flag.kind] ?? flag.kind}
             </span>
           </div>
           <p className="mt-2 text-sm leading-relaxed text-muted">{flag.headline}</p>
         </div>
         <div className="shrink-0 text-right">
-          <p className="font-mono text-sm text-on-card">{formatCurrency(flag.monthlyCost)}/mo</p>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">
+          <p className="font-sans text-sm text-on-card">{formatCurrency(flag.monthlyCost)}/mo</p>
+          <p className="mt-1 font-sans text-[10px] uppercase tracking-[0.08em] text-muted">
             {(flag.confidence * 100).toFixed(0)}% confidence
           </p>
           {typeof flag.savings === "number" && flag.savings > 0 && (
-            <p className="mt-1 font-mono text-xs text-[var(--color-series-2)]">
+            <p className="mt-1 font-sans text-xs text-[var(--color-series-2)]">
               save {formatCurrency(flag.savings)}/mo
             </p>
           )}
@@ -71,7 +71,7 @@ export default function FlagCard({ flag }: { flag: FlagView }) {
 
       {open && (
         <div className="border-t border-border-card px-4 pb-4 pt-3">
-          <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.12em] text-slate">
+          <p className="mb-3 font-sans text-[10px] uppercase tracking-[0.12em] text-muted">
             Why this fired — exact contribution to the score
           </p>
 
@@ -86,7 +86,7 @@ export default function FlagCard({ flag }: { flag: FlagView }) {
                       {f.feature.replaceAll("_", " ")}
                     </span>
                     <span
-                      className="shrink-0 font-mono text-xs"
+                      className="shrink-0 font-sans text-xs"
                       style={{ color: pushes ? "var(--color-push)" : "var(--color-pull)" }}
                     >
                       {pushes ? "+" : ""}{f.contribution.toFixed(2)}
@@ -104,13 +104,13 @@ export default function FlagCard({ flag }: { flag: FlagView }) {
                       }}
                     />
                   </div>
-                  <p className="mt-1 text-[11px] leading-snug text-slate">{f.value}</p>
+                  <p className="mt-1 text-[11px] leading-snug text-muted">{f.value}</p>
                 </div>
               );
             })}
           </div>
 
-          <p className="mt-4 border-t border-border-card pt-3 text-[11px] leading-relaxed text-slate">
+          <p className="mt-4 border-t border-border-card pt-3 text-[11px] leading-relaxed text-muted">
             The score is a linear model, so each contribution above is that feature&apos;s
             exact Shapley value — not an approximation. Positive values push toward
             flagging; negative values argue against it.

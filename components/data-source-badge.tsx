@@ -28,7 +28,7 @@ export default function DataSourceBadge() {
 
   return (
     <span
-      className="inline-flex items-center gap-2 border border-border-card bg-card-2 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted"
+      className="inline-flex items-center gap-2 border border-border-card bg-card-2 px-3 py-1.5 font-sans text-[10px] uppercase tracking-[0.12em] text-muted"
       title={live ? "DEMO_MODE=false — agents may call Plaid/Stripe sandboxes and the LLM" : "DEMO_MODE=true — deterministic; every run produces the same result"}
     >
       {live ? <Radio size={12} style={{ color: "var(--color-series-2)" }} /> : <Database size={12} style={{ color: "var(--color-mint)" }} />}
