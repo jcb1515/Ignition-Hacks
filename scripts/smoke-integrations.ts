@@ -161,6 +161,11 @@ async function main() {
   for await (const ev of runNegotiation("v_vercel")) { if (ev.type === "done") noFlag = ev.summary; }
   check("unflagged vendor → no_flag, no actions", noFlag?.outcome === "no_flag");
 
+  const negQ = await ask("how did the Segment negotiation go?");
+  check("ask: negotiation summary after the loop", negQ.intent === "negotiation" && /sign-off/.test(negQ.answer), negQ.answer);
+  const negQ2 = await ask("what's the Confluence deal");
+  check("ask: autonomous close reported", negQ2.intent === "negotiation" && /closed it myself/.test(negQ2.answer), negQ2.answer);
+
   const u = buildInvestorUpdate();
   check("slide: audited", u.audited);
   check("slide: 4 findings", u.findings.length === 4, `got ${u.findings.length}`);

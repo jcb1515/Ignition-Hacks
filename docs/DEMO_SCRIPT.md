@@ -58,6 +58,18 @@ Also: laptop on power, notifications off, browser zoom 110%, backup video open i
    Approve **Twilio**. The email lands in the Mailtrap sandbox inbox — show it if there's time.
    "No code path in this app can reach a real vendor's mailbox. That's deliberate."
 
+5b. **Negotiate** (40s — the agentic flex)
+   In the same expanded draft, press **Negotiate**. Watch the thread build: ask, vendor
+   counter, evaluate, counter, vendor's final, decision.
+   Pick the vendor by the story you want:
+   - **Confluence** — declines the retention discount, vendor accepts the cancel, agent
+     closes it *itself* ($420 < threshold). "Under threshold, it acts."
+   - **Segment** — reaches $1,024/mo (from $3,200) but **holds**: "$2,176/mo is above the
+     threshold. It can haggle alone; it cannot sign alone."
+   - **Twilio** — vendor stops at 25% off, agent's target is 50%; it **escalates**: "It knows
+     when to stop negotiating and hand it back."
+   Then ask the agent: *"how did the Segment negotiation go?"*
+
 6. **Runway chart** (20s)
    "Acting on all four moves runway from 9.4 to 10.1 months — $76,620 a year recovered
    from tools nobody was looking at."

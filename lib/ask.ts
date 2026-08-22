@@ -15,6 +15,7 @@ import { APPROVAL_THRESHOLD, COMPANY, DEMO_MODE } from "@/lib/company";
 import { forecast } from "@/lib/agents/forecast";
 import { generate, llmAvailable } from "@/lib/llm";
 import { getActions, getDrafts, getFlaggedTransactions, getVendors } from "@/lib/db/queries";
+import { negotiationThread } from "@/lib/agents/negotiation";
 import { formatCurrency } from "@/lib/types";
 import type { FeatureBreakdown, Flag, Vendor } from "@/lib/types";
 
@@ -87,6 +88,30 @@ function months(n: number): string {
 type Rule = { intent: string; test: (q: string) => boolean; answer: (q: string, c: Ctx) => string };
 
 const RULES: Rule[] = [
+  {
+    intent: "negotiation",
+    test: (q) => /(negotiat|haggl|counter|offer|deal|how did .* go|talks)/.test(q),
+    answer: (q, c) => {
+      const v = findVendor(q, c.vendors);
+      const threadFor = (name: string) => negotiationThread(name);
+      if (!v) {
+        const active = c.vendors.filter((x) => threadFor(x.name).length > 0);
+        if (!active.length) return "No negotiations have run yet. Open a flagged vendor's draft and press Negotiate.";
+        return `I've negotiated with ${active.map((x) => x.name).join(", ")}. Ask about one by name for the round-by-round.`;
+      }
+      const t = threadFor(v.name);
+      if (!t.length) return `I haven't negotiated with ${v.name} yet — only the opening ask has gone out.`;
+      const last = t[t.length - 1];
+      const rounds = t.filter((a) => a.type === "negotiation_round").length;
+      const best = Math.min(...t.filter((a) => a.type.startsWith("vendor_")).map((a) => v.monthlyCost - a.dollarImpact));
+      const result =
+        last.type === "negotiation_accepted" ? `I closed it myself at ${formatCurrency(best)}/mo, saving ${formatCurrency(v.monthlyCost - best)}/mo — under the threshold.` :
+        last.type === "negotiation_accept_pending" ? `We reached ${formatCurrency(best)}/mo, saving ${formatCurrency(v.monthlyCost - best)}/mo, but that's above the ${formatCurrency(APPROVAL_THRESHOLD)}/mo threshold so it's waiting for your sign-off.` :
+        last.type === "negotiation_escalated" ? `Their best was ${formatCurrency(best)}/mo, above my ceiling, so I stopped and escalated. You decide: take ${formatCurrency(v.monthlyCost - best)}/mo or walk.` :
+        "It's still in progress.";
+      return `${v.name}: ${rounds} round${rounds === 1 ? "" : "s"}, from ${formatCurrency(v.monthlyCost)}/mo. ${result}`;
+    },
+  },
   {
     intent: "why_flagged",
     test: (q) => /\bwhy\b/.test(q) && /(flag|catch|pick|choose|select|mark)/.test(q) || /\bwhy\b.*\b(twilio|datadog|segment|confluence)\b/.test(q),
