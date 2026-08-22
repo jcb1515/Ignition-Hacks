@@ -76,7 +76,9 @@ export function buildInvestorUpdate(): InvestorUpdate {
   const monthly = f.totalMonthlySavings;
   const annual = monthly * 12;
 
-  const pending = actions.filter((a) => a.approvalRequired && !a.humanApproved).length;
+  // Vendors awaiting a human decision, not raw action rows — a negotiation
+  // adds several escalation rows for the same vendor.
+  const pending = new Set(actions.filter((a) => a.approvalRequired && !a.humanApproved).map((a) => a.target)).size;
   const approved = drafts.filter((d) => d.approved).length;
   const sent = drafts.filter((d) => d.sent).length;
 

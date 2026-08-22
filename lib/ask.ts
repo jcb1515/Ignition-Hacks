@@ -136,7 +136,7 @@ const RULES: Rule[] = [
       const held = c.actions.filter((a) => a.approvalRequired && !a.humanApproved);
       if (!held.length) return c.audited ? "Nothing is waiting on you. Every held draft has been decided." : "Nothing yet — run an audit.";
       const names = [...new Set(held.map((a) => a.target ?? "a vendor"))];
-      return `${held.length} draft${held.length > 1 ? "s" : ""} waiting on you: ${names.join(" and ")}. Each one is above the ${formatCurrency(APPROVAL_THRESHOLD)}/mo threshold, so I drafted but didn't act. Approve them in the queue and they go to the sandbox outbox.`;
+      return `${names.length} decision${names.length > 1 ? "s" : ""} waiting on you: ${names.join(" and ")}. Each one is above the ${formatCurrency(APPROVAL_THRESHOLD)}/mo threshold, so I drafted but didn't act. Approve them in the queue and they go to the sandbox outbox.`;
     },
   },
   {

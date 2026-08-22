@@ -15,6 +15,8 @@ import { buildInvestorUpdate } from "../lib/investor-update";
 import { lookupBillingContact, resolveBillingContact, type SearchProvider } from "../lib/agents/negotiator";
 import type { Vendor } from "../lib/types";
 import { runAudit } from "../lib/agents/orchestrator";
+import { runNegotiation, MAX_ROUNDS, TOLERANCE, type NegotiationSummary } from "../lib/agents/negotiation";
+import { APPROVAL_THRESHOLD } from "../lib/company";
 import { getTransactionsForVendor, getVendor, setVendorStatus } from "../lib/db/queries";
 import { resetDb } from "../lib/db";
 
@@ -111,7 +113,7 @@ async function main() {
     ["Why did you flag Twilio?", "why_flagged", /4\.00x/],
     ["what's our runway", "runway", /9\.4 months/],
     ["how much can we save", "savings", /\$76,620/],
-    ["what's waiting on me", "pending", /^2 drafts/],
+    ["what's waiting on me", "pending", /^2 decisions/],
     ["what is the approval threshold", "threshold", /\$1,000/],
     ["tell me about Vercel", "vendor_detail", /Not flagged/],
     ["summary", "summary", /flagged 4/],
@@ -124,11 +126,46 @@ async function main() {
   const a = await ask("anything");
   check("never calls an LLM in demo mode", a.source !== "llm");
 
+  /* ---- Negotiation loop ---- */
+  section("Negotiation loop (after audit)");
+  const outcomes: Record<string, NegotiationSummary> = {};
+  const threads: Record<string, string[]> = {};
+  for (const id of ["v_twilio", "v_confluence", "v_segment", "v_datadog"]) {
+    const types: string[] = [];
+    for await (const ev of runNegotiation(id)) {
+      if (ev.type === "action") types.push(ev.action.type);
+      if (ev.type === "done") outcomes[id] = ev.summary;
+    }
+    threads[id] = types;
+  }
+  const byKind = Object.fromEntries(Object.values(outcomes).map((o) => [o.kind, o]));
+  check("every flagged vendor negotiated", Object.keys(outcomes).length === 4 && Object.values(outcomes).every((o) => o.outcome !== "no_flag"));
+  check("all four kinds exercised", ["overpriced", "duplicate", "usage_drift", "price_creep"].every((k) => k in byKind));
+  check("rounds bounded", Object.values(outcomes).every((o) => o.rounds >= 1 && o.rounds <= MAX_ROUNDS));
+  for (const o of Object.values(outcomes)) {
+    const acceptable = Math.round(o.targetMonthly * (1 + TOLERANCE));
+    const savings = o.startMonthly - o.bestOfferMonthly;
+    if (o.outcome === "accepted") check(`${o.vendorName}: accepted ⇒ offer ≤ ceiling and savings ≤ threshold`, o.bestOfferMonthly <= acceptable && savings <= APPROVAL_THRESHOLD && o.realisedMonthlySavings === savings);
+    if (o.outcome === "pending_approval") check(`${o.vendorName}: pending ⇒ offer ≤ ceiling and savings > threshold, nothing realised`, o.bestOfferMonthly <= acceptable && savings > APPROVAL_THRESHOLD && o.realisedMonthlySavings === 0);
+    if (o.outcome === "escalated") check(`${o.vendorName}: escalated ⇒ offer > ceiling, nothing realised, human flagged`, o.bestOfferMonthly > acceptable && o.realisedMonthlySavings === 0 && threads[o.vendorId].at(-1) === "negotiation_escalated");
+  }
+  check("duplicate cancels autonomously and marks vendor cancelled", byKind.duplicate?.outcome === "accepted" && getVendor("v_confluence")?.status === "cancelled");
+  check("usage_drift deal is gated by the threshold", byKind.usage_drift?.outcome === "pending_approval");
+  check("overpriced escalates when vendor stops short of target", byKind.overpriced?.outcome === "escalated");
+  check("vendor offers never exceed starting cost", Object.values(outcomes).every((o) => o.bestOfferMonthly <= o.startMonthly));
+  check("thread alternates agent/vendor turns", Object.values(threads).every((t) => t.filter((x) => x === "negotiation_round").length === t.filter((x) => x.startsWith("vendor_")).length));
+  const again: string[] = [];
+  for await (const ev of runNegotiation("v_twilio")) { if (ev.type === "action") again.push(ev.action.type); }
+  check("negotiation is deterministic", JSON.stringify(again) === JSON.stringify(threads.v_twilio));
+  let noFlag: NegotiationSummary | undefined;
+  for await (const ev of runNegotiation("v_vercel")) { if (ev.type === "done") noFlag = ev.summary; }
+  check("unflagged vendor → no_flag, no actions", noFlag?.outcome === "no_flag");
+
   const u = buildInvestorUpdate();
   check("slide: audited", u.audited);
   check("slide: 4 findings", u.findings.length === 4, `got ${u.findings.length}`);
   check("slide: headline carries annual savings", /\$76,620\/yr/.test(u.headline), u.headline);
-  check("slide: 2 pending", u.governance.pending === 2, `got ${u.governance.pending}`);
+  check("slide: pending = distinct vendors awaiting a human (Twilio, Segment, Datadog)", u.governance.pending === 3, `got ${u.governance.pending}`);
   check("slide: runway gain > 0", u.runway.monthsGained > 0);
   check("slide: every finding has a why", u.findings.every((f) => f.why.length > 5));
 
