@@ -1,0 +1,650 @@
+[
+ {
+  "date": "2025-08-01",
+  "vendor": "AWS",
+  "category": "Infrastructure",
+  "amount": 3868,
+  "seats": 0,
+  "active_seats": 0,
+  "function_tag": "cloud_compute"
+ },
+ {
+  "date": "2025-08-01",
+  "vendor": "Confluence",
+  "category": "Productivity",
+  "amount": 420,
+  "seats": 12,
+  "active_seats": 4,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2025-08-01",
+  "vendor": "Datadog",
+  "category": "Infrastructure",
+  "amount": 1891,
+  "seats": 12,
+  "active_seats": 10,
+  "function_tag": "observability"
+ },
+ {
+  "date": "2025-08-01",
+  "vendor": "Figma",
+  "category": "Design",
+  "amount": 1080,
+  "seats": 12,
+  "active_seats": 8,
+  "function_tag": "design_tool"
+ },
+ {
+  "date": "2025-08-01",
+  "vendor": "HubSpot",
+  "category": "Sales",
+  "amount": 1450,
+  "seats": 6,
+  "active_seats": 5,
+  "function_tag": "crm"
+ },
+ {
+  "date": "2025-08-01",
+  "vendor": "Linear",
+  "category": "Productivity",
+  "amount": 192,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "issue_tracking"
+ },
+ {
+  "date": "2025-08-01",
+  "vendor": "Notion",
+  "category": "Productivity",
+  "amount": 480,
+  "seats": 14,
+  "active_seats": 12,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2025-08-01",
+  "vendor": "Segment",
+  "category": "Analytics",
+  "amount": 3200,
+  "seats": 50,
+  "active_seats": 6,
+  "function_tag": "customer_data_platform"
+ },
+ {
+  "date": "2025-08-01",
+  "vendor": "Slack",
+  "category": "Communication",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "team_chat"
+ },
+ {
+  "date": "2025-08-01",
+  "vendor": "Twilio",
+  "category": "Communication",
+  "amount": 6400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "programmable_messaging"
+ },
+ {
+  "date": "2025-08-01",
+  "vendor": "Vercel",
+  "category": "Infrastructure",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "app_hosting"
+ },
+ {
+  "date": "2025-08-01",
+  "vendor": "Zoom",
+  "category": "Communication",
+  "amount": 800,
+  "seats": 12,
+  "active_seats": 9,
+  "function_tag": "video_conferencing"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "AWS",
+  "category": "Infrastructure",
+  "amount": 4062,
+  "seats": 0,
+  "active_seats": 0,
+  "function_tag": "cloud_compute"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "Confluence",
+  "category": "Productivity",
+  "amount": 420,
+  "seats": 12,
+  "active_seats": 4,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "Datadog",
+  "category": "Infrastructure",
+  "amount": 2130,
+  "seats": 12,
+  "active_seats": 10,
+  "function_tag": "observability"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "Figma",
+  "category": "Design",
+  "amount": 1080,
+  "seats": 12,
+  "active_seats": 8,
+  "function_tag": "design_tool"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "HubSpot",
+  "category": "Sales",
+  "amount": 1450,
+  "seats": 6,
+  "active_seats": 5,
+  "function_tag": "crm"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "Linear",
+  "category": "Productivity",
+  "amount": 192,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "issue_tracking"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "Notion",
+  "category": "Productivity",
+  "amount": 480,
+  "seats": 14,
+  "active_seats": 12,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "Segment",
+  "category": "Analytics",
+  "amount": 3200,
+  "seats": 50,
+  "active_seats": 6,
+  "function_tag": "customer_data_platform"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "Slack",
+  "category": "Communication",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "team_chat"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "Twilio",
+  "category": "Communication",
+  "amount": 6400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "programmable_messaging"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "Vercel",
+  "category": "Infrastructure",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "app_hosting"
+ },
+ {
+  "date": "2025-09-01",
+  "vendor": "Zoom",
+  "category": "Communication",
+  "amount": 800,
+  "seats": 12,
+  "active_seats": 9,
+  "function_tag": "video_conferencing"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "AWS",
+  "category": "Infrastructure",
+  "amount": 4067,
+  "seats": 0,
+  "active_seats": 0,
+  "function_tag": "cloud_compute"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "Confluence",
+  "category": "Productivity",
+  "amount": 420,
+  "seats": 12,
+  "active_seats": 4,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "Datadog",
+  "category": "Infrastructure",
+  "amount": 2427,
+  "seats": 12,
+  "active_seats": 10,
+  "function_tag": "observability"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "Figma",
+  "category": "Design",
+  "amount": 1080,
+  "seats": 12,
+  "active_seats": 8,
+  "function_tag": "design_tool"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "HubSpot",
+  "category": "Sales",
+  "amount": 1450,
+  "seats": 6,
+  "active_seats": 5,
+  "function_tag": "crm"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "Linear",
+  "category": "Productivity",
+  "amount": 192,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "issue_tracking"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "Notion",
+  "category": "Productivity",
+  "amount": 480,
+  "seats": 14,
+  "active_seats": 12,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "Segment",
+  "category": "Analytics",
+  "amount": 3200,
+  "seats": 50,
+  "active_seats": 6,
+  "function_tag": "customer_data_platform"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "Slack",
+  "category": "Communication",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "team_chat"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "Twilio",
+  "category": "Communication",
+  "amount": 6400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "programmable_messaging"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "Vercel",
+  "category": "Infrastructure",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "app_hosting"
+ },
+ {
+  "date": "2025-10-01",
+  "vendor": "Zoom",
+  "category": "Communication",
+  "amount": 800,
+  "seats": 12,
+  "active_seats": 9,
+  "function_tag": "video_conferencing"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "AWS",
+  "category": "Infrastructure",
+  "amount": 4339,
+  "seats": 0,
+  "active_seats": 0,
+  "function_tag": "cloud_compute"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "Confluence",
+  "category": "Productivity",
+  "amount": 420,
+  "seats": 12,
+  "active_seats": 4,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "Datadog",
+  "category": "Infrastructure",
+  "amount": 2715,
+  "seats": 12,
+  "active_seats": 10,
+  "function_tag": "observability"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "Figma",
+  "category": "Design",
+  "amount": 1080,
+  "seats": 12,
+  "active_seats": 8,
+  "function_tag": "design_tool"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "HubSpot",
+  "category": "Sales",
+  "amount": 1450,
+  "seats": 6,
+  "active_seats": 5,
+  "function_tag": "crm"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "Linear",
+  "category": "Productivity",
+  "amount": 192,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "issue_tracking"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "Notion",
+  "category": "Productivity",
+  "amount": 480,
+  "seats": 14,
+  "active_seats": 12,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "Segment",
+  "category": "Analytics",
+  "amount": 3200,
+  "seats": 50,
+  "active_seats": 6,
+  "function_tag": "customer_data_platform"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "Slack",
+  "category": "Communication",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "team_chat"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "Twilio",
+  "category": "Communication",
+  "amount": 6400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "programmable_messaging"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "Vercel",
+  "category": "Infrastructure",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "app_hosting"
+ },
+ {
+  "date": "2025-11-01",
+  "vendor": "Zoom",
+  "category": "Communication",
+  "amount": 800,
+  "seats": 12,
+  "active_seats": 9,
+  "function_tag": "video_conferencing"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "AWS",
+  "category": "Infrastructure",
+  "amount": 4415,
+  "seats": 0,
+  "active_seats": 0,
+  "function_tag": "cloud_compute"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "Confluence",
+  "category": "Productivity",
+  "amount": 420,
+  "seats": 12,
+  "active_seats": 4,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "Datadog",
+  "category": "Infrastructure",
+  "amount": 3065,
+  "seats": 12,
+  "active_seats": 10,
+  "function_tag": "observability"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "Figma",
+  "category": "Design",
+  "amount": 1080,
+  "seats": 12,
+  "active_seats": 8,
+  "function_tag": "design_tool"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "HubSpot",
+  "category": "Sales",
+  "amount": 1450,
+  "seats": 6,
+  "active_seats": 5,
+  "function_tag": "crm"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "Linear",
+  "category": "Productivity",
+  "amount": 192,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "issue_tracking"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "Notion",
+  "category": "Productivity",
+  "amount": 480,
+  "seats": 14,
+  "active_seats": 12,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "Segment",
+  "category": "Analytics",
+  "amount": 3200,
+  "seats": 50,
+  "active_seats": 6,
+  "function_tag": "customer_data_platform"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "Slack",
+  "category": "Communication",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "team_chat"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "Twilio",
+  "category": "Communication",
+  "amount": 6400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "programmable_messaging"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "Vercel",
+  "category": "Infrastructure",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "app_hosting"
+ },
+ {
+  "date": "2025-12-01",
+  "vendor": "Zoom",
+  "category": "Communication",
+  "amount": 800,
+  "seats": 12,
+  "active_seats": 9,
+  "function_tag": "video_conferencing"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "AWS",
+  "category": "Infrastructure",
+  "amount": 4224,
+  "seats": 0,
+  "active_seats": 0,
+  "function_tag": "cloud_compute"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "Confluence",
+  "category": "Productivity",
+  "amount": 420,
+  "seats": 12,
+  "active_seats": 4,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "Datadog",
+  "category": "Infrastructure",
+  "amount": 3375,
+  "seats": 12,
+  "active_seats": 10,
+  "function_tag": "observability"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "Figma",
+  "category": "Design",
+  "amount": 1080,
+  "seats": 12,
+  "active_seats": 8,
+  "function_tag": "design_tool"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "HubSpot",
+  "category": "Sales",
+  "amount": 1450,
+  "seats": 6,
+  "active_seats": 5,
+  "function_tag": "crm"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "Linear",
+  "category": "Productivity",
+  "amount": 192,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "issue_tracking"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "Notion",
+  "category": "Productivity",
+  "amount": 480,
+  "seats": 14,
+  "active_seats": 12,
+  "function_tag": "knowledge_base"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "Segment",
+  "category": "Analytics",
+  "amount": 3200,
+  "seats": 50,
+  "active_seats": 6,
+  "function_tag": "customer_data_platform"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "Slack",
+  "category": "Communication",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 12,
+  "function_tag": "team_chat"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "Twilio",
+  "category": "Communication",
+  "amount": 6400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "programmable_messaging"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "Vercel",
+  "category": "Infrastructure",
+  "amount": 2400,
+  "seats": 12,
+  "active_seats": 11,
+  "function_tag": "app_hosting"
+ },
+ {
+  "date": "2026-01-01",
+  "vendor": "Zoom",
+  "category": "Communication",
+  "amount": 800,
+  "seats": 12,
+  "active_seats": 9,
+  "function_tag": "video_conferencing"
+ }
+]

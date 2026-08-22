@@ -11,6 +11,7 @@ import BurnChart from "@/components/burn-chart";
 import FlagCard, { type FlagView } from "@/components/flag-card";
 import RunwayChart from "@/components/runway-chart";
 import StatTile from "@/components/stat-tile";
+import UploadPanel from "@/components/upload-panel";
 import VendorTable from "@/components/vendor-table";
 import { Tabs } from "@/components/tabs";
 import { formatCurrency } from "@/lib/types";
@@ -303,6 +304,16 @@ export default function Dashboard() {
       <div className="mx-auto grid max-w-[1440px] gap-8 px-6 py-10 sm:px-10 lg:grid-cols-[1.25fr_1fr] lg:px-14">
         {/* Left column */}
         <div className="space-y-8">
+          <section>
+            <h2 className="mb-4 font-mono text-[10px] uppercase tracking-[0.14em] text-ink/50">
+              Your data
+            </h2>
+            <UploadPanel
+              disabled={running}
+              onImported={() => { setLive([]); void load(); }}
+            />
+          </section>
+
           <section>
             <h2 className="mb-4 font-mono text-[10px] uppercase tracking-[0.14em] text-ink/50">
               Findings

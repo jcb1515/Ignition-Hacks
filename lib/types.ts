@@ -2,7 +2,7 @@
 // Mirrors the four-table schema in lib/db/schema.sql.
 
 export type VendorStatus = "safe" | "flagged" | "negotiating" | "cancelled";
-export type Source = "Plaid" | "Stripe";
+export type Source = "Plaid" | "Stripe" | "Upload";
 export type AgentName = "Classifier" | "Negotiator" | "Forecast" | "Orchestrator";
 
 export interface Vendor {

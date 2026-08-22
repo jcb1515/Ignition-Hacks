@@ -27,6 +27,28 @@ locally with no network calls and no cost.
 npm run smoke    # 52 assertions — run this before demoing
 ```
 
+## Try it on your own data
+
+Open `/dashboard` and drop a **CSV or JSON** export of vendor spend on the
+**Your data** panel (any spreadsheet saved as CSV works — bank, Brex, Ramp,
+QuickBooks). The seeded data is replaced and **Run audit** runs the agents on
+yours. `/sample-spend.csv` is a ready-made spreadsheet with the four anomalies
+planted, for editing rather than starting from scratch.
+
+One row per vendor per billing period. Columns (aliases accepted):
+
+| Column | Required | Used by |
+|---|---|---|
+| `vendor` (merchant, name, payee) | yes | everything |
+| `amount` (cost, total, spend) | yes | everything — `$1,200.00` is fine |
+| `date` (period, month) | yes | `2026-01-15`, `01/15/2026`, `Jan 2026` all bucket to the month |
+| `category` | no | overpriced detector (peers) |
+| `seats`, `active_seats` | no | usage-drift detector |
+| `function_tag` | no | duplicate detector (guessed from the vendor name if absent) |
+| `contract_terms`, `contact_email` | no | negotiator |
+
+Or `POST /api/import` with `multipart/form-data` (`file=`) or a JSON array of rows.
+
 ## How it works
 
 Four agents, each with a narrow job, coordinated by a fifth.
