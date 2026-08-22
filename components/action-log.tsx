@@ -12,7 +12,7 @@ export default function ActionLog({ actions }: { actions: AgentAction[] }) {
               <Bot size={12} className="text-azure" />
               {action.agent}
             </span>
-            <span className="font-sans text-xs font-medium uppercase tracking-wider text-slate">{action.timestamp}</span>
+            <span className="font-sans text-xs font-medium uppercase tracking-wider text-muted">{action.timestamp}</span>
           </div>
           <p className="mb-2 font-sans text-sm font-medium uppercase tracking-wider text-on-card">
             {action.type.replaceAll("_", " ")}
@@ -34,7 +34,7 @@ export default function ActionLog({ actions }: { actions: AgentAction[] }) {
                 </>
               ) : (
                 <>
-                  <XCircle size={12} className="text-slate" /> Pending
+                  <XCircle size={12} className="text-muted" /> Pending
                 </>
               )}
             </span>

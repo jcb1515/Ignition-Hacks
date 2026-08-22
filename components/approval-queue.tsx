@@ -31,7 +31,7 @@ export default function ApprovalQueue({
   if (drafts.length === 0) {
     return (
       <div className="flex items-center justify-center border border-dashed border-border-card p-8 text-center">
-        <p className="max-w-xs text-sm leading-relaxed text-slate">
+        <p className="max-w-xs text-sm leading-relaxed text-muted">
           No drafts yet. Run an audit and the Negotiator will queue its emails here.
         </p>
       </div>
@@ -53,26 +53,26 @@ export default function ApprovalQueue({
                   <Mail size={13} className="shrink-0 text-muted" />
                   <span className="font-medium text-on-card">{d.subject}</span>
                 </div>
-                <p className="mt-1 font-mono text-[11px] text-slate">To: {d.toEmail}</p>
+                <p className="mt-1 font-sans text-[11px] text-muted">To: {d.toEmail}</p>
               </div>
               <div className="shrink-0 text-right">
-                <p className="font-mono text-sm text-[var(--color-series-2)]">
+                <p className="font-sans text-sm text-[var(--color-series-2)]">
                   {formatCurrency(d.savings)}/mo
                 </p>
                 {d.sent ? (
-                  <span className="mt-1 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--color-series-2)]">
+                  <span className="mt-1 inline-flex items-center gap-1 font-sans text-[10px] uppercase tracking-[0.08em] text-[var(--color-series-2)]">
                     <Check size={10} /> In sandbox
                   </span>
                 ) : d.approved ? (
-                  <span className="mt-1 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">
+                  <span className="mt-1 inline-flex items-center gap-1 font-sans text-[10px] uppercase tracking-[0.08em] text-muted">
                     <Check size={10} /> Approved
                   </span>
                 ) : d.needsApproval ? (
-                  <span className="mt-1 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--color-series-1)]">
+                  <span className="mt-1 inline-flex items-center gap-1 font-sans text-[10px] uppercase tracking-[0.08em] text-[var(--color-series-1)]">
                     <ShieldAlert size={10} /> Held
                   </span>
                 ) : (
-                  <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.08em] text-slate">
+                  <span className="mt-1 block font-sans text-[10px] uppercase tracking-[0.08em] text-muted">
                     Under threshold
                   </span>
                 )}
@@ -121,7 +121,7 @@ export default function ApprovalQueue({
                     </button>
                   </div>
                 ) : (
-                  <p className="font-mono text-[11px] text-slate">
+                  <p className="font-sans text-[11px] text-muted">
                     Decision recorded. {d.sent ? "Delivered to the Mailtrap sandbox inbox." : "Not transmitted — no sandbox inbox configured."}
                   </p>
                 )}

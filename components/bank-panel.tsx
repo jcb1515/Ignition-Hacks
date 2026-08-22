@@ -57,7 +57,7 @@ export default function BankPanel() {
                   className="flex items-center justify-between border-b border-border-card pb-2 last:border-b-0 last:pb-0 text-sm"
                 >
                   <span className="text-muted">{account.name}</span>
-                  <span className="font-mono text-on-card">
+                  <span className="font-sans text-on-card">
                     {formatCurrency(account.balances.current)}
                   </span>
                 </div>

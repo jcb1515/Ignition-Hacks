@@ -77,13 +77,13 @@ export default function AskAgent() {
   };
 
   return (
-    <div className="border border-border-card bg-card-2 p-4">
+    <div>
       <div className="mb-3 flex items-center justify-between">
-        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate">Ask the agent</p>
+        <p className="font-sans text-[10px] uppercase tracking-[0.12em] text-muted">Ask the agent</p>
         <button
           type="button"
           onClick={() => { setSpeak((s) => !s); if (speak) window.speechSynthesis?.cancel(); }}
-          className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.12em] ${speak ? "text-on-card" : "text-slate"}`}
+          className={`inline-flex items-center gap-1 font-sans text-[10px] uppercase tracking-[0.12em] ${speak ? "text-on-card" : "text-muted"}`}
           title={speak ? "Voice replies on" : "Voice replies off"}
         >
           <Volume2 size={12} /> {speak ? "voice on" : "voice off"}
@@ -98,7 +98,7 @@ export default function AskAgent() {
           <div key={i}>
             <p className="text-xs text-muted">› {h.q}</p>
             <p className="mt-1 text-sm leading-relaxed text-on-card">{h.a.answer}</p>
-            <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.1em] text-slate">
+            <p className="mt-1 font-sans text-[9px] uppercase tracking-[0.1em] text-muted">
               {h.a.source === "rule" ? "from the action log" : h.a.source === "llm" ? "language model, grounded" : "no match"}
             </p>
           </div>
@@ -118,7 +118,7 @@ export default function AskAgent() {
         <input
           value={q} onChange={(e) => setQ(e.target.value)} disabled={busy}
           placeholder={listening ? "Listening…" : "Type a question"}
-          className="min-w-0 flex-1 border border-border-card bg-card px-3 py-2 text-sm text-on-card placeholder:text-slate focus:outline-none"
+          className="min-w-0 flex-1 border border-border-card bg-card px-3 py-2 text-sm text-on-card placeholder:text-muted focus:outline-none"
         />
         {canListen && (
           <button type="button" onClick={toggleMic} disabled={busy} title="Ask out loud"
