@@ -139,48 +139,16 @@ export function usePointerGlow<T extends HTMLElement>() {
   return { ref, onPointerMove };
 }
 
-/** Panel that lights up and tilts subtly toward the cursor. */
+/** Rounded, lightly bordered panel. */
 export function PointerPanel({
   children,
   className = "",
-  variant = "dark",
-  tilt = 3,
 }: {
   children: ReactNode;
   className?: string;
-  variant?: "dark" | "light";
-  tilt?: number;
 }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  const handleMove = (event: MouseEvent<HTMLDivElement>) => {
-    const node = ref.current;
-    if (!node) return;
-    const rect = node.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    node.style.setProperty("--pointer-x", `${x}px`);
-    node.style.setProperty("--pointer-y", `${y}px`);
-
-    if (tilt > 0 && !prefersReducedMotion()) {
-      const rotateY = ((x / rect.width) * 2 - 1) * tilt;
-      const rotateX = ((y / rect.height) * 2 - 1) * -tilt;
-      node.style.transform = `perspective(1100px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
-    }
-  };
-
-  const handleLeave = () => {
-    const node = ref.current;
-    if (node) node.style.transform = "";
-  };
-
   return (
-    <div
-      ref={ref}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      className={`pointer-panel ${variant === "light" ? "pointer-panel-light" : ""} ${className}`}
-    >
+    <div className={`pointer-panel ${className}`}>
       {children}
     </div>
   );
@@ -190,7 +158,7 @@ export function PointerPanel({
 export function MagneticButton({
   children,
   className = "",
-  strength = 7,
+  strength = 2,
   onClick,
   disabled,
   type = "button",
@@ -208,8 +176,8 @@ export function MagneticButton({
     const node = ref.current;
     if (!node || prefersReducedMotion()) return;
     const rect = node.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width - 0.5) * strength * 2;
-    const y = ((event.clientY - rect.top) / rect.height - 0.5) * strength * 2;
+    const x = ((event.clientX - rect.left) / rect.width - 0.5) * strength;
+    const y = ((event.clientY - rect.top) / rect.height - 0.5) * strength;
     node.style.transform = `translate(${x}px, ${y}px)`;
   };
 
@@ -291,7 +259,7 @@ export function Marquee({
         {doubled.map((item, index) => (
           <span
             key={`${item}-${index}`}
-            className="flex shrink-0 items-center gap-4 whitespace-nowrap px-6 font-mono text-[11px] uppercase tracking-[0.14em]"
+            className="flex shrink-0 items-center gap-4 whitespace-nowrap px-6 font-sans text-xs font-medium uppercase tracking-wider"
           >
             {item}
             <span className="h-1 w-1 rounded-full bg-azure" />

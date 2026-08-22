@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import Nav from "@/components/nav";
 import Footer from "@/components/footer";
-import { CursorGlow, ScrollProgress } from "@/components/motion";
 
 export const metadata: Metadata = {
-  title: "Runway Radar — Agentic Cash Burn Auditor",
+  title: "Burnshield — Fintech Burn-Rate Workflow",
   description:
-    "Runway Radar is an agentic cash burn auditor and vendor renegotiation copilot for early-stage startups.",
+    "Burnshield is an agentic financial system for early-stage startups that monitors burn rate and automates spend decisions with human approval.",
 };
 
 export default function RootLayout({
@@ -16,12 +16,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-background text-foreground font-body">
-        <ScrollProgress />
-        <CursorGlow />
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+      <head>
+        <Script
+          id="theme-script"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                try {
+                  var theme = localStorage.getItem("theme");
+                  if (!theme) {
+                    theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+                  }
+                  document.documentElement.dataset.theme = theme;
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-background text-foreground font-body" suppressHydrationWarning>
         <Nav />
-        <main className="relative z-10 flex-1">{children}</main>
+        <main className="flex-1">{children}</main>
         <Footer />
       </body>
     </html>

@@ -10,7 +10,7 @@ export default function EmailPreview({ vendor }: { vendor: Vendor }) {
 
   const email = `Hi ${vendor.name} team,
 
-We’ve been reviewing our tooling budget for 2026 and noticed our monthly bill of ${formatCurrency(
+We’ve been reviewing our burn-rate budget for 2026 and noticed our monthly bill of ${formatCurrency(
     vendor.monthlyCost
   )} for ${vendor.category.toLowerCase()} services is significantly above the category benchmark.
 
@@ -19,7 +19,7 @@ We’d like to explore a tier downgrade or a discounted annual commitment. If we
 Can we schedule 15 minutes this week?
 
 Thanks,
-The Runway Radar team`;
+The Burnshield team`;
 
   return (
     <div>
@@ -29,15 +29,15 @@ The Runway Radar team`;
           <span className="font-medium text-on-card">{vendor.contactEmail}</span>
         </p>
         <div className="flex gap-2">
-          <button className="border border-border-card p-1.5 text-muted transition-colors hover:border-azure hover:text-azure">
+          <button className="rounded-lg border border-border-card p-1.5 text-muted transition-colors hover:border-azure hover:text-azure">
             <Copy size={14} />
           </button>
-          <button className="border border-border-card p-1.5 text-muted transition-colors hover:border-red hover:text-red">
+          <button className="rounded-lg border border-border-card p-1.5 text-muted transition-colors hover:border-red hover:text-red">
             <Trash2 size={14} />
           </button>
         </div>
       </div>
-      <div className="max-h-72 overflow-y-auto border border-border-card bg-card-2 p-4 text-sm leading-relaxed text-on-card">
+      <div className="max-h-72 overflow-y-auto rounded-xl border border-border-card bg-card-2 p-4 text-sm leading-relaxed text-on-card">
         {email.split("\n").map((line, i) => (
           <p key={i} className={line === "" ? "h-4" : "mb-1"}>
             {line}
@@ -57,12 +57,12 @@ The Runway Radar team`;
             htmlFor="approve"
             className="text-sm font-medium text-muted"
           >
-            Human approve before send
+            Approve before send
           </label>
         </div>
         <button
           disabled={!approved}
-          className="inline-flex items-center gap-2 bg-azure px-6 py-3 text-sm font-medium text-page transition-colors hover:bg-cyan hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-2 rounded-full bg-azure px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-cyan disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Send size={14} />
           Send to {vendor.name}

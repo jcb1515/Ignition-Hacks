@@ -29,11 +29,11 @@ export default function BurnChart({
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(244, 247, 251, 0.09)" />
-          <XAxis dataKey="month" stroke="#626e85" tick={{ fill: "#94a0b8", fontSize: 11 }} />
+          <XAxis dataKey="month" stroke="var(--color-slate)" tick={{ fill: "var(--color-muted)", fontSize: 11 }} />
           <YAxis
             tickFormatter={(v) => `$${Math.round(Number(v) / 1000)}k`}
-            stroke="#626e85"
-            tick={{ fill: "#94a0b8", fontSize: 11 }}
+            stroke="var(--color-slate)"
+            tick={{ fill: "var(--color-muted)", fontSize: 11 }}
           />
           <Tooltip
             cursor={{ stroke: "#3d7bff", strokeWidth: 1 }}
@@ -45,7 +45,7 @@ export default function BurnChart({
             }}
             formatter={(v, name) => [formatCurrency(Number(v ?? 0)), String(name)]}
           />
-          <Legend wrapperStyle={{ fontSize: 11, color: "#94a0b8" }} />
+          <Legend wrapperStyle={{ fontSize: 11, color: "var(--color-muted)" }} />
           <Area
             type="monotone" dataKey="burn" name="Total burn"
             stroke="#2d9bd2" strokeWidth={2} fillOpacity={1} fill="url(#colorBurn)"

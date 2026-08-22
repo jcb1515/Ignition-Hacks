@@ -22,11 +22,11 @@ export default function RunwayChart({
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(244, 247, 251, 0.09)" />
-          <XAxis dataKey="month" stroke="#626e85" tick={{ fill: "#94a0b8", fontSize: 11 }} />
+          <XAxis dataKey="month" stroke="var(--color-slate)" tick={{ fill: "var(--color-muted)", fontSize: 11 }} />
           <YAxis
             tickFormatter={(v) => `$${Math.round(Number(v) / 1000)}k`}
-            stroke="#626e85"
-            tick={{ fill: "#94a0b8", fontSize: 11 }}
+            stroke="var(--color-slate)"
+            tick={{ fill: "var(--color-muted)", fontSize: 11 }}
           />
           <Tooltip
             cursor={{ stroke: "#3d7bff", strokeWidth: 1 }}
@@ -38,7 +38,7 @@ export default function RunwayChart({
             }}
             formatter={(v, name) => [formatCurrency(Number(v ?? 0)), String(name)]}
           />
-          <Legend wrapperStyle={{ fontSize: 11, color: "#94a0b8" }} />
+          <Legend wrapperStyle={{ fontSize: 11, color: "var(--color-muted)" }} />
           {series.map((s) => (
             <Line
               key={s.key} type="monotone" dataKey={s.key} name={s.key}

@@ -12,7 +12,9 @@ import {
 } from "lucide-react";
 import { formatCurrency } from "@/lib/types";
 import type { AgentAction, Transaction, Vendor } from "@/lib/types";
+import { usePlaid } from "@/lib/use-plaid";
 import ActionLog from "@/components/action-log";
+import BankPanel from "@/components/bank-panel";
 import BurnChart from "@/components/burn-chart";
 import EmailPreview from "@/components/email-preview";
 import RunwayChart from "@/components/runway-chart";
@@ -32,17 +34,17 @@ const agentSteps = [
   {
     number: "01",
     title: "Observe",
-    copy: "Every recurring charge, contract, and usage signal is mapped continuously.",
+    copy: "Every bank feed, card transaction, and recurring contract is mapped continuously.",
   },
   {
     number: "02",
     title: "Interrogate",
-    copy: "Anomalies are benchmarked against category norms and scored for confidence.",
+    copy: "Spend is benchmarked against startup category norms and scored by confidence.",
   },
   {
     number: "03",
     title: "Act with you",
-    copy: "The next move is drafted, the reasoning shown, and approval always requested.",
+    copy: "The fix is drafted, the reasoning shown, and your approval requested.",
   },
 ];
 
@@ -65,8 +67,9 @@ interface State {
 }
 
 export default function Home() {
-  const [state, setState] = useState<State | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [state, setState] = useState<State | null>(null);
+  const plaid = usePlaid();
 
   const load = useCallback(async () => {
     try {
@@ -95,7 +98,7 @@ export default function Home() {
   }, []);
 
   const vendors = useMemo(() => state?.vendors ?? [], [state]);
-  const transactions = state?.transactions ?? [];
+  const transactions = useMemo(() => state?.transactions ?? [], [state]);
   const actions = state?.actions ?? [];
 
   const current = state?.forecast.scenarios[0];
@@ -104,31 +107,12 @@ export default function Home() {
   const savings = state?.forecast.totalMonthlySavings ?? 0;
   const flagged = state?.flags.length ?? 0;
 
-  const burnData = useMemo(() => state?.forecast.history ?? [], [state]);
-  const runwayData = useMemo(() => {
-    if (!state) return [];
-    const [c, cut, freeze] = state.forecast.scenarios;
-    return c.path.map((_, i) => ({
-      month: `M${i + 1}`,
-      Current: c.path[i],
-      "Aggressive cut": cut.path[i],
-      "Hiring freeze": freeze.path[i],
-    }));
-  }, [state]);
-
-  const burnHistory = useMemo(
-    () => burnData.map((h) => h.burn),
-    [burnData]
-  );
-  const peakBurn = burnHistory.length ? Math.max(...burnHistory) : 0;
-  const avgBurn = burnHistory.length
-    ? Math.round(burnHistory.reduce((a, b) => a + b, 0) / burnHistory.length)
-    : 0;
+  const bankBalance = plaid.balance;
+  const plaidReady = plaid.connected && !plaid.loading;
 
   /**
-   * Runs the real audit. The previous version was a 1.5s setTimeout that
-   * appended one hardcoded action — it looked identical on screen and proved
-   * nothing. This consumes the same SSE stream the dashboard does.
+   * Runs the real audit. Streams the Orchestrator's run to completion, then
+   * refreshes the page state so every number on screen comes from the agents.
    */
   const runAudit = async () => {
     setIsRunning(true);
@@ -155,14 +139,40 @@ export default function Home() {
       .sort((a, b) => b.amount - a.amount);
   }, [vendors]);
 
+  const vendorSpend = state?.forecast.vendorSpend ?? burn;
+  const otherBurn = Math.max(0, vendorSpend - categorySpend.reduce((sum, c) => sum + c.amount, 0));
+
+  const burnSeries = useMemo(() => state?.forecast.history ?? [], [state]);
+
+  const runwaySeries = useMemo(() => {
+    if (!state) return [];
+    const [c, cut, freeze] = state.forecast.scenarios;
+    return c.path.map((_, i) => ({
+      month: `M${i + 1}`,
+      Current: c.path[i],
+      "Aggressive cut": cut.path[i],
+      "Hiring freeze": freeze.path[i],
+    }));
+  }, [state]);
+
+  const peakBurn = useMemo(
+    () => (burnSeries.length ? Math.max(...burnSeries.map((p) => p.burn)) : 0),
+    [burnSeries]
+  );
+  const avgBurn = useMemo(
+    () =>
+      burnSeries.length
+        ? Math.round(burnSeries.reduce((sum, p) => sum + p.burn, 0) / burnSeries.length)
+        : 0,
+    [burnSeries]
+  );
+
   const flaggedTx = transactions.filter((transaction) => transaction.flagged);
   const draftVendor = vendors.find((v) => v.id === state?.flags[0]?.vendorId);
 
   /**
-   * Ticker copy is derived, never written by hand. Hardcoded claims here drift
-   * from the data the moment a detector threshold changes, and a judge reading
-   * "3 anomalies" next to a dashboard showing 4 is the kind of detail that
-   * costs you the room.
+   * Ticker copy is derived, never written by hand. Hardcoded claims drift from
+   * the data the moment a detector threshold changes.
    */
   const marqueeItems = useMemo(() => {
     if (!state) return ["Awaiting first audit"];
@@ -179,42 +189,33 @@ export default function Home() {
   }, [state, flaggedTx, flagged, savings]);
 
   return (
-    <div className="relative overflow-hidden bg-page text-ink">
+    <div className="relative overflow-hidden bg-page text-fg">
       {/* Hero */}
-      <section className="relative border-b border-page/20 bg-ink text-page">
+      <section className="relative border-b border-border bg-page text-fg">
         <div className="mx-auto grid max-w-[1440px] gap-12 px-6 py-16 sm:px-10 lg:grid-cols-[1.06fr_0.94fr] lg:px-14 lg:py-24">
           <div className="flex flex-col justify-between">
             <div>
-              <Reveal>
-                <p className="mb-8 flex items-center gap-3 font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-page/55">
-                  <span className="relative flex h-2 w-2">
-                    <span className="ping-ring absolute inset-0 rounded-full bg-azure" />
-                    <span className="relative h-2 w-2 rounded-full bg-azure" />
-                  </span>
-                  Agent online / watching spend
-                </p>
-              </Reveal>
               <Reveal delay={80}>
                 <h1 className="max-w-3xl font-display text-[clamp(4rem,8.4vw,9rem)] font-medium leading-[0.84] tracking-[-0.075em]">
-                  Find what is
-                  <span className="block text-azure">leaking.</span>
-                  Keep what
-                  <span className="block text-azure">matters.</span>
+                  Know your
+                  <span className="block text-azure">burn.</span>
+                  Protect your
+                  <span className="block text-azure">runway.</span>
                 </h1>
               </Reveal>
             </div>
             <Reveal delay={160}>
               <div className="mt-14 flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
-                <p className="max-w-sm text-lg leading-snug tracking-[-0.025em] text-page/70">
-                  An agentic cash burn auditor that finds waste, drafts the fix, and
-                  turns it into another month of runway.
+                <p className="max-w-sm text-lg leading-snug tracking-[-0.025em] text-slate">
+                  An agentic financial system for early-stage startups that monitors
+                  burn rate, surfaces waste, and turns every dollar into more runway.
                 </p>
                 <MagneticButton
                   onClick={runAudit}
                   disabled={isRunning}
-                  className="group inline-flex shrink-0 items-center justify-between gap-8 border border-page/35 px-5 py-4 text-sm font-medium hover:border-azure hover:bg-azure hover:text-ink disabled:cursor-wait disabled:opacity-60"
+                  className="group inline-flex shrink-0 items-center justify-between gap-8 rounded-full border border-border bg-card px-5 py-4 text-sm font-medium text-on-card shadow-sm transition-colors hover:border-azure hover:bg-azure hover:text-white disabled:cursor-wait disabled:opacity-60"
                 >
-                  <span>{isRunning ? "Auditing..." : "Run a live audit"}</span>
+                  <span>{isRunning ? "Scanning..." : "Run a burn check"}</span>
                   <ArrowUpRight size={18} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </MagneticButton>
               </div>
@@ -223,49 +224,48 @@ export default function Home() {
 
           {/* Radar */}
           <Reveal delay={220}>
-            <PointerPanel className="relative h-full min-h-[430px] overflow-hidden border border-page/20 bg-[#0f131b] p-5 sm:p-7" tilt={4}>
-              <div className="signal-grid absolute inset-0 opacity-60" />
+            <PointerPanel className="relative h-full min-h-[430px] overflow-hidden border border-border bg-card p-5 sm:p-7">
               <div className="relative flex h-full flex-col justify-between">
-                <div className="flex items-start justify-between border-b border-page/15 pb-4 font-mono text-[10px] uppercase tracking-[0.14em] text-page/60">
-                  <span>Runway radar / live</span>
-                  <span className="text-azure">{isRunning ? "Scanning" : "Nominal"}</span>
+                <div className="flex items-start justify-between border-b border-border pb-4 font-sans text-xs font-medium uppercase tracking-wider text-muted">
+                  <span>Burn monitor / live</span>
+                  <span className="text-azure">{isRunning ? "Scanning" : "On track"}</span>
                 </div>
-                <div className="animate-drift relative mx-auto flex h-64 w-64 items-center justify-center sm:h-72 sm:w-72">
-                  <div className="absolute inset-0 rounded-full border border-page/15" />
-                  <div className="absolute inset-5 rounded-full border border-page/15" />
-                  <div className="absolute inset-12 rounded-full border border-page/15" />
-                  <div className="animate-sweep absolute inset-0">
-                    <div className="absolute left-1/2 top-1/2 h-[1px] w-1/2 origin-left bg-gradient-to-r from-azure to-transparent" />
-                  </div>
-                  <span className="ping-ring absolute left-[25%] top-[29%] h-2.5 w-2.5 rounded-full bg-azure" />
+                <div className="relative mx-auto flex h-64 w-64 items-center justify-center sm:h-72 sm:w-72">
+                  <div className="absolute inset-0 rounded-full border border-fg/10" />
+                  <div className="absolute inset-5 rounded-full border border-fg/10" />
+                  <div className="absolute inset-12 rounded-full border border-fg/10" />
+                  <div className="absolute left-1/2 top-1/2 h-[1px] w-1/2 origin-left bg-gradient-to-r from-azure to-transparent" style={{ transform: "rotate(45deg)" }} />
                   <span className="absolute left-[25%] top-[29%] h-2.5 w-2.5 rounded-full bg-azure" />
-                  <span className="absolute right-[19%] top-[44%] h-2 w-2 rounded-full bg-page/80" />
-                  <span className="absolute bottom-[22%] right-[35%] h-1.5 w-1.5 rounded-full bg-page/50" />
-                  <div className="relative flex h-32 w-32 flex-col items-center justify-center rounded-full border border-page/20 bg-ink/85 text-center backdrop-blur">
+                  <span className="absolute right-[19%] top-[44%] h-2 w-2 rounded-full bg-slate" />
+                  <span className="absolute bottom-[22%] right-[35%] h-1.5 w-1.5 rounded-full bg-slate/70" />
+                  <div className="relative flex h-32 w-32 flex-col items-center justify-center rounded-full border border-border bg-card-2 text-center shadow-sm">
                     <CountUp
                       value={runway}
                       format={(n) => n.toFixed(0).padStart(2, "0")}
-                      className="font-display text-5xl leading-none tracking-[-0.06em]"
+                      className="font-display text-5xl leading-none tracking-[-0.06em] text-on-card"
                     />
-                    <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.12em] text-page/55">
+                    <span className="mt-1 font-sans text-xs font-medium uppercase tracking-wider text-muted">
                       months out
                     </span>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-px border border-page/15 bg-page/15">
+                <div className={`grid gap-px overflow-hidden border border-border bg-card-2 ${plaidReady ? "grid-cols-4" : "grid-cols-3"}`}>
                   <Metric label="Monthly burn" value={burn} format={formatCurrency} />
-                  <Metric label="Flagged" value={flagged} format={(n) => `${Math.round(n)} vendors`} />
-                  <Metric label="Savings found" value={savings} format={formatCurrency} />
+                  <Metric label="Flagged vendors" value={flagged} format={(n) => `${Math.round(n)} vendors`} />
+                  <Metric label="Runway savings" value={savings} format={formatCurrency} />
+                  {plaidReady ? (
+                    <Metric label="Bank balance" value={bankBalance} format={formatCurrency} />
+                  ) : null}
                 </div>
               </div>
             </PointerPanel>
           </Reveal>
         </div>
 
-        <div className="border-t border-page/15 py-3">
+        <div className="border-t border-border py-3">
           <Marquee
             items={marqueeItems}
-            className="text-page/55"
+            className="text-muted"
           />
         </div>
       </section>
@@ -273,13 +273,13 @@ export default function Home() {
       {/* Live dashboard */}
       <section className="mx-auto max-w-[1440px] px-6 py-16 sm:px-10 lg:px-14 lg:py-20">
         <Reveal>
-          <div className="mb-8 flex flex-col justify-between gap-6 border-b border-ink/20 pb-6 sm:flex-row sm:items-end">
+          <div className="mb-8 flex flex-col justify-between gap-6 border-b border-fg/20 pb-6 sm:flex-row sm:items-end">
             <div>
-              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-ink/50">
-                Live agent dashboard
+              <p className="font-sans text-xs font-medium uppercase tracking-wider text-fg/50">
+                Live burn dashboard
               </p>
               <h2 className="mt-4 font-display text-5xl font-medium leading-none tracking-[-0.055em] sm:text-6xl">
-                Runway Radar
+                Burn dashboard
               </h2>
             </div>
             <div className="flex flex-wrap items-center gap-8">
@@ -289,10 +289,10 @@ export default function Home() {
               <MagneticButton
                 onClick={runAudit}
                 disabled={isRunning}
-                className="inline-flex items-center gap-2 bg-ink px-5 py-3.5 text-sm font-medium text-page hover:bg-azure disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3.5 text-sm font-medium text-white hover:bg-azure disabled:opacity-60"
               >
                 <Play size={15} />
-                {isRunning ? "Running..." : "Run audit"}
+                {isRunning ? "Scanning..." : "Run burn check"}
               </MagneticButton>
             </div>
           </div>
@@ -307,7 +307,7 @@ export default function Home() {
           <Reveal>
             <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card">
               <Tabs
-                label="Agent status"
+                label="Workflow status"
                 defaultTab="status"
                 tabs={[
                   {
@@ -316,7 +316,7 @@ export default function Home() {
                     content: (
                       <div className="flex h-full flex-col justify-between">
                         <h3 className="font-display text-5xl font-light leading-none tracking-[-0.03em] text-on-card/15 sm:text-6xl">
-                          hello founder
+                          burn flow
                         </h3>
                         <div className="mt-10 font-mono text-sm leading-relaxed text-muted">
                           <p>
@@ -324,7 +324,7 @@ export default function Home() {
                             <span className="text-sky">current</span>();
                           </p>
                           <p className="text-on-card">
-                            <Typewriter text="// 8 months, 3 flags, $12.8k recoverable" />
+                            <Typewriter text="// 8 months runway, 3 flags, $12.8k recoverable" />
                           </p>
                           <p>
                             <span className="text-azure">&gt;</span> agents.
@@ -336,7 +336,7 @@ export default function Home() {
                   },
                   {
                     id: "agents",
-                    label: "Agents",
+                    label: "Workflow",
                     content: (
                       <div className="space-y-3">
                         <AgentRow icon={BarChart3} name="Classifier" status="Online" />
@@ -383,10 +383,10 @@ export default function Home() {
                         <div className="mt-8 h-2 w-full bg-card-2">
                           <div
                             className="bar-grow h-2 bg-gradient-to-r from-azure via-sky to-cyan"
-                            style={{ width: `${(runway / 12) * 100}%` }}
+                            style={{ width: `${Math.min((runway / 12) * 100, 100)}%` }}
                           />
                         </div>
-                        <div className="mt-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
+                        <div className="mt-6 flex justify-between font-sans text-xs font-medium uppercase tracking-wider text-muted">
                           <span>Today</span>
                           <span>Projected zero cash</span>
                         </div>
@@ -399,9 +399,9 @@ export default function Home() {
                     content: (
                       <div>
                         <p className="mb-2 text-center text-sm text-muted">
-                          Current, aggressive cut, and hiring freeze
+                          Current, aggressive cut, and hiring-freeze scenarios
                         </p>
-                        <RunwayChart data={runwayData} />
+                        <RunwayChart data={runwaySeries} />
                       </div>
                     ),
                   },
@@ -433,7 +433,7 @@ export default function Home() {
           <Reveal delay={180}>
             <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card">
               <Tabs
-                label="Vendor matrix"
+                label="Spend matrix"
                 defaultTab="vendors"
                 tabs={[
                   {
@@ -471,9 +471,9 @@ export default function Home() {
         {/* Charts + console */}
         <div className="mb-6 grid gap-6 lg:grid-cols-2">
           <Reveal>
-            <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card" tilt={2}>
+            <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card">
               <Tabs
-                label="Burn lab"
+                label="Burn analysis"
                 defaultTab="trend"
                 tabs={[
                   {
@@ -486,14 +486,14 @@ export default function Home() {
                           <StatMini label="Peak" value={formatCurrency(peakBurn)} className="text-red" />
                           <StatMini label="Avg" value={formatCurrency(avgBurn)} className="text-sky" />
                         </div>
-                        <BurnChart data={burnData} />
+                        <BurnChart data={burnSeries} />
                       </div>
                     ),
                   },
                   {
                     id: "scenarios",
                     label: "Scenarios",
-                    content: <RunwayChart data={runwayData} />,
+                    content: <RunwayChart data={runwaySeries} />,
                   },
                   {
                     id: "breakdown",
@@ -505,9 +505,12 @@ export default function Home() {
                             key={category}
                             label={category}
                             amount={amount}
-                            total={state?.forecast.vendorSpend ?? burn}
+                            total={vendorSpend}
                           />
                         ))}
+                        {otherBurn > 0 && (
+                          <BreakdownRow label="Other" amount={otherBurn} total={vendorSpend} />
+                        )}
                       </div>
                     ),
                   },
@@ -517,9 +520,9 @@ export default function Home() {
           </Reveal>
 
           <Reveal delay={90}>
-            <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card" tilt={2}>
+            <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card">
               <Tabs
-                label="Agent console"
+                label="Workflow console"
                 defaultTab="log"
                 tabs={[
                   { id: "log", label: "Log", content: <ActionLog actions={actions} /> },
@@ -529,8 +532,8 @@ export default function Home() {
                     content: draftVendor ? (
                       <EmailPreview vendor={draftVendor} />
                     ) : (
-                      <p className="py-8 text-center text-sm text-slate">
-                        No draft yet. Run an audit and the Negotiator will write one.
+                      <p className="py-8 text-center text-sm text-muted">
+                        No draft yet. Run a burn check and the Negotiator will write one.
                       </p>
                     ),
                   },
@@ -545,8 +548,8 @@ export default function Home() {
         <div className="grid gap-6 md:grid-cols-3">
           <Reveal>
             <PointerPanel className="h-full border border-border-card bg-card p-6 text-on-card">
-              <p className="mb-5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
-                Agent health
+              <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
+                System health
               </p>
               <div className="space-y-4">
                 <HealthBar label="Classifier" value={94} />
@@ -558,19 +561,27 @@ export default function Home() {
           </Reveal>
           <Reveal delay={90}>
             <PointerPanel className="h-full border border-border-card bg-card p-6 text-on-card">
-              <p className="mb-5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
-                Top flags this month
+              <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
+                Top burn flags this month
               </p>
               <div className="space-y-3">
-                <FlagRow name="Twilio" amount={6400} reason="Over benchmark" />
-                <FlagRow name="Segment" amount={3200} reason="Flat usage" />
-                <FlagRow name="Confluence" amount={420} reason="Duplicate" />
+                {vendors
+                  .filter((vendor) => vendor.status === "flagged")
+                  .slice(0, 3)
+                  .map((vendor) => (
+                    <FlagRow
+                      key={vendor.id}
+                      name={vendor.name}
+                      amount={vendor.monthlyCost}
+                      reason={vendor.monthlyCost > 3000 ? "Over benchmark" : "Category flag"}
+                    />
+                  ))}
               </div>
             </PointerPanel>
           </Reveal>
           <Reveal delay={180}>
             <PointerPanel className="h-full border border-border-card bg-card p-6 text-on-card">
-              <p className="mb-5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+              <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
                 Quick actions
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -582,39 +593,51 @@ export default function Home() {
             </PointerPanel>
           </Reveal>
         </div>
+
+        {/* Bank account */}
+        <div className="mt-6">
+          <Reveal>
+            <PointerPanel className="border border-border-card bg-card p-6 text-on-card">
+              <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
+                Bank connection
+              </p>
+              <BankPanel />
+            </PointerPanel>
+          </Reveal>
+        </div>
       </section>
 
       {/* Operating loop */}
-      <section className="bg-ink text-page">
+      <section className="border-t border-border bg-page text-fg">
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-24">
           <div className="grid gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-20">
             <div className="flex flex-col justify-between">
               <Reveal>
                 <div>
-                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-page/55">
-                    Agentic, not automatic
+                  <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
+                    Workflow, not wizardry
                   </p>
                   <h2 className="mt-7 max-w-xl font-display text-5xl font-medium leading-[0.9] tracking-[-0.06em] sm:text-7xl">
-                    Clear reasoning. <span className="text-azure">Human control.</span>
+                    Burn clarity. <span className="text-azure">Human control.</span>
                   </h2>
                 </div>
               </Reveal>
               <Reveal delay={120}>
-                <p className="mt-12 max-w-md text-lg leading-snug tracking-[-0.025em] text-page/65">
-                  Every flag carries its benchmark, confidence, and dollar impact. Nothing
-                  leaves the building without your approval.
+                <p className="mt-12 max-w-md text-lg leading-snug tracking-[-0.025em] text-slate">
+                  Every flag shows the benchmark, confidence, and impact on runway. No
+                  action runs without your approval.
                 </p>
               </Reveal>
             </div>
-            <div className="border-t border-page/20">
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
               {agentSteps.map((step, index) => (
                 <Reveal key={step.number} delay={index * 110}>
-                  <div className="group grid grid-cols-[56px_1fr] gap-4 border-b border-page/20 py-7 transition-colors duration-300 hover:bg-page/5 sm:grid-cols-[72px_1fr_1.1fr] sm:gap-7">
-                    <span className="font-mono text-[10px] tracking-[0.12em] text-azure">{step.number}</span>
-                    <h3 className="font-display text-2xl tracking-[-0.04em] transition-transform duration-300 group-hover:translate-x-1 sm:text-3xl">
+                  <div className="group grid grid-cols-[56px_1fr] gap-4 border-b border-border py-7 transition-colors last:border-b-0 hover:bg-card-2 sm:grid-cols-[72px_1fr_1.1fr] sm:gap-7">
+                    <span className="font-sans text-xs font-medium uppercase tracking-wider text-azure">{step.number}</span>
+                    <h3 className="font-display text-2xl tracking-[-0.04em] sm:text-3xl">
                       {step.title}
                     </h3>
-                    <p className="col-span-2 text-sm leading-relaxed text-page/55 sm:col-auto">{step.copy}</p>
+                    <p className="col-span-2 text-sm leading-relaxed text-muted sm:col-auto">{step.copy}</p>
                   </div>
                 </Reveal>
               ))}
@@ -623,16 +646,16 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-t border-ink/20 bg-azure text-page">
+      <section className="border-t border-border bg-card text-fg">
         <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-6 py-14 sm:px-10 md:flex-row md:items-end lg:px-14 lg:py-16">
           <Reveal>
             <p className="max-w-3xl font-display text-4xl font-medium leading-[0.9] tracking-[-0.055em] sm:text-6xl">
-              Less cash leakage. More time to build something that lasts.
+              Less burn drift. More runway to build what matters.
             </p>
           </Reveal>
           <Reveal delay={120}>
-            <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em]">
-              <Bot size={15} /> Runway Radar / 2026
+            <div className="flex items-center gap-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">
+              <Bot size={15} /> Burnshield / 2026
             </div>
           </Reveal>
         </div>
@@ -651,9 +674,9 @@ function Metric({
   format: (n: number) => string;
 }) {
   return (
-    <div className="bg-ink/90 px-3 py-3 transition-colors duration-300 hover:bg-ink/60 sm:px-4 sm:py-4">
-      <p className="font-mono text-[8px] uppercase tracking-[0.11em] text-page/45">{label}</p>
-      <CountUp value={value} format={format} className="mt-2 block text-sm font-medium tracking-[-0.02em] text-page sm:text-base" />
+    <div className="bg-card-2 px-3 py-3 transition-colors duration-300 hover:bg-card-3 sm:px-4 sm:py-4">
+      <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
+      <CountUp value={value} format={format} className="mt-2 block text-sm font-medium tracking-[-0.02em] text-on-card sm:text-base" />
     </div>
   );
 }
@@ -670,7 +693,7 @@ function StatPill({
   return (
     <div>
       <CountUp value={value} format={format} className="font-display text-2xl font-medium leading-none" />
-      <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/50">{label}</p>
+      <p className="mt-1 font-sans text-xs font-medium uppercase tracking-wider text-fg/50">{label}</p>
     </div>
   );
 }
@@ -690,7 +713,7 @@ function AgentRow({
         <Icon size={16} className="text-azure" />
         <span className="text-sm font-medium text-on-card">{name}</span>
       </div>
-      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{status}</span>
+      <span className="font-sans text-xs font-medium uppercase tracking-wider text-muted">{status}</span>
     </div>
   );
 }
@@ -725,7 +748,7 @@ function StatMini({
   return (
     <div>
       <p className={`font-display text-xl font-medium leading-none ${className}`}>{value}</p>
-      <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{label}</p>
+      <p className="mt-1 font-sans text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
     </div>
   );
 }
@@ -780,7 +803,7 @@ function FlagRow({
     <div className="data-row flex items-center justify-between border border-border-card bg-card-2 p-3 hover:border-red">
       <div>
         <p className="text-sm font-medium text-on-card">{name}</p>
-        <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">{reason}</p>
+        <p className="mt-0.5 font-sans text-xs font-medium uppercase tracking-wider text-muted">{reason}</p>
       </div>
       <span className="font-mono text-sm font-medium text-red">{formatCurrency(amount)}</span>
     </div>
@@ -790,8 +813,7 @@ function FlagRow({
 function QuickAction({ label }: { label: string }) {
   return (
     <MagneticButton
-      strength={4}
-      className="border border-border-card bg-card-2 px-4 py-3 text-center text-sm font-medium text-on-card hover:border-azure hover:bg-azure hover:text-ink"
+      className="rounded-lg border border-border-card bg-card-2 px-4 py-3 text-center text-sm font-medium text-on-card transition-colors hover:border-azure hover:bg-azure hover:text-white"
     >
       {label}
     </MagneticButton>
