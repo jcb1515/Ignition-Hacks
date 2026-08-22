@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { APPROVAL_THRESHOLD, COMPANY, DEMO_MODE } from "@/lib/company";
 import { llmAvailable } from "@/lib/llm";
-import { forecast } from "@/lib/agents/forecast";
+import { estimateSavings, forecast } from "@/lib/agents/forecast";
 import {
   getActions, getDrafts, getFlaggedTransactions,
   getLatestPeriodTransactions, getVendors,
@@ -21,7 +21,7 @@ export async function GET() {
 
     // Rebuild flags from what the Classifier persisted, so the forecast on
     // this page always matches the audit that produced it.
-    const flags = flagged.map((t) => {
+    const rebuilt = flagged.map((t) => {
       const v = vendors.find((x) => x.id === t.vendorId);
       let features: FeatureBreakdown[] = [];
       try {
@@ -41,7 +41,12 @@ export async function GET() {
       };
     });
 
-    const f = forecast(flags);
+    // Remediation value per flag. The approval queue needs this to decide what
+    // sits above the autonomy threshold, and without it every draft reads as
+    // $0 and nothing is ever held for a human.
+    const flags = rebuilt.map((f) => ({ ...f, savings: estimateSavings(f, vendors) }));
+
+    const fc = forecast(flags);
 
     return NextResponse.json({
       company: COMPANY,
@@ -55,7 +60,7 @@ export async function GET() {
       flags,
       actions,
       drafts,
-      forecast: f,
+      forecast: fc,
       audited: actions.length > 0,
     });
   } catch (err) {

@@ -12,7 +12,7 @@
  */
 import { APPROVAL_THRESHOLD, COMPANY, DEMO_MODE } from "@/lib/company";
 import { forecast } from "@/lib/agents/forecast";
-import { getActions, getDrafts, getFlaggedTransactions, getVendors } from "@/lib/db/queries";
+import { getActionsForLatestRun, getDrafts, getFlaggedTransactions, getVendors } from "@/lib/db/queries";
 import { formatCurrency } from "@/lib/types";
 import type { FeatureBreakdown, Flag } from "@/lib/types";
 
@@ -57,7 +57,7 @@ export function buildInvestorUpdate(): InvestorUpdate {
   const vendors = getVendors();
   const flagged = getFlaggedTransactions();
   const drafts = getDrafts();
-  const actions = getActions(500);
+  const actions = getActionsForLatestRun();
 
   const flags: Flag[] = flagged.map((t) => {
     const v = vendors.find((x) => x.id === t.vendorId);

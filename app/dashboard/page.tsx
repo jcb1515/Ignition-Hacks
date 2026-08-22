@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Play, RotateCcw } from "lucide-react";
 import AgentStream from "@/components/agent-stream";
+import DataSourceBadge from "@/components/data-source-badge";
 import ApprovalQueue, { type QueueItem } from "@/components/approval-queue";
 import BurnChart from "@/components/burn-chart";
 import FlagCard, { type FlagView } from "@/components/flag-card";
@@ -47,6 +48,7 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const streamRef = useRef<HTMLDivElement>(null);
 
+  /** Manual refresh, used after an audit or an approval decision. */
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/state", { cache: "no-store" });
@@ -58,7 +60,24 @@ export default function Dashboard() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  // Initial load. State is set from the fetch callback rather than the effect
+  // body, and the guard stops a slow response writing to an unmounted page.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/state", { cache: "no-store" });
+        const body = await res.json();
+        if (cancelled) return;
+        if (!res.ok) throw new Error(body.error ?? "failed to load");
+        setState(body);
+        setError(null);
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Could not reach the API");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   /** Reads the SSE stream so reasoning appears as it is produced. */
   const runAudit = async () => {
@@ -187,9 +206,8 @@ export default function Dashboard() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <DataSourceBadge />
             <span className="border border-page/25 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-page/60">
-              {state.config.demoMode ? "Demo mode · seeded data" : "Live mode"}
-              {" · "}
               {state.config.llmLive ? "LLM live" : "template narration"}
             </span>
             <button
@@ -336,12 +354,22 @@ export default function Dashboard() {
               <h2 className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink/50">
                 Agent action log
               </h2>
-              <Link
-                href="/"
-                className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/50 hover:text-ink"
-              >
-                Overview <ArrowUpRight size={12} />
-              </Link>
+              <div className="flex items-center gap-4">
+                {state.flags.length > 0 && (
+                  <Link
+                    href="/investor-update"
+                    className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em] text-ink hover:text-coral"
+                  >
+                    Investor update <ArrowUpRight size={12} />
+                  </Link>
+                )}
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/50 hover:text-ink"
+                >
+                  Overview <ArrowUpRight size={12} />
+                </Link>
+              </div>
             </div>
             <div
               ref={streamRef}

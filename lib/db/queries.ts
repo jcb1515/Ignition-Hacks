@@ -267,3 +267,31 @@ export function upsertTransaction(t: Transaction): void {
     features: t.features ?? null,
   });
 }
+
+/**
+ * Deletes drafts from previous audit runs that nobody acted on.
+ *
+ * Each audit supersedes the last, so stale drafts would otherwise pile up and
+ * double the counts every time someone re-runs — which a presenter will, once
+ * in rehearsal and once live. Approved and sent drafts are kept: those are
+ * real history, not leftovers.
+ */
+export function clearUnactionedDrafts(): void {
+  db().prepare("DELETE FROM drafts WHERE approved = 0 AND sent = 0").run();
+}
+
+/**
+ * Actions from the current audit run only. The full log is an audit trail and
+ * is never truncated, but "what did this run find" must not accumulate across
+ * runs. Falls back to the whole log if no run marker is present.
+ */
+export function getActionsForLatestRun(): AgentAction[] {
+  const marker = db()
+    .prepare("SELECT id, rowid FROM agent_actions WHERE type = 'audit_started' ORDER BY rowid DESC LIMIT 1")
+    .get() as { id: string; rowid: number } | undefined;
+  if (!marker) return getActions(200);
+
+  return (db()
+    .prepare("SELECT * FROM agent_actions WHERE rowid >= ? ORDER BY rowid DESC")
+    .all(marker.rowid) as ActionRow[]).map(toAction);
+}

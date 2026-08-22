@@ -133,8 +133,12 @@ function main() {
   resetDb();
 
   for (const v of SEED_VENDORS) {
-    const { source: _s, trend: _t, ...vendor } = v;
-    insertVendor(vendor);
+    insertVendor({
+      id: v.id, name: v.name, category: v.category, monthlyCost: v.monthlyCost,
+      contractTerms: v.contractTerms, lastContactDate: v.lastContactDate,
+      contactEmail: v.contactEmail, status: v.status, functionTag: v.functionTag,
+      seats: v.seats, activeSeats: v.activeSeats,
+    });
   }
 
   let txCount = 0;

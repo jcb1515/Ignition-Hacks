@@ -18,8 +18,8 @@ import { classify } from "@/lib/agents/classifier";
 import { forecast, estimateSavings } from "@/lib/agents/forecast";
 import { negotiate } from "@/lib/agents/negotiator";
 import {
-  clearFlags, flagTransaction, getVendors, insertAction, insertDraft,
-  insertSnapshot, setVendorStatus,
+  clearFlags, clearUnactionedDrafts, flagTransaction, getVendors, insertAction,
+  insertDraft, insertSnapshot, setVendorStatus,
 } from "@/lib/db/queries";
 import { formatCurrency } from "@/lib/types";
 import type { AgentAction, AgentName } from "@/lib/types";
@@ -82,6 +82,7 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
   yield { type: "status", message: "Classifier scanning latest billing period..." };
 
   clearFlags();
+  clearUnactionedDrafts(); // this run supersedes the last one
   const flags = classify();
   const vendors = getVendors();
 

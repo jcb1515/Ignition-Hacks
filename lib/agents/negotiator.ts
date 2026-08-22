@@ -123,7 +123,7 @@ export async function negotiate(flag: Flag, vendor: Vendor, allVendors: Vendor[]
     .map((f) => `- ${f.feature.replaceAll("_", " ")}: ${f.value}`)
     .join("\n");
 
-  const fallback = buildTemplate(flag, vendor, savings, intent);
+  const fallback = buildTemplate(flag, vendor, savings);
 
   const result = await generate({
     system:
@@ -154,7 +154,7 @@ export async function negotiate(flag: Flag, vendor: Vendor, allVendors: Vendor[]
   };
 }
 
-function buildTemplate(flag: Flag, vendor: Vendor, savings: number, intent: string): string {
+function buildTemplate(flag: Flag, vendor: Vendor, savings: number): string {
   const target = formatCurrency(Math.max(0, vendor.monthlyCost - savings));
   const cost = formatCurrency(vendor.monthlyCost);
 
