@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="mx-auto flex max-w-[1440px] flex-col gap-10 px-6 py-10 sm:px-10 md:flex-row md:items-end md:justify-between lg:px-14">
         <div>
           <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
-            Runway Radar / fintech burn-rate workflow
+            Burnshield / fintech burn-rate workflow
           </p>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate">
             An agentic financial system for early-stage startups that monitors burn rate,

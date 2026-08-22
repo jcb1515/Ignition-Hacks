@@ -49,7 +49,7 @@ export default function FeaturesPage() {
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
           <Reveal>
             <p className="font-sans text-xs font-medium uppercase tracking-wider text-azure">
-              Runway Radar / fintech workflow
+              Burnshield / fintech workflow
             </p>
           </Reveal>
           <div className="mt-10 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">

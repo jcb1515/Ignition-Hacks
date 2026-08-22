@@ -10,7 +10,7 @@ export default function EmailPreview({ vendor }: { vendor: Vendor }) {
 
   const email = `Hi ${vendor.name} team,
 
-We’ve been reviewing our tooling budget for 2026 and noticed our monthly bill of ${formatCurrency(
+We’ve been reviewing our burn-rate budget for 2026 and noticed our monthly bill of ${formatCurrency(
     vendor.monthlyCost
   )} for ${vendor.category.toLowerCase()} services is significantly above the category benchmark.
 
@@ -19,7 +19,7 @@ We’d like to explore a tier downgrade or a discounted annual commitment. If we
 Can we schedule 15 minutes this week?
 
 Thanks,
-The Runway Radar team`;
+The Burnshield team`;
 
   return (
     <div>
@@ -57,7 +57,7 @@ The Runway Radar team`;
             htmlFor="approve"
             className="text-sm font-medium text-muted"
           >
-            Human approve before send
+            Approve before send
           </label>
         </div>
         <button

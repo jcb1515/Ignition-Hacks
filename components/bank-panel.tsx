@@ -12,7 +12,7 @@ export default function BankPanel() {
     return (
       <div className="text-center">
         <p className="text-sm text-muted">
-          Connect a Plaid sandbox account to pull in bank balances and transactions.
+          Connect a Plaid sandbox account to pull in bank balances and transactions for your burn analysis.
         </p>
         <div className="mt-4 inline-flex justify-center">
           <PlaidLinkButton onConnect={(c) => connect(c.accessToken)} />

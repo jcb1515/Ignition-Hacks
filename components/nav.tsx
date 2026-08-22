@@ -19,9 +19,9 @@ export default function Nav() {
       <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-6">
         <Link href="/" className="group flex items-center gap-3 font-sans text-xs font-medium uppercase tracking-wider">
           <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-azure text-xs text-white">
-            <span className="relative">RR</span>
+            <span className="relative">BS</span>
           </span>
-          <span className="transition-colors duration-300 group-hover:text-azure">Runway Radar</span>
+          <span className="transition-colors duration-300 group-hover:text-azure">Burnshield</span>
         </Link>
         <nav className="hidden items-center gap-7 text-xs text-muted md:flex">
           {links.map((link) => {

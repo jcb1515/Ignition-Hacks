@@ -594,17 +594,17 @@ export default function Home() {
               <Reveal>
                 <div>
                   <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
-                    Agentic, not automatic
+                    Workflow, not wizardry
                   </p>
                   <h2 className="mt-7 max-w-xl font-display text-5xl font-medium leading-[0.9] tracking-[-0.06em] sm:text-7xl">
-                    Clear reasoning. <span className="text-azure">Human control.</span>
+                    Burn clarity. <span className="text-azure">Human control.</span>
                   </h2>
                 </div>
               </Reveal>
               <Reveal delay={120}>
                 <p className="mt-12 max-w-md text-lg leading-snug tracking-[-0.025em] text-slate">
-                  Every flag carries its benchmark, confidence, and dollar impact. Nothing
-                  leaves the building without your approval.
+                  Every flag shows the benchmark, confidence, and impact on runway. No
+                  action runs without your approval.
                 </p>
               </Reveal>
             </div>
@@ -629,12 +629,12 @@ export default function Home() {
         <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-6 py-14 sm:px-10 md:flex-row md:items-end lg:px-14 lg:py-16">
           <Reveal>
             <p className="max-w-3xl font-display text-4xl font-medium leading-[0.9] tracking-[-0.055em] sm:text-6xl">
-              Less cash leakage. More time to build something that lasts.
+              Less burn drift. More runway to build what matters.
             </p>
           </Reveal>
           <Reveal delay={120}>
             <div className="flex items-center gap-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">
-              <Bot size={15} /> Runway Radar / 2026
+              <Bot size={15} /> Burnshield / 2026
             </div>
           </Reveal>
         </div>

@@ -13,8 +13,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await plaid.linkTokenCreate({
-      user: { client_user_id: "runway-radar-user" },
-      client_name: "Runway Radar",
+      user: { client_user_id: "burnshield-user" },
+      client_name: "Burnshield",
       products: [Products.Transactions],
       country_codes: [CountryCode.Us],
       language: "en",
