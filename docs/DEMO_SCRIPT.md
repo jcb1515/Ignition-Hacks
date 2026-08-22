@@ -123,7 +123,7 @@ renewal dates drive timing, and a feedback loop where rejected drafts tune the t
 
 ## Backup recording — one-take shot list
 
-Two copies of the same 62-second scripted capture (real motion, real paced stream, real Mailtrap
+Two copies of the same 75-second scripted capture (includes the negotiation beat) (real motion, real paced stream, real Mailtrap
 delivery), verified frame-by-frame:
 
 - **`docs/backup-demo.mp4`** — H.264. Plays in QuickTime, Safari, Chrome, Brave, anything. **Use this one.**
