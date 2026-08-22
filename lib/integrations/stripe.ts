@@ -59,10 +59,12 @@ interface RawSub {
   id: string;
   customer: string;
   status: string;
-  current_period_end: number;
+  /** Absent on newer API versions, where the period lives on each item. */
+  current_period_end?: number;
   items: {
     data: Array<{
       quantity: number;
+      current_period_end?: number;
       price: {
         unit_amount: number | null;
         recurring: { interval: "day" | "week" | "month" | "year"; interval_count: number } | null;
@@ -70,6 +72,24 @@ interface RawSub {
       };
     }>;
   };
+}
+
+/**
+ * Product names, looked up separately. Expanding `data.items.data.price.product`
+ * on the subscriptions list is five levels deep and Stripe caps expansion at
+ * four, so that request fails on every call.
+ */
+async function productNames(ids: string[]): Promise<Map<string, string>> {
+  const names = new Map<string, string>();
+  if (ids.length === 0) return names;
+  // Stripe's products list accepts up to 10 ids per call.
+  for (let i = 0; i < ids.length; i += 10) {
+    const params: Record<string, string> = { limit: "10" };
+    ids.slice(i, i + 10).forEach((id, j) => (params[`ids[${j}]`] = id));
+    const page = await get<{ data: Array<{ id: string; name?: string }> }>("/products", params);
+    for (const pr of page.data) if (pr.name) names.set(pr.id, pr.name);
+  }
+  return names;
 }
 
 function perMonth(unitCents: number, qty: number, interval: string, count: number): number {
@@ -83,40 +103,53 @@ function perMonth(unitCents: number, qty: number, interval: string, count: numbe
   }
 }
 
+/** ISO date of the current period end, wherever this API version puts it. */
+function periodEnd(s: RawSub): string {
+  const secs = s.current_period_end ?? s.items.data.map((i) => i.current_period_end).find((n) => typeof n === "number");
+  return typeof secs === "number" && Number.isFinite(secs) ? new Date(secs * 1000).toISOString().slice(0, 10) : "";
+}
+
 /** All subscriptions (any status) plus the MRR of the active ones. */
 export async function pullTestRevenue(): Promise<StripeRevenue> {
   const subs: StripeSubscription[] = [];
   let startingAfter: string | undefined;
+  const raw: RawSub[] = [];
 
   for (;;) {
     const page = await get<{ data: RawSub[]; has_more: boolean }>("/subscriptions", {
       status: "all",
       limit: "100",
-      "expand[]": "data.items.data.price.product",
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     });
-
-    for (const s of page.data) {
-      let monthly = 0;
-      let productName = "Subscription";
-      for (const item of s.items.data) {
-        const p = item.price;
-        if (p.unit_amount == null || !p.recurring) continue;
-        monthly += perMonth(p.unit_amount, item.quantity ?? 1, p.recurring.interval, p.recurring.interval_count);
-        if (typeof p.product === "object" && p.product.name) productName = p.product.name;
-      }
-      subs.push({
-        id: s.id,
-        customer: s.customer,
-        status: s.status,
-        monthlyAmount: Math.round(monthly * 100) / 100,
-        productName,
-        currentPeriodEnd: new Date(s.current_period_end * 1000).toISOString().slice(0, 10),
-      });
-    }
-
+    raw.push(...page.data);
     if (!page.has_more || page.data.length === 0) break;
     startingAfter = page.data[page.data.length - 1].id;
+  }
+
+  const productIds = new Set<string>();
+  for (const s of raw) for (const item of s.items.data) {
+    if (typeof item.price.product === "string") productIds.add(item.price.product);
+  }
+  const names = await productNames([...productIds]);
+
+  for (const s of raw) {
+    let monthly = 0;
+    let productName = "Subscription";
+    for (const item of s.items.data) {
+      const p = item.price;
+      if (p.unit_amount == null || !p.recurring) continue;
+      monthly += perMonth(p.unit_amount, item.quantity ?? 1, p.recurring.interval, p.recurring.interval_count);
+      if (typeof p.product === "object" && p.product.name) productName = p.product.name;
+      else if (typeof p.product === "string" && names.has(p.product)) productName = names.get(p.product)!;
+    }
+    subs.push({
+      id: s.id,
+      customer: s.customer,
+      status: s.status,
+      monthlyAmount: Math.round(monthly * 100) / 100,
+      productName,
+      currentPeriodEnd: periodEnd(s),
+    });
   }
 
   const active = subs.filter((s) => s.status === "active" || s.status === "trialing");

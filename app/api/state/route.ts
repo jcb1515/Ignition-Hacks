@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { APPROVAL_THRESHOLD, COMPANY, DEMO_MODE } from "@/lib/company";
 import { llmAvailable } from "@/lib/llm";
+import { revenueProfile } from "@/lib/revenue";
 import { estimateSavings, forecast } from "@/lib/agents/forecast";
 import {
   getActions, getDrafts, getFlaggedTransactions,
@@ -46,10 +47,12 @@ export async function GET() {
     // $0 and nothing is ever held for a human.
     const flags = rebuilt.map((f) => ({ ...f, savings: estimateSavings(f, vendors) }));
 
+    const revenue = revenueProfile();
     const fc = forecast(flags);
 
     return NextResponse.json({
-      company: COMPANY,
+      company: { ...COMPANY, mrr: revenue.mrr },
+      revenue,
       config: {
         demoMode: DEMO_MODE,
         llmLive: llmAvailable(),

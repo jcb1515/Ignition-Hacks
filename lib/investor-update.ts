@@ -11,6 +11,7 @@
  * it should be fed — the content is already shaped like a slide.
  */
 import { APPROVAL_THRESHOLD, COMPANY, DEMO_MODE } from "@/lib/company";
+import { currentMrr } from "@/lib/revenue";
 import { forecast } from "@/lib/agents/forecast";
 import { getActionsForLatestRun, getDrafts, getFlaggedTransactions, getVendors } from "@/lib/db/queries";
 import { formatCurrency } from "@/lib/types";
@@ -121,7 +122,7 @@ export function buildInvestorUpdate(): InvestorUpdate {
           : "Nothing exceeded the anomaly thresholds.",
         realisedMonthly > 0 ? `${formatCurrency(realisedMonthly * 12)}/yr is already locked in through negotiation — ${actions.filter((a) => a.type === "negotiation_accepted").length} closed by the agent under the threshold, ${actions.filter((a) => a.type === "human_accept").length} signed by a human above it.` : "",
         `${drafts.length} vendor emails were drafted. ${pending} exceeded the ${formatCurrency(APPROVAL_THRESHOLD)}/mo autonomy threshold and are held for a human; ${sent} have been released to the sandbox outbox. Nothing is ever sent to a real vendor without sign-off.`,
-        `Acting on all findings moves runway from ${current.runwayMonths.toFixed(1)} to ${cut.runwayMonths.toFixed(1)} months at current revenue (${formatCurrency(COMPANY.mrr)} MRR).`,
+        `Acting on all findings moves runway from ${current.runwayMonths.toFixed(1)} to ${cut.runwayMonths.toFixed(1)} months at current revenue (${formatCurrency(currentMrr())} MRR).`,
       ];
 
   return {

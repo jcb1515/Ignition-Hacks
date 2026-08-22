@@ -22,6 +22,10 @@ interface Scenario {
 }
 interface State {
   company: { name: string; headcount: number; cashOnHand: number; mrr: number };
+  revenue: {
+    mrr: number; source: "stripe" | "seed"; activeSubscriptions: number; syncedAt?: string;
+    subscriptions: Array<{ id: string; productName: string; status: string; monthlyAmount: number }>;
+  };
   config: { demoMode: boolean; llmLive: boolean; approvalThreshold: number };
   vendors: Vendor[];
   transactions: Transaction[];
@@ -63,18 +67,41 @@ export default function Dashboard() {
 
   // Initial load. State is set from the fetch callback rather than the effect
   // body, and the guard stops a slow response writing to an unmounted page.
+  //
+  // When DEMO_MODE=false and sandbox keys are configured, also pull Plaid and
+  // Stripe once so the numbers on screen are the live ones. On a serverless
+  // host the database is per-instance, so this is what keeps a fresh instance
+  // from showing the seeded MRR next to a "Live sandbox" badge.
   useEffect(() => {
     let cancelled = false;
+    const fetchState = async () => {
+      const res = await fetch("/api/state", { cache: "no-store" });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "failed to load");
+      return body as State;
+    };
     (async () => {
       try {
-        const res = await fetch("/api/state", { cache: "no-store" });
-        const body = await res.json();
+        const first = await fetchState();
         if (cancelled) return;
-        if (!res.ok) throw new Error(body.error ?? "failed to load");
-        setState(body);
+        setState(first);
         setError(null);
+
+        const src = await fetch("/api/sync", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+        if (cancelled || !src || src.mode !== "live" || !(src.plaid || src.stripe)) return;
+
+        setStatus("Syncing live sandbox data...");
+        const sync = await fetch("/api/sync", { method: "POST" }).then((r) => r.json()).catch(() => null);
+        if (cancelled) return;
+        const problems = [sync?.plaid?.error, sync?.stripe?.error, sync?.error].filter(Boolean);
+        if (problems.length) setError(`Sync: ${problems.join(" · ")}`);
+
+        const after = await fetchState();
+        if (!cancelled) setState(after);
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : "Could not reach the API");
+      } finally {
+        if (!cancelled) setStatus("");
       }
     })();
     return () => { cancelled = true; };
@@ -237,11 +264,21 @@ export default function Dashboard() {
       )}
 
       {/* KPI row */}
-      <div className="mx-auto grid max-w-[1440px] gap-px bg-ink/20 px-0 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-[1440px] gap-px bg-ink/20 px-0 sm:grid-cols-2 lg:grid-cols-5">
         <StatTile
           label="Monthly burn"
           value={formatCurrency(current.monthlyBurn)}
           sub={`${formatCurrency(state.forecast.vendorSpend)} of that is vendor spend`}
+        />
+        <StatTile
+          label="Monthly revenue"
+          value={formatCurrency(state.revenue.mrr)}
+          sub={
+            state.revenue.source === "stripe"
+              ? `${state.revenue.activeSubscriptions} active ${state.revenue.activeSubscriptions === 1 ? "subscription" : "subscriptions"} · Stripe test mode`
+              : "Seeded MRR · set DEMO_MODE=false + Stripe key for live"
+          }
+          accent={state.revenue.source === "stripe" ? "good" : "neutral"}
         />
         <StatTile
           label="Runway"

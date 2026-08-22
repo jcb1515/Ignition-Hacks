@@ -60,6 +60,14 @@ CREATE TABLE IF NOT EXISTS drafts (
   sent       INTEGER NOT NULL DEFAULT 0
 );
 
+-- Small key/value store for synced facts that are not rows in the four tables:
+-- the latest Stripe revenue pull lives here so the forecast can use real MRR.
+CREATE TABLE IF NOT EXISTS settings (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_tx_vendor ON transactions(vendor_id);
 CREATE INDEX IF NOT EXISTS idx_tx_date   ON transactions(date);
 CREATE INDEX IF NOT EXISTS idx_act_ts    ON agent_actions(timestamp);

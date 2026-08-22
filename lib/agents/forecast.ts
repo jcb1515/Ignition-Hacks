@@ -8,6 +8,7 @@
  * number implies a precision the underlying assumptions do not support.
  */
 import { COMPANY } from "@/lib/company";
+import { currentMrr } from "@/lib/revenue";
 import { getTransactions, getVendors } from "@/lib/db/queries";
 import type { Flag, Vendor } from "@/lib/types";
 
@@ -124,7 +125,7 @@ function project(monthlyBurn: number, mrr: number): { runway: number; path: numb
  *
  * Seeded, so the band is identical on every run.
  */
-function monteCarlo(monthlyBurn: number, seed: number): MonteCarloBand {
+function monteCarlo(monthlyBurn: number, startingMrr: number, seed: number): MonteCarloBand {
   const rng = makeRng(seed);
   const TRIALS = 4000;
   const runways: number[] = [];
@@ -135,7 +136,7 @@ function monteCarlo(monthlyBurn: number, seed: number): MonteCarloBand {
     const growthRate = 0.03 + 0.025 * gauss(rng);
 
     let cash: number = COMPANY.cashOnHand;
-    let mrr: number = COMPANY.mrr;
+    let mrr: number = startingMrr;
     let months = 0;
 
     while (months < 120) {
@@ -200,19 +201,20 @@ export function forecast(flags: Flag[] = []): ForecastResult {
     },
   ];
 
+  const mrr = currentMrr();
   const scenarios: Scenario[] = [];
   const mc: Record<string, MonteCarloBand> = {};
   for (const d of defs) {
-    const { runway, path } = project(d.burn, COMPANY.mrr);
+    const { runway, path } = project(d.burn, mrr);
     scenarios.push({
       label: d.label,
       description: d.description,
       monthlyBurn: Math.round(d.burn),
-      netBurn: Math.round(d.burn - COMPANY.mrr),
+      netBurn: Math.round(d.burn - mrr),
       runwayMonths: runway,
       path,
     });
-    mc[d.label] = monteCarlo(d.burn, d.seed);
+    mc[d.label] = monteCarlo(d.burn, mrr, d.seed);
   }
 
   return { vendorSpend: Math.round(vendorSpend), scenarios, monteCarlo: mc, history, totalMonthlySavings };

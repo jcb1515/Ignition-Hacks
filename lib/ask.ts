@@ -12,6 +12,7 @@
  * to build, nothing to host, nothing to fail.
  */
 import { APPROVAL_THRESHOLD, COMPANY, DEMO_MODE } from "@/lib/company";
+import { currentMrr } from "@/lib/revenue";
 import { forecast } from "@/lib/agents/forecast";
 import { generate, llmAvailable } from "@/lib/llm";
 import { getActions, getDrafts, getFlaggedTransactions, getVendors } from "@/lib/db/queries";
@@ -221,7 +222,7 @@ function route(q: string, c: Ctx): { intent: string; text: string } | null {
 function contextBlob(c: Ctx): string {
   const [cur, cut, freeze] = c.f.scenarios;
   return [
-    `Company: ${COMPANY.name}, ${COMPANY.headcount} people, cash ${formatCurrency(COMPANY.cashOnHand)}, MRR ${formatCurrency(COMPANY.mrr)}.`,
+    `Company: ${COMPANY.name}, ${COMPANY.headcount} people, cash ${formatCurrency(COMPANY.cashOnHand)}, MRR ${formatCurrency(currentMrr())}.`,
     `Burn ${formatCurrency(cur.monthlyBurn)}/mo; vendor spend ${formatCurrency(c.f.vendorSpend)}/mo.`,
     `Runway: current ${cur.runwayMonths.toFixed(1)} mo, all flags remediated ${cut.runwayMonths.toFixed(1)} mo, plus hiring freeze ${freeze.runwayMonths.toFixed(1)} mo.`,
     `Approval threshold ${formatCurrency(APPROVAL_THRESHOLD)}/mo.`,

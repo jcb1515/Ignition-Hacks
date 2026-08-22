@@ -1,6 +1,24 @@
 import Database from "better-sqlite3";
-import { readFileSync } from "node:fs";
+import { accessSync, constants, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
+
+/**
+ * Where the SQLite file lives. Serverless hosts (Vercel, Lambda) mount the
+ * bundle read-only, so `./runway.db` cannot be created there and every write
+ * fails with "unable to open database file". Fall back to the OS temp dir
+ * when the working directory is not writable. That database is per-instance
+ * and ephemeral — fine for a demo, and auto-seed below fills it on first open.
+ */
+function databasePath(): string {
+  if (process.env.DATABASE_PATH) return process.env.DATABASE_PATH;
+  try {
+    accessSync(process.cwd(), constants.W_OK);
+    return join(process.cwd(), "runway.db");
+  } catch {
+    return join(tmpdir(), "runway.db");
+  }
+}
 
 let _db: Database.Database | null = null;
 
@@ -12,7 +30,7 @@ let _db: Database.Database | null = null;
 export function db(): Database.Database {
   if (_db) return _db;
 
-  const path = process.env.DATABASE_PATH ?? join(process.cwd(), "runway.db");
+  const path = databasePath();
   const conn = new Database(path);
   conn.pragma("journal_mode = WAL");
   conn.pragma("foreign_keys = ON");
@@ -41,6 +59,7 @@ export function db(): Database.Database {
 export function resetDb(): void {
   const conn = db();
   conn.exec(`
+    DELETE FROM settings;
     DELETE FROM drafts;
     DELETE FROM forecast_snapshots;
     DELETE FROM agent_actions;

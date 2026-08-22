@@ -20,6 +20,7 @@ import { DEMO_MODE } from "@/lib/company";
 import { getVendor, upsertTransaction, upsertVendor } from "@/lib/db/queries";
 import { fetchTransactions, plaidConfigured, pullSandboxSpend, type PlaidTransaction } from "./plaid";
 import { pullTestRevenue, stripeConfigured, type StripeRevenue } from "./stripe";
+import { storeStripeRevenue } from "@/lib/revenue";
 
 export interface SyncResult {
   mode: "demo" | "live" | "linked";
@@ -160,6 +161,8 @@ export async function runLiveSync(opts: { accessToken?: string } = {}): Promise<
   if (result.stripe.configured && !DEMO_MODE) {
     try {
       result.stripe.revenue = await pullTestRevenue();
+      // Persist so the forecast and dashboard use real MRR, not the seeded constant.
+      storeStripeRevenue(result.stripe.revenue);
     } catch (err) {
       result.stripe.error = err instanceof Error ? err.message : String(err);
     }
