@@ -101,6 +101,10 @@ the ones it hands back.
 
 Every turn is an `agent_actions` row (`negotiation_*` / `vendor_*`, target = vendor
 name), so the thread is reconstructable from the log and the Q&A agent can summarise it.
+The human side is `POST /api/negotiate/decide { actionId, decision: accept | walk }`,
+which only accepts `negotiation_accept_pending` / `negotiation_escalated` rows, refuses a
+second decision, and writes a `human_accept` / `human_walk` row so the log shows who
+signed. The thread component renders Accept / Walk on exactly those rows.
 
 ## The two modes
 
@@ -162,7 +166,7 @@ lib/
   ask.ts                intent router + grounded LLM fallback
   investor-update.ts    slide payload from the audit
 app/api/
-  audit   state   approve   reset   sync   ask   investor-update   negotiate
+  audit   state   approve   reset   sync   ask   investor-update   negotiate   negotiate/decide
 app/
   dashboard/            the product
   investor-update/      the closer
