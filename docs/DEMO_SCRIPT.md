@@ -8,12 +8,12 @@ is byte-identical on every run in demo mode, so what you rehearse is what judges
 ```bash
 cat .env.local | grep DEMO_MODE        # must be unset or "true" on stage
 npm run seed                           # fresh DB: 12 vendors, 6 periods, 0 flags
-npm run smoke                          # asserts the 4 planted anomalies get caught
+npx tsx scripts/preflight.ts           # env sanity + both smoke suites + every demo route
 npm run dev                            # local, not hosted — no cold starts
 open http://localhost:3000/dashboard
 ```
 
-If `npm run smoke` fails: **do not debug live.** Play the backup recording.
+If preflight prints anything but `PREFLIGHT CLEAR`: **do not debug live.** Play the backup recording.
 
 Also: laptop on power, notifications off, browser zoom 110%, backup video open in a second tab.
 

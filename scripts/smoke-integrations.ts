@@ -1,0 +1,100 @@
+/**
+ * Offline smoke test for the integration + Q&A layer. No network, no keys.
+ * Runs against a throwaway DB so it never touches runway.db.
+ *
+ *   DATABASE_PATH=/tmp/rr-int.db npx tsx scripts/smoke-integrations.ts
+ *
+ * (scripts/preflight.ts sets DATABASE_PATH for you.)
+ */
+import { execFileSync } from "node:child_process";
+import { importSpend } from "../lib/integrations/sync";
+import { stripeConfigured, pullTestRevenue } from "../lib/integrations/stripe";
+import { plaidConfigured } from "../lib/integrations/plaid";
+import { ask } from "../lib/ask";
+import { buildInvestorUpdate } from "../lib/investor-update";
+import { runAudit } from "../lib/agents/orchestrator";
+import { getTransactionsForVendor, getVendor, setVendorStatus } from "../lib/db/queries";
+import { resetDb } from "../lib/db";
+
+let failures = 0, checks = 0;
+function check(name: string, ok: boolean, detail = "") {
+  checks += 1;
+  console.log(`  ${ok ? "PASS" : "FAIL"}  ${name}${!ok && detail ? `\n        ${detail}` : ""}`);
+  if (!ok) failures += 1;
+}
+const section = (t: string) => console.log(`\n${t}`);
+
+async function main() {
+  console.log("Runway Radar integration smoke test\n" + "=".repeat(50));
+
+  /* ---- Plaid import, offline ---- */
+  section("Plaid import (fake payload)");
+  resetDb();
+  const fake = [
+    { transactionId: "a", merchant: "Datadog", amount: 1200, date: "2026-01-14", category: "GENERAL_SERVICES", pending: false },
+    { transactionId: "b", merchant: "Datadog", amount: 1300, date: "2026-02-14", category: "GENERAL_SERVICES", pending: false },
+    { transactionId: "c", merchant: "Notion Labs", amount: 96, date: "2026-02-03", category: "GENERAL_SERVICES", pending: false },
+    { transactionId: "d", merchant: "Uber Eats", amount: 42, date: "2026-02-05", category: "FOOD_AND_DRINK", pending: false },
+    { transactionId: "e", merchant: "Pending Co", amount: 9, date: "2026-02-05", category: "FOOD_AND_DRINK", pending: true },
+  ];
+  const r1 = importSpend(fake);
+  check("creates one vendor per merchant", r1.vendorsCreated === 3, `got ${r1.vendorsCreated}`);
+  check("skips pending transactions", !getVendor("plaid-pending-co"));
+  check("buckets to billing period", getTransactionsForVendor("plaid-datadog").every((t) => t.date.endsWith("-01")));
+  check("monthly cost = latest month", getVendor("plaid-datadog")?.monthlyCost === 1300);
+  check("maps function tag", getVendor("plaid-datadog")?.functionTag === "observability" && getVendor("plaid-notion-labs")?.functionTag === "knowledge_base");
+  check("unknown merchant → other", getVendor("plaid-uber-eats")?.functionTag === "other");
+  setVendorStatus("plaid-datadog", "flagged");
+  const r2 = importSpend(fake);
+  check("rerun is idempotent", r2.vendorsCreated === 0 && getTransactionsForVendor("plaid-datadog").length === 2);
+  check("rerun preserves agent-set status", getVendor("plaid-datadog")?.status === "flagged");
+
+  /* ---- Stripe guard ---- */
+  section("Stripe guard");
+  const saved = process.env.STRIPE_SECRET_KEY;
+  process.env.STRIPE_SECRET_KEY = "sk_live_should_never_work";
+  check("live key is not 'configured'", !stripeConfigured());
+  let threw = false;
+  try { await pullTestRevenue(); } catch (e) { threw = /not a test-mode key/.test(String(e)); }
+  check("live key throws before any request", threw);
+  process.env.STRIPE_SECRET_KEY = "sk_test_x";
+  check("test key is configured", stripeConfigured());
+  if (saved === undefined) delete process.env.STRIPE_SECRET_KEY; else process.env.STRIPE_SECRET_KEY = saved;
+  check("plaid unconfigured without keys", plaidConfigured() === Boolean(process.env.PLAID_CLIENT_ID && process.env.PLAID_SECRET));
+
+  /* ---- Q&A + slide on a real audit ---- */
+  section("Ask + investor update (seeded audit)");
+  execFileSync("npx", ["tsx", "scripts/seed.ts"], { stdio: "pipe", env: process.env });
+  for await (const ev of runAudit()) { if (ev.type === "done") break; }
+
+  const expect: Array<[string, string, RegExp]> = [
+    ["Why did you flag Twilio?", "why_flagged", /4\.00x/],
+    ["what's our runway", "runway", /9\.4 months/],
+    ["how much can we save", "savings", /\$76,620/],
+    ["what's waiting on me", "pending", /^2 drafts/],
+    ["what is the approval threshold", "threshold", /\$1,000/],
+    ["tell me about Vercel", "vendor_detail", /Not flagged/],
+    ["summary", "summary", /flagged 4/],
+    ["what color is the sky", "unknown", /I can answer from the audit/],
+  ];
+  for (const [q, intent, re] of expect) {
+    const a = await ask(q);
+    check(`"${q}" → ${intent}`, a.intent === intent && re.test(a.answer), `got ${a.intent}: ${a.answer.slice(0, 90)}`);
+  }
+  const a = await ask("anything");
+  check("never calls an LLM in demo mode", a.source !== "llm");
+
+  const u = buildInvestorUpdate();
+  check("slide: audited", u.audited);
+  check("slide: 4 findings", u.findings.length === 4, `got ${u.findings.length}`);
+  check("slide: headline carries annual savings", /\$76,620\/yr/.test(u.headline), u.headline);
+  check("slide: 2 pending", u.governance.pending === 2, `got ${u.governance.pending}`);
+  check("slide: runway gain > 0", u.runway.monthsGained > 0);
+  check("slide: every finding has a why", u.findings.every((f) => f.why.length > 5));
+
+  console.log("\n" + "=".repeat(50));
+  if (failures) { console.log(`${failures} of ${checks} checks FAILED`); process.exit(1); }
+  console.log(`ALL ${checks} CHECKS PASSED`);
+}
+
+main().catch((e) => { console.error(e); process.exit(1); });
