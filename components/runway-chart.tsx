@@ -35,13 +35,13 @@ export default function RunwayChart({
           />
           <XAxis
             dataKey="month"
-            stroke="#626e85"
-            tick={{ fill: "#94a0b8", fontSize: 11 }}
+            stroke="var(--color-slate)"
+            tick={{ fill: "var(--color-muted)", fontSize: 11 }}
           />
           <YAxis
             tickFormatter={(v) => `$${v / 1000}k`}
-            stroke="#626e85"
-            tick={{ fill: "#94a0b8", fontSize: 11 }}
+            stroke="var(--color-slate)"
+            tick={{ fill: "var(--color-muted)", fontSize: 11 }}
           />
           <Tooltip
             cursor={{ stroke: "#3d7bff", strokeWidth: 1 }}
@@ -56,7 +56,7 @@ export default function RunwayChart({
               name,
             ]}
           />
-          <Legend wrapperStyle={{ fontSize: "11px", color: "#94a0b8" }} />
+          <Legend wrapperStyle={{ fontSize: "11px", color: "var(--color-muted)" }} />
           <Line
             type="monotone"
             dataKey="current"

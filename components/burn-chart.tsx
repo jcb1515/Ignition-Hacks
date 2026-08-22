@@ -35,13 +35,13 @@ export default function BurnChart({
           />
           <XAxis
             dataKey="month"
-            stroke="#626e85"
-            tick={{ fill: "#94a0b8", fontSize: 11 }}
+            stroke="var(--color-slate)"
+            tick={{ fill: "var(--color-muted)", fontSize: 11 }}
           />
           <YAxis
             tickFormatter={(v) => `$${v / 1000}k`}
-            stroke="#626e85"
-            tick={{ fill: "#94a0b8", fontSize: 11 }}
+            stroke="var(--color-slate)"
+            tick={{ fill: "var(--color-muted)", fontSize: 11 }}
           />
           <Tooltip
             cursor={{ stroke: "#3d7bff", strokeWidth: 1 }}

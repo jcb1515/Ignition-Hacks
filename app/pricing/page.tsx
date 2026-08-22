@@ -46,7 +46,7 @@ const tiers = [
 export default function PricingPage() {
   return (
     <div className="bg-page">
-      <section className="border-b border-border bg-page text-ink">
+      <section className="border-b border-border bg-page text-fg">
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
           <Reveal>
             <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-azure">
@@ -76,8 +76,8 @@ export default function PricingPage() {
               <PointerPanel
                 className={`flex min-h-[480px] flex-col border p-7 ${
                   tier.featured
-                    ? "border-ink bg-ink text-white"
-                    : "border-ink/20 bg-canvas hover:border-azure"
+                    ? "border-card-2 bg-ink text-white"
+                    : "border-fg/20 bg-canvas hover:border-azure"
                 }`}
               >
                 <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.14em]">
@@ -88,17 +88,17 @@ export default function PricingPage() {
                 </div>
                 <div className="mt-14">
                   <h2 className="font-display text-5xl leading-none tracking-[-0.06em]">{tier.name}</h2>
-                  <p className={`mt-4 max-w-xs text-sm leading-relaxed ${tier.featured ? "text-page/60" : "text-ink/60"}`}>
+                  <p className={`mt-4 max-w-xs text-sm leading-relaxed ${tier.featured ? "text-white/60" : "text-fg/60"}`}>
                     {tier.description}
                   </p>
                   <p className="mt-10 font-display text-6xl leading-none tracking-[-0.07em]">
                     {tier.price}
-                    <span className={`ml-2 font-mono text-[10px] uppercase tracking-[0.1em] ${tier.featured ? "text-page/50" : "text-ink/45"}`}>
+                    <span className={`ml-2 font-mono text-[10px] uppercase tracking-[0.1em] ${tier.featured ? "text-white/50" : "text-fg/45"}`}>
                       {tier.price === "Custom" || tier.price === "$0" ? "" : "per month"}
                     </span>
                   </p>
                 </div>
-                <ul className={`mt-10 space-y-4 border-t pt-6 text-sm ${tier.featured ? "border-page/20 text-page/75" : "border-ink/15 text-ink/70"}`}>
+                <ul className={`mt-10 space-y-4 border-t pt-6 text-sm ${tier.featured ? "border-white/20 text-white/75" : "border-fg/15 text-fg/70"}`}>
                   {tier.features.map((feature) => (
                     <li key={feature} className="data-row flex gap-3">
                       <Check size={16} className="mt-0.5 shrink-0 text-azure" />

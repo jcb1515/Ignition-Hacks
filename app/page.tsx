@@ -159,9 +159,9 @@ export default function Home() {
   const flaggedTx = billing.transactions.filter((transaction) => transaction.flagged);
 
   return (
-    <div className="relative overflow-hidden bg-page text-ink">
+    <div className="relative overflow-hidden bg-page text-fg">
       {/* Hero */}
-      <section className="relative border-b border-border bg-page text-ink">
+      <section className="relative border-b border-border bg-page text-fg">
         <div className="mx-auto grid max-w-[1440px] gap-12 px-6 py-16 sm:px-10 lg:grid-cols-[1.06fr_0.94fr] lg:px-14 lg:py-24">
           <div className="flex flex-col justify-between">
             <div>
@@ -209,9 +209,9 @@ export default function Home() {
                   <span className="text-azure">{isRunning ? "Scanning" : "Nominal"}</span>
                 </div>
                 <div className="relative mx-auto flex h-64 w-64 items-center justify-center sm:h-72 sm:w-72">
-                  <div className="absolute inset-0 rounded-full border border-ink/10" />
-                  <div className="absolute inset-5 rounded-full border border-ink/10" />
-                  <div className="absolute inset-12 rounded-full border border-ink/10" />
+                  <div className="absolute inset-0 rounded-full border border-fg/10" />
+                  <div className="absolute inset-5 rounded-full border border-fg/10" />
+                  <div className="absolute inset-12 rounded-full border border-fg/10" />
                   <div className="absolute left-1/2 top-1/2 h-[1px] w-1/2 origin-left bg-gradient-to-r from-azure to-transparent" style={{ transform: "rotate(45deg)" }} />
                   <span className="absolute left-[25%] top-[29%] h-2.5 w-2.5 rounded-full bg-azure" />
                   <span className="absolute right-[19%] top-[44%] h-2 w-2 rounded-full bg-slate" />
@@ -259,9 +259,9 @@ export default function Home() {
       {/* Live dashboard */}
       <section className="mx-auto max-w-[1440px] px-6 py-16 sm:px-10 lg:px-14 lg:py-20">
         <Reveal>
-          <div className="mb-8 flex flex-col justify-between gap-6 border-b border-ink/20 pb-6 sm:flex-row sm:items-end">
+          <div className="mb-8 flex flex-col justify-between gap-6 border-b border-fg/20 pb-6 sm:flex-row sm:items-end">
             <div>
-              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-ink/50">
+              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-fg/50">
                 Live agent dashboard
               </p>
               <h2 className="mt-4 font-display text-5xl font-medium leading-none tracking-[-0.055em] sm:text-6xl">
@@ -595,7 +595,7 @@ export default function Home() {
       </section>
 
       {/* Operating loop */}
-      <section className="border-t border-border bg-page text-ink">
+      <section className="border-t border-border bg-page text-fg">
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-24">
           <div className="grid gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-20">
             <div className="flex flex-col justify-between">
@@ -633,7 +633,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-t border-border bg-card text-ink">
+      <section className="border-t border-border bg-card text-fg">
         <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-6 py-14 sm:px-10 md:flex-row md:items-end lg:px-14 lg:py-16">
           <Reveal>
             <p className="max-w-3xl font-display text-4xl font-medium leading-[0.9] tracking-[-0.055em] sm:text-6xl">
@@ -680,7 +680,7 @@ function StatPill({
   return (
     <div>
       <CountUp value={value} format={format} className="font-display text-2xl font-medium leading-none" />
-      <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/50">{label}</p>
+      <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-fg/50">{label}</p>
     </div>
   );
 }
