@@ -215,40 +215,11 @@ li {
   mask-image: radial-gradient(circle at center, black, transparent 78%);
 }
 
-/* Pointer-reactive panel glow */
+/* Rounded card */
 .pointer-panel {
   position: relative;
   border-radius: 1.25rem;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.3s ease, background-color 0.3s ease;
-}
-
-.pointer-panel::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 1.25rem;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  background: radial-gradient(
-    260px circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
-    rgba(61, 123, 255, 0.1),
-    transparent 70%
-  );
-}
-
-.pointer-panel:hover::after {
-  opacity: 1;
-}
-
-/* Light-surface variant */
-.pointer-panel-light::after {
-  background: radial-gradient(
-    260px circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
-    rgba(61, 123, 255, 0.08),
-    transparent 70%
-  );
+  transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Marquee */

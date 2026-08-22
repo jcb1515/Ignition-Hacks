@@ -74,10 +74,9 @@ export default function PricingPage() {
           {tiers.map((tier, index) => (
             <Reveal key={tier.name} delay={index * 90}>
               <PointerPanel
-                variant={tier.featured ? "dark" : "light"}
                 className={`flex min-h-[480px] flex-col border p-7 ${
                   tier.featured
-                    ? "border-ink bg-ink text-page"
+                    ? "border-ink bg-ink text-white"
                     : "border-ink/20 bg-canvas hover:border-azure"
                 }`}
               >

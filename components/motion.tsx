@@ -124,49 +124,16 @@ export function usePointerGlow<T extends HTMLElement>() {
   return { ref, onPointerMove };
 }
 
-/** Panel that lights up and tilts subtly toward the cursor. */
+/** Rounded, lightly bordered panel. */
 export function PointerPanel({
   children,
   className = "",
-  variant = "dark",
-  tilt = 1,
 }: {
   children: ReactNode;
   className?: string;
-  variant?: "dark" | "light";
-  tilt?: number;
 }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  const handleMove = (event: MouseEvent<HTMLDivElement>) => {
-    const node = ref.current;
-    if (!node) return;
-    const rect = node.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    node.style.setProperty("--pointer-x", `${x}px`);
-    node.style.setProperty("--pointer-y", `${y}px`);
-
-    if (tilt > 0 && !prefersReducedMotion()) {
-      const damp = 0.5;
-      const rotateY = ((x / rect.width) * 2 - 1) * tilt * damp;
-      const rotateX = ((y / rect.height) * 2 - 1) * -tilt * damp;
-      node.style.transform = `perspective(1400px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-2px)`;
-    }
-  };
-
-  const handleLeave = () => {
-    const node = ref.current;
-    if (node) node.style.transform = "";
-  };
-
   return (
-    <div
-      ref={ref}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      className={`pointer-panel ${variant === "light" ? "pointer-panel-light" : ""} ${className}`}
-    >
+    <div className={`pointer-panel ${className}`}>
       {children}
     </div>
   );
