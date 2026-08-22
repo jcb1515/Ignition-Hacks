@@ -96,6 +96,10 @@ export function usePlaid() {
         const [accountsRes, txRes] = await Promise.all([
           fetch("/api/plaid/accounts", { method: "POST", headers, body }),
           fetch("/api/plaid/transactions", { method: "POST", headers, body }),
+          // Also feed the linked Item into the agent tables, so "connect a bank"
+          // → "run audit" is one story. Server-side, idempotent; failure is
+          // non-fatal for the panel, which only needs the two calls above.
+          fetch("/api/sync", { method: "POST", headers, body: JSON.stringify({ accessToken }) }).catch(() => null),
         ]);
         const accountsData = await accountsRes.json();
         const txData = await txRes.json();
