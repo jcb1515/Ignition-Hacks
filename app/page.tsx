@@ -78,18 +78,32 @@ interface State {
 
 export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
+  const [hasRunAudit, setHasRunAudit] = useState(false);
+  const [auditComplete, setAuditComplete] = useState(false);
   const [state, setState] = useState<State | null>(null);
   const [liveActions, setLiveActions] = useState<AgentAction[]>([]);
   const [view, setView] = useState<"main" | "agents">("main");
   const plaid = usePlaid();
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/state?refresh=${Date.now()}`, { cache: "no-store" });
-      if (res.ok) setState(await res.json());
-    } catch {
-      // Landing page renders with placeholders if the API is unreachable.
+  const load = useCallback(async (expectedActionId?: string) => {
+    const attempts = expectedActionId ? 6 : 1;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      try {
+        const res = await fetch(`/api/state?refresh=${Date.now()}`, { cache: "no-store" });
+        if (res.ok) {
+          const nextState = await res.json() as State;
+          const isFresh = !expectedActionId || nextState.actions.some((action) => action.id === expectedActionId);
+          if (isFresh) {
+            setState(nextState);
+            return true;
+          }
+        }
+      } catch {
+        // Landing page renders with placeholders if the API is unreachable.
+      }
+      await new Promise((resolve) => setTimeout(resolve, 150 * (attempt + 1)));
     }
+    return false;
   }, []);
 
   // Initial load. setState happens in the async callback, not the effect body,
@@ -128,6 +142,11 @@ export default function Home() {
 
   const bankBalance = plaid.balance;
   const plaidReady = plaid.connected && !plaid.loading;
+  const auditButtonLabel = isRunning
+    ? "Scanning..."
+    : auditComplete
+      ? "Burn check complete — rerun"
+      : "Run burn check";
 
   /**
    * Runs the real audit. Streams the Orchestrator's run to completion, then
@@ -135,15 +154,26 @@ export default function Home() {
    */
   const runAudit = async () => {
     setIsRunning(true);
+    setHasRunAudit(true);
+    setAuditComplete(false);
     setLiveActions([]);
     try {
+      if (plaid.accessToken) {
+        const sync = await fetch("/api/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ accessToken: plaid.accessToken }),
+        });
+        if (!sync.ok) throw new Error("Bank sync failed");
+      }
+
       const res = await fetch("/api/audit", { method: "POST" });
       if (!res.ok || !res.body) throw new Error("Audit failed");
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-      let refreshed = false;
+      let latestActionId: string | undefined;
 
       for (;;) {
         const { done, value } = await reader.read();
@@ -156,23 +186,26 @@ export default function Home() {
           const line = chunk.trim();
           if (!line.startsWith("data: ")) continue;
           const event = JSON.parse(line.slice(6));
-          if (event.type === "action") setLiveActions((previous) => [...previous, event.action]);
+          if (event.type === "action") {
+            latestActionId = event.action.id;
+            setLiveActions((previous) => [...previous, event.action]);
+          }
+          if (event.type === "error") throw new Error(event.message);
           if (event.type === "done") {
-            await load();
-            refreshed = true;
-            await reader.cancel();
-            break;
+            const refreshed = await load(latestActionId);
+            setAuditComplete(refreshed);
+            void reader.cancel().catch(() => undefined);
+            return;
           }
         }
-        if (refreshed) break;
       }
 
-      if (!refreshed) await load();
+      const refreshed = await load(latestActionId);
+      setAuditComplete(refreshed);
     } catch {
       /* leave the previous state on screen */
     } finally {
       setIsRunning(false);
-      setLiveActions([]);
     }
   };
 
@@ -271,7 +304,7 @@ export default function Home() {
                   disabled={isRunning}
                   className="group inline-flex min-h-12 w-full shrink-0 items-center justify-between gap-8 rounded-full border border-border bg-card px-5 py-4 text-sm font-medium text-on-card shadow-sm transition-colors hover:border-azure hover:bg-azure hover:text-white disabled:cursor-wait disabled:opacity-60 sm:w-auto"
                 >
-                  <span>{isRunning ? "Scanning..." : "Run a burn check"}</span>
+                  <span>{auditButtonLabel}</span>
                   <ArrowUpRight size={18} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </MagneticButton>
               </div>
@@ -284,7 +317,9 @@ export default function Home() {
               <div className="relative flex h-full flex-col justify-between">
                 <div className="flex items-start justify-between border-b border-border pb-4 font-sans text-xs font-medium uppercase tracking-wider text-muted">
                   <span>Burn monitor / live</span>
-                  <span className="text-azure">{isRunning ? "Scanning" : "On track"}</span>
+                  <span className="text-azure">
+                    {isRunning ? "Scanning" : auditComplete ? "Complete" : "Ready"}
+                  </span>
                 </div>
                 <div className="relative mx-auto flex aspect-square w-full max-w-64 items-center justify-center sm:max-w-72">
                   <div className="absolute inset-0 rounded-full border border-fg/10" />
@@ -350,7 +385,7 @@ export default function Home() {
                     className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ink px-5 py-3.5 text-sm font-medium text-white hover:bg-azure disabled:opacity-60 sm:w-auto"
                   >
                     <Play size={15} />
-                    {isRunning ? "Scanning..." : "Run burn check"}
+                    {auditButtonLabel}
                   </MagneticButton>
                   <MagneticButton
                     onClick={() => switchView("agents")}
@@ -591,7 +626,7 @@ export default function Home() {
         </div>
 
         {/* Charts + console */}
-        <div className="mb-6 grid gap-6 lg:grid-cols-2">
+        <div className={`mb-6 grid gap-6 ${hasRunAudit ? "lg:grid-cols-2" : ""}`}>
           <Reveal>
             <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-7">
               <Tabs
@@ -641,33 +676,35 @@ export default function Home() {
             </PointerPanel>
           </Reveal>
 
-          <Reveal delay={90}>
-            <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-7">
-              <Tabs
-                label="Workflow console"
-                defaultTab="log"
-                tabs={[
-                  { id: "log", label: "Log", content: <ActionLog actions={actions} /> },
-                  {
-                    id: "draft",
-                    label: "Draft",
-                    content: draftVendor ? (
-                      <EmailPreview vendor={draftVendor} />
-                    ) : (
-                      <p className="py-8 text-center text-sm text-muted">
-                        No draft yet. Run a burn check and the Negotiator will write one.
-                      </p>
-                    ),
-                  },
-                  { id: "flags", label: "Flags", content: <TransactionFeed transactions={flaggedTx} /> },
-                ]}
-              />
-            </PointerPanel>
-          </Reveal>
+          {hasRunAudit ? (
+            <Reveal delay={90}>
+              <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-7">
+                <Tabs
+                  label="Workflow console"
+                  defaultTab="log"
+                  tabs={[
+                    { id: "log", label: "Log", content: <ActionLog actions={actions} /> },
+                    {
+                      id: "draft",
+                      label: "Draft",
+                      content: draftVendor ? (
+                        <EmailPreview vendor={draftVendor} />
+                      ) : (
+                        <p className="py-8 text-center text-sm text-muted">
+                          No draft yet. Run a burn check and the Negotiator will write one.
+                        </p>
+                      ),
+                    },
+                    { id: "flags", label: "Flags", content: <TransactionFeed transactions={flaggedTx} /> },
+                  ]}
+                />
+              </PointerPanel>
+            </Reveal>
+          ) : null}
         </div>
 
         {/* Utility row */}
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className={`grid gap-6 ${auditComplete ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
           <Reveal>
             <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-6">
               <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
@@ -681,26 +718,32 @@ export default function Home() {
               </div>
             </PointerPanel>
           </Reveal>
-          <Reveal delay={90}>
-            <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-6">
-              <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
-                Top burn flags this month
-              </p>
-              <div className="space-y-3">
-                {(state?.flags ?? []).slice(0, 3).map((flag) => {
-                  const vendor = vendors.find((item) => item.id === flag.vendorId);
-                  return (
-                    <FlagRow
-                      key={flag.transactionId ?? flag.vendorId}
-                      name={flag.vendorName}
-                      amount={flag.monthlyCost ?? vendor?.monthlyCost ?? 0}
-                      reason={flag.headline || "Category flag"}
-                    />
-                  );
-                })}
-              </div>
-            </PointerPanel>
-          </Reveal>
+          {auditComplete ? (
+            <Reveal delay={90}>
+              <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-6">
+                <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
+                  Top burn flags this month
+                </p>
+                <div className="space-y-3">
+                  {state?.flags.length ? (
+                    state.flags.slice(0, 3).map((flag) => {
+                      const vendor = vendors.find((item) => item.id === flag.vendorId);
+                      return (
+                        <FlagRow
+                          key={flag.transactionId ?? flag.vendorId}
+                          name={flag.vendorName}
+                          amount={flag.monthlyCost ?? vendor?.monthlyCost ?? 0}
+                          reason={flag.headline || "Category flag"}
+                        />
+                      );
+                    })
+                  ) : (
+                    <p className="text-sm text-muted">No burn flags found this month.</p>
+                  )}
+                </div>
+              </PointerPanel>
+            </Reveal>
+          ) : null}
           <Reveal delay={180}>
             <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-6">
               <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
