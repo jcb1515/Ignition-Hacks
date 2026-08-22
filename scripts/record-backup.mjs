@@ -38,6 +38,17 @@ if (await queueTwilio.count()) { await scrollTo(queueTwilio); await queueTwilio.
 if (await approveBtn.count()) { await scrollTo(approveBtn); await pause(1500); await approveBtn.click(); } // 0:29 approve
 await pause(6000); await snap("approved");
 
+// Negotiation beat (renders once <NegotiationThread /> is mounted in the approval queue;
+// harmless no-op if the button isn't there yet).
+const negotiate = page.getByRole("button", { name: /^negotiate$/i }).first();
+if (await negotiate.count()) {
+  await scrollTo(negotiate); await negotiate.click();
+  await pause(9000);                                             // ~7 turns at 380ms + reads
+  const accept = page.getByRole("button", { name: /^accept \$/i }).first();
+  if (await accept.count()) { await scrollTo(accept); await pause(1500); await accept.click(); await pause(2500); }
+  await snap("negotiation");
+}
+
 const chart = page.getByText(/runway/i).first();                // 0:37 runway chart
 if (await chart.count()) await scrollTo(chart);
 await pause(5000);
