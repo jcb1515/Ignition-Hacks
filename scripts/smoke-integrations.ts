@@ -193,6 +193,7 @@ async function main() {
   check("slide: headline carries annual savings", /\$76,620\/yr/.test(u.headline), u.headline);
   check("slide: pending = distinct vendors awaiting a human (Twilio, Segment, Datadog)", u.governance.pending === 3, `got ${u.governance.pending}`);
   check("slide: runway gain > 0", u.runway.monthsGained > 0);
+  check("slide: realised = Confluence (agent) + Segment (human)", u.realised.monthly === 420 + 2176 && u.realised.closedBy.agent === 1 && u.realised.closedBy.human === 1, JSON.stringify(u.realised));
   check("slide: every finding has a why", u.findings.every((f) => f.why.length > 5));
 
   console.log("\n" + "=".repeat(50));

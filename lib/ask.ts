@@ -192,7 +192,8 @@ const RULES: Rule[] = [
     answer: (_q, c) => {
       if (!c.audited) return "No audit has run yet. Hit Run audit and ask me again.";
       const [cur, cut] = c.f.scenarios;
-      return `I audited ${c.vendors.length} vendors and flagged ${c.flags.length}: ${c.flags.map((f) => f.vendorName).join(", ")}. That's ${formatCurrency(c.f.totalMonthlySavings * 12)} a year recoverable, moving runway from ${months(cur.runwayMonths)} to ${months(cut.runwayMonths)}. ${new Set(c.actions.filter((a) => a.approvalRequired && !a.humanApproved).map((a) => a.target)).size} drafts are held for your approval.`;
+      const realised = c.actions.filter((a) => a.type === "negotiation_accepted" || a.type === "human_accept").reduce((s, a) => s + a.dollarImpact, 0);
+      return `I audited ${c.vendors.length} vendors and flagged ${c.flags.length}: ${c.flags.map((f) => f.vendorName).join(", ")}. That's ${formatCurrency(c.f.totalMonthlySavings * 12)} a year recoverable${realised > 0 ? `, of which ${formatCurrency(realised * 12)} is already locked in` : ""}, moving runway from ${months(cur.runwayMonths)} to ${months(cut.runwayMonths)}. ${new Set(c.actions.filter((a) => a.approvalRequired && !a.humanApproved).map((a) => a.target)).size} drafts are held for your approval.`;
     },
   },
 ];
