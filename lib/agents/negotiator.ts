@@ -190,7 +190,9 @@ export async function resolveBillingContact(
     }
   }
 
-  if (vendor.contactEmail) {
+  // Require an actual address, not merely a non-empty field. A record holding
+  // "nonsense" would otherwise be handed straight to the mailer as a contact.
+  if (vendor.contactEmail.includes("@")) {
     return { email: vendor.contactEmail, source: "vendor record on file" };
   }
   return { email: `billing@${domain || "example.com"}`, source: "inferred billing alias" };
