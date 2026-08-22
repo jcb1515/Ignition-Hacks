@@ -5,8 +5,9 @@ import { join } from "node:path";
 let _db: Database.Database | null = null;
 
 /**
- * Single shared connection. The schema is applied on first open, so a fresh
- * checkout works with no migration step: `npm run seed` is enough.
+ * Single shared connection. The schema is applied on first open and an empty
+ * database is seeded automatically, so a fresh checkout works with just
+ * `npm run dev`.
  */
 export function db(): Database.Database {
   if (_db) return _db;
@@ -20,6 +21,19 @@ export function db(): Database.Database {
   conn.exec(schema);
 
   _db = conn;
+
+  // A fresh clone that was never seeded shows an empty dashboard, which reads
+  // as "broken" rather than "empty". Seed demo data on first open instead.
+  // `npm run seed` still works and still resets to the same bytes.
+  const { n } = conn.prepare("SELECT COUNT(*) AS n FROM vendors").get() as { n: number };
+  if (n === 0 && process.env.AUTO_SEED !== "false") {
+    // Imported lazily: seed.ts imports this module, so a top-level import
+    // would be a cycle evaluated before `db` exists.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { seed } = require("./seed") as typeof import("./seed");
+    seed();
+  }
+
   return _db;
 }
 

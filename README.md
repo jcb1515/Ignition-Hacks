@@ -10,10 +10,13 @@ continuously and escalates only the decisions that actually need a human.
 ## Quick start
 
 ```bash
-npm install
-npm run seed     # 6 billing periods of spend with four anomalies planted in it
+npm install      # run this again after every git pull — dependencies change
 npm run dev      # http://localhost:3000
 ```
+
+An empty database is seeded automatically on first open (6 billing periods of
+spend with four anomalies planted in it). `npm run seed` resets it to the same
+bytes at any time; so does the **Reseed** button on the dashboard.
 
 Open `/dashboard` and press **Run audit**.
 
