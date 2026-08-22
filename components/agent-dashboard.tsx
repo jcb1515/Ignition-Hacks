@@ -22,6 +22,8 @@ interface Scenario {
   label: string; description: string; monthlyBurn: number;
   netBurn: number; runwayMonths: number; path: number[];
 }
+type DataMutation = "import" | "audit" | "reseed" | "decision";
+
 interface State {
   company: { name: string; headcount: number; cashOnHand: number; mrr: number };
   revenue: {
@@ -47,25 +49,37 @@ interface State {
   audited: boolean;
 }
 
-export default function Dashboard() {
+export default function Dashboard({
+  onDataChanged,
+}: {
+  onDataChanged?: (reason: DataMutation) => void | Promise<void>;
+}) {
   const [state, setState] = useState<State | null>(null);
   const [live, setLive] = useState<AgentAction[]>([]);
   const [running, setRunning] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState<string | null>(null);
   const streamRef = useRef<HTMLDivElement>(null);
 
   /** Manual refresh, used after an audit or an approval decision. */
-  const load = useCallback(async () => {
+  const load = useCallback(async (): Promise<State | null> => {
     try {
-      const res = await fetch("/api/state", { cache: "no-store" });
+      const res = await fetch(`/api/state?refresh=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error((await res.json()).error ?? "failed to load");
-      setState(await res.json());
+      const nextState = await res.json() as State;
+      setState(nextState);
       setError(null);
+      return nextState;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not reach the API");
+      return null;
     }
   }, []);
+
+  const refreshAll = useCallback(async (reason: DataMutation) => {
+    await Promise.all([load(), Promise.resolve(onDataChanged?.(reason))]);
+  }, [load, onDataChanged]);
 
   // Initial load. State is set from the fetch callback rather than the effect
   // body, and the guard stops a slow response writing to an unmounted page.
@@ -141,7 +155,7 @@ export default function Dashboard() {
           else if (event.type === "error") setError(event.message);
         }
       }
-      await load();
+      await refreshAll("audit");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Audit failed");
     } finally {
@@ -155,7 +169,7 @@ export default function Dashboard() {
     setStatus("Reseeding...");
     await fetch("/api/reset", { method: "POST" });
     setLive([]);
-    await load();
+    await refreshAll("reseed");
     setRunning(false);
     setStatus("");
   };
@@ -166,7 +180,7 @@ export default function Dashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ draftId, decision }),
     });
-    await load();
+    await refreshAll("decision");
   };
 
   useEffect(() => {
@@ -235,18 +249,18 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 items-center gap-3 sm:flex sm:flex-wrap">
             <MagneticButton
               onClick={reseed}
-              disabled={running}
+              disabled={running || refreshing}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-fg px-4 py-2.5 text-sm font-medium text-fg hover:bg-ink hover:text-white disabled:opacity-50"
             >
               <RotateCcw size={14} /> Reseed
             </MagneticButton>
             <MagneticButton
               onClick={runAudit}
-              disabled={running}
+              disabled={running || refreshing}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-white hover:bg-azure disabled:opacity-60"
             >
               <Play size={14} />
-              {running ? "Auditing..." : "Run audit"}
+              {refreshing ? "Refreshing..." : running ? "Auditing..." : "Run audit"}
             </MagneticButton>
           </div>
         </div>
@@ -305,8 +319,19 @@ export default function Dashboard() {
               Your data
             </h2>
             <UploadPanel
-              disabled={running}
-              onImported={() => { setLive([]); void load(); }}
+              disabled={running || refreshing}
+              onImported={async () => {
+                setRefreshing(true);
+                setLive([]);
+                setStatus("Refreshing imported data...");
+                setError(null);
+                try {
+                  await refreshAll("import");
+                } finally {
+                  setRefreshing(false);
+                  setStatus("");
+                }
+              }}
             />
           </section>
 
@@ -322,7 +347,10 @@ export default function Dashboard() {
               ) : (
                 <div className="space-y-3">
                   {state.flags.map((f) => (
-                    <FlagCard key={f.vendorId} flag={f} />
+                    <FlagCard
+                      key={`${f.transactionId ?? f.vendorId}:${f.headline}:${f.confidence}`}
+                      flag={f}
+                    />
                   ))}
                 </div>
               )}
@@ -384,10 +412,11 @@ export default function Dashboard() {
             </h2>
             <PointerPanel className="min-w-0 border border-border-card bg-card p-3 sm:p-5">
               <ApprovalQueue
+                key={state.drafts.map((draft) => draft.id).join("|") || "empty"}
                 drafts={queue}
                 threshold={state.config.approvalThreshold}
                 onDecide={decide}
-                onNegotiated={load}
+                onNegotiated={() => { void refreshAll("decision"); }}
               />
             </PointerPanel>
           </section>
@@ -413,7 +442,7 @@ export default function Dashboard() {
             </div>
             <PointerPanel className="min-w-0 border border-border-card bg-card p-3 sm:p-5">
               <div ref={streamRef} className="max-h-[32rem] overflow-y-auto lg:max-h-[calc(100vh-8rem)]">
-                <AgentStream actions={shownActions} running={running} status={status} />
+                <AgentStream actions={shownActions} running={running || refreshing} status={status} />
               </div>
             </PointerPanel>
             <PointerPanel className="mt-6 min-w-0 border border-border-card bg-card-2 p-3 sm:p-4">

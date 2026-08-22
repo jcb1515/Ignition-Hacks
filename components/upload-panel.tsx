@@ -14,7 +14,13 @@ interface ImportSummary {
  * spreadsheet with anomalies planted, for anyone who wants to edit rather than
  * start from scratch.
  */
-export default function UploadPanel({ onImported, disabled }: { onImported: (s: ImportSummary) => void; disabled?: boolean }) {
+export default function UploadPanel({
+  onImported,
+  disabled,
+}: {
+  onImported: (summary: ImportSummary) => void | Promise<void>;
+  disabled?: boolean;
+}) {
   const [busy, setBusy] = useState(false);
   const [drag, setDrag] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +39,7 @@ export default function UploadPanel({ onImported, disabled }: { onImported: (s: 
       const body = await res.json();
       if (!res.ok) throw new Error(body.error ?? "import failed");
       setSummary(body);
-      onImported(body);
+      await onImported(body);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -51,18 +57,23 @@ export default function UploadPanel({ onImported, disabled }: { onImported: (s: 
         const f = e.dataTransfer.files?.[0];
         if (f) void upload(f);
       }}
-      className={`border border-dashed p-5 transition-colors ${drag ? "border-azure bg-azure/5" : "border-border-card bg-card"}`}
+      className={`rounded-2xl border-2 border-dashed p-5 shadow-sm transition-all sm:p-6 ${drag ? "scale-[1.01] border-azure bg-azure/15 shadow-lg shadow-azure/10" : "border-azure/60 bg-gradient-to-br from-azure/10 via-card to-card hover:border-azure hover:shadow-lg hover:shadow-azure/10"}`}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-on-card">Try it on your own spend</p>
-          <p className="mt-1 text-xs leading-snug text-muted">
-            Drop a CSV or JSON export (bank, Brex, Ramp, QuickBooks, or any spreadsheet saved as CSV).
-            Needs <code className="font-mono">vendor, amount, date</code>; add{" "}
-            <code className="font-mono">category, seats, active_seats</code> for every detector.
-          </p>
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-azure text-white shadow-md shadow-azure/25">
+            <FileUp size={18} />
+          </span>
+          <div>
+            <p className="text-base font-semibold text-on-card">Try it on your own spend</p>
+            <p className="mt-1 text-xs leading-snug text-muted">
+              Drop a CSV or JSON export (bank, Brex, Ramp, QuickBooks, or any spreadsheet saved as CSV).
+              Needs <code className="font-mono">vendor, amount, date</code>; add{" "}
+              <code className="font-mono">category, seats, active_seats</code> for every detector.
+            </p>
+          </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
           <a
             href="/sample-spend.csv"
             download
@@ -74,7 +85,7 @@ export default function UploadPanel({ onImported, disabled }: { onImported: (s: 
             type="button"
             disabled={busy || disabled}
             onClick={() => inputRef.current?.click()}
-            className="inline-flex items-center gap-2 bg-ink px-4 py-2 text-sm font-medium text-page transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex min-h-12 items-center gap-2 rounded-full bg-azure px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-azure/25 transition-all hover:-translate-y-0.5 hover:bg-sky hover:shadow-xl hover:shadow-azure/30 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />}
             {busy ? "Importing..." : "Upload file"}

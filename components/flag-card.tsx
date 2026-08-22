@@ -6,6 +6,7 @@ import { formatCurrency } from "@/lib/types";
 import type { FeatureBreakdown } from "@/lib/types";
 
 export interface FlagView {
+  transactionId?: string;
   vendorId: string;
   vendorName: string;
   kind: string;

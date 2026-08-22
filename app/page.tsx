@@ -106,6 +106,20 @@ export default function Home() {
     return false;
   }, []);
 
+  const refreshFromAgent = useCallback(async (
+    reason: "import" | "audit" | "reseed" | "decision"
+  ) => {
+    if (reason === "import" || reason === "reseed") {
+      setHasRunAudit(false);
+      setAuditComplete(false);
+      setLiveActions([]);
+    } else if (reason === "audit") {
+      setHasRunAudit(true);
+      setAuditComplete(true);
+    }
+    await load();
+  }, [load]);
+
   // Initial load. setState happens in the async callback, not the effect body,
   // and the guard stops a slow response writing to an unmounted page.
   useEffect(() => {
@@ -764,7 +778,7 @@ export default function Home() {
 
         </>
       ) : (
-        <AgentDashboard />
+        <AgentDashboard onDataChanged={refreshFromAgent} />
       )}
       </div>
       </section>

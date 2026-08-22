@@ -93,20 +93,29 @@ export function usePlaid() {
       try {
         const body = JSON.stringify({ access_token: accessToken });
         const headers = { "Content-Type": "application/json" };
-        const [accountsRes, txRes] = await Promise.all([
-          fetch("/api/plaid/accounts", { method: "POST", headers, body }),
-          fetch("/api/plaid/transactions", { method: "POST", headers, body }),
-          // Also feed the linked Item into the agent tables, so "connect a bank"
-          // → "run audit" is one story. Server-side, idempotent; failure is
-          // non-fatal for the panel, which only needs the two calls above.
-          fetch("/api/sync", { method: "POST", headers, body: JSON.stringify({ accessToken }) }).catch(() => null),
-        ]);
+        void fetch("/api/sync", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ accessToken }),
+        }).catch(() => null);
+
+        const accountsRequest = fetch("/api/plaid/accounts", { method: "POST", headers, body });
+        const transactionsRequest = (async () => {
+          for (let attempt = 0; attempt < 3; attempt += 1) {
+            const response = await fetch("/api/plaid/transactions", { method: "POST", headers, body });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || "Failed to fetch Plaid transactions");
+            if (result.transactions?.length || attempt === 2) return result;
+            await new Promise((resolve) => setTimeout(resolve, 600 * (attempt + 1)));
+          }
+        })();
+        const [accountsRes, txData] = await Promise.all([accountsRequest, transactionsRequest]);
         const accountsData = await accountsRes.json();
-        const txData = await txRes.json();
+        if (!accountsRes.ok) throw new Error(accountsData.error || "Failed to fetch Plaid accounts");
         if (cancelled) return;
 
         const accounts: PlaidAccount[] = accountsData.accounts || [];
-        const transactions: PlaidTransaction[] = txData.transactions || [];
+        const transactions: PlaidTransaction[] = txData?.transactions || [];
         const balance = accounts.reduce((sum, a) => sum + (a.balances.current || 0), 0);
         setData({ loading: false, accounts, transactions, balance });
       } catch (err) {
@@ -122,6 +131,7 @@ export function usePlaid() {
   }, [accessToken]);
 
   const connect = useCallback((token: string) => {
+    setData({ ...EMPTY, loading: true });
     writeToken(token);
   }, []);
 
