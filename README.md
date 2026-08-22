@@ -18,7 +18,7 @@ An empty database is seeded automatically on first open (6 billing periods of
 spend with four anomalies planted in it). `npm run seed` resets it to the same
 bytes at any time; so does the **Reseed** button on the dashboard.
 
-Open `/dashboard` and press **Run audit**.
+Open the home page, switch to **Agent dashboard** (or click **Try Runway** in the nav) and press **Run audit**.
 
 No API keys are needed. `DEMO_MODE` defaults to on, so the whole product runs
 locally with no network calls and no cost.
@@ -26,6 +26,35 @@ locally with no network calls and no cost.
 ```bash
 npm run smoke    # 52 assertions — run this before demoing
 ```
+
+## Try it on your own data
+
+Click **Try Runway** in the nav and drop a **CSV or JSON** export of vendor spend on the
+**Your data** panel (any spreadsheet saved as CSV works — bank, Brex, Ramp,
+QuickBooks). The seeded data is replaced and **Run audit** runs the agents on
+yours. `/sample-spend.csv` is a ready-made spreadsheet with the four anomalies
+planted, for editing rather than starting from scratch.
+
+One row per vendor per billing period. Columns (aliases accepted):
+
+| Column | Required | Used by |
+|---|---|---|
+| `vendor` (merchant, name, payee) | yes | everything |
+| `amount` (cost, total, spend) | yes | everything — `$1,200.00` is fine |
+| `date` (period, month) | yes | `2026-01-15`, `01/15/2026`, `Jan 2026` all bucket to the month |
+| `category` | no | overpriced detector (peers) |
+| `seats`, `active_seats` | no | usage-drift detector |
+| `function_tag` | no | duplicate detector (guessed from the vendor name if absent) |
+| `contract_terms`, `contact_email` | no | negotiator |
+
+A full workspace export also works — `{ "workspace": {...}, "vendors": [...],
+"transactions": [...] }`. Transactions are the spend; the `vendors` table
+fills in category, contract terms, contact email and seats (`"20 seats"` inside
+free-text terms is picked up); `workspace.name` becomes the company name.
+Any `agent_actions` / `forecast_snapshots` keys are ignored — those are agent
+output, and the agents regenerate them from the raw spend.
+
+Or `POST /api/import` with `multipart/form-data` (`file=`) or a JSON array of rows.
 
 ## How it works
 
@@ -56,6 +85,7 @@ plausible-sounding one.
 | `duplicate` | Two vendors share a *function tag* and their combined active seats exceed headcount |
 | `usage_drift` | Seat utilisation under 40% on a provisioned tier |
 | `price_creep` | ≥35% growth across billing periods, monotonic, with no plan change |
+| `billing_spike` | One period ≥2× the vendor's median invoice, then back to normal — a one-off overage to query |
 
 Duplicate detection groups on `functionTag`, not billing category. "Productivity"
 covers both a wiki and an issue tracker, and nobody cancels one to keep the
@@ -120,7 +150,7 @@ the live sandbox integration works underneath it, which you can show on request.
 | Route | What it is |
 |---|---|
 | `/` | Overview, reading live numbers from the database |
-| `/dashboard` | The product: findings, projection, approvals, action log |
+| `/#try` (home, agent view) | The product: findings, projection, approvals, action log |
 | `/investor-update` | Auto-generated 16:9 investor slide (⌘P → PDF) |
 | `POST /api/audit` | Runs the audit, streams events as SSE |
 | `GET /api/state` | Everything the dashboard renders, in one round trip |

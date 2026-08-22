@@ -11,6 +11,7 @@ import BurnChart from "@/components/burn-chart";
 import FlagCard, { type FlagView } from "@/components/flag-card";
 import RunwayChart from "@/components/runway-chart";
 import StatTile from "@/components/stat-tile";
+import UploadPanel from "@/components/upload-panel";
 import VendorTable from "@/components/vendor-table";
 import { Tabs } from "@/components/tabs";
 import { MagneticButton, PointerPanel } from "@/components/motion";
@@ -299,6 +300,16 @@ export default function Dashboard() {
       <div className="grid w-full gap-8 py-10 lg:grid-cols-[1.25fr_1fr]">
         {/* Left column */}
         <div className="min-w-0 space-y-8">
+          <section>
+            <h2 className="mb-4 font-sans text-xs font-medium uppercase tracking-wider text-muted">
+              Your data
+            </h2>
+            <UploadPanel
+              disabled={running}
+              onImported={() => { setLive([]); void load(); }}
+            />
+          </section>
+
           <section>
             <h2 className="mb-4 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Findings

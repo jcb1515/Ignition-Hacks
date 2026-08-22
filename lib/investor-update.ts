@@ -37,6 +37,7 @@ function inferKind(features: FeatureBreakdown[]): Flag["kind"] {
   const names = features.map((f) => f.feature);
   if (names.includes("seat_overlap_vs_headcount")) return "duplicate";
   if (names.includes("period_over_period_growth")) return "price_creep";
+  if (names.includes("spike_vs_median")) return "billing_spike";
   if (names.includes("cost_vs_category_mean")) return "overpriced";
   return "usage_drift";
 }
@@ -46,6 +47,7 @@ const KIND_LABEL: Record<Flag["kind"], string> = {
   duplicate: "Duplicate tool",
   usage_drift: "Paying for unused seats",
   price_creep: "Silent price creep",
+  billing_spike: "One-off billing spike",
 };
 
 const KIND_ACTION: Record<Flag["kind"], string> = {
@@ -53,6 +55,7 @@ const KIND_ACTION: Record<Flag["kind"], string> = {
   duplicate: "Cancellation drafted",
   usage_drift: "Tier downgrade drafted",
   price_creep: "Billing review drafted",
+  billing_spike: "Invoice credit requested",
 };
 
 export function buildInvestorUpdate(): InvestorUpdate {

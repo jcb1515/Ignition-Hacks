@@ -85,6 +85,15 @@ export function estimateSavings(flag: Flag, vendors: Vendor[]): number {
       const floor = Math.max(0.35, utilisation + 0.15);
       return Math.round(v.monthlyCost * (1 - floor));
     }
+    case "billing_spike": {
+      // The excess over the vendor's median invoice: a one-off credit, not a
+      // monthly saving. Still the dollar impact the approval gate should see.
+      const amounts = getTransactions().filter((t) => t.vendorId === v.id).map((t) => t.amount);
+      if (amounts.length < 2) return 0;
+      const sorted = [...amounts].sort((a, b) => a - b);
+      const median = sorted[Math.floor(sorted.length / 2)];
+      return Math.max(0, Math.round(Math.max(...amounts) - median));
+    }
     case "price_creep": {
       // Roll back to the median of the observed history.
       const amounts = getTransactions()
@@ -178,7 +187,11 @@ export function forecast(flags: Flag[] = []): ForecastResult {
   const fixed = COMPANY.payroll + COMPANY.overhead;
   const currentBurn = vendorSpend + fixed;
 
-  const totalMonthlySavings = flags.reduce((s, f) => s + estimateSavings(f, vendors), 0);
+  // One-off credits (billing spikes) don't reduce the run-rate, so they stay
+  // out of the monthly number the scenarios are built from.
+  const totalMonthlySavings = flags
+    .filter((f) => f.kind !== "billing_spike")
+    .reduce((s, f) => s + estimateSavings(f, vendors), 0);
 
   const defs = [
     {

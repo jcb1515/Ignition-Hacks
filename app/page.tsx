@@ -209,6 +209,21 @@ export default function Home() {
     }
   };
 
+  // Deep link: /#try (the nav's "Try Runway" button) opens the agent view and
+  // scrolls to it. Also reacts to hash changes while the page is open. The
+  // view state is set from the hashchange handler / a scheduled callback, not
+  // synchronously in the effect body.
+  useEffect(() => {
+    const apply = () => {
+      if (window.location.hash !== "#try") return;
+      setView("agents");
+      requestAnimationFrame(() => document.getElementById("try")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    };
+    const id = window.setTimeout(apply, 0);
+    window.addEventListener("hashchange", apply);
+    return () => { window.clearTimeout(id); window.removeEventListener("hashchange", apply); };
+  }, []);
+
   const switchView = (nextView: "main" | "agents") => {
     if (nextView === view) return;
     if (document.startViewTransition) {
@@ -362,7 +377,7 @@ export default function Home() {
       </section>
 
       {/* Live dashboard */}
-      <section className="dashboard-view mx-auto max-w-[1440px] px-4 py-12 sm:px-10 sm:py-16 lg:px-14 lg:py-20">
+      <section id="try" className="dashboard-view mx-auto max-w-[1440px] scroll-mt-20 px-4 py-12 sm:px-10 sm:py-16 lg:px-14 lg:py-20">
         <Reveal>
           <div className="mb-8 flex flex-col justify-between gap-6 border-b border-fg/20 pb-6 sm:flex-row sm:items-end">
             <div>

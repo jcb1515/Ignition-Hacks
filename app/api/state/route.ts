@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { APPROVAL_THRESHOLD, COMPANY, DEMO_MODE } from "@/lib/company";
 import { llmAvailable } from "@/lib/llm";
 import { revenueProfile } from "@/lib/revenue";
+import { getSetting } from "@/lib/db/queries";
 import { estimateSavings, forecast } from "@/lib/agents/forecast";
 import {
   getActions, getDrafts, getFlaggedTransactions,
@@ -51,7 +52,7 @@ export async function GET() {
     const fc = forecast(flags);
 
     return NextResponse.json({
-      company: { ...COMPANY, mrr: revenue.mrr },
+      company: { ...COMPANY, mrr: revenue.mrr, name: getSetting("company_name") ?? COMPANY.name },
       revenue,
       config: {
         demoMode: DEMO_MODE,
@@ -79,6 +80,7 @@ function inferKind(features: FeatureBreakdown[]) {
   const names = features.map((f) => f.feature);
   if (names.includes("seat_overlap_vs_headcount")) return "duplicate" as const;
   if (names.includes("period_over_period_growth")) return "price_creep" as const;
+  if (names.includes("spike_vs_median")) return "billing_spike" as const;
   if (names.includes("cost_vs_category_mean")) return "overpriced" as const;
   return "usage_drift" as const;
 }

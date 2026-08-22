@@ -18,7 +18,7 @@ const page = await ctx.newPage();
 const scrollTo = async (loc) => { await loc.scrollIntoViewIfNeeded(); await pause(400); };
 
 await fetch(BASE + "/api/reset", { method: "POST" });
-await page.goto(BASE + "/dashboard", { waitUntil: "networkidle" });
+await page.goto(BASE + "/#try", { waitUntil: "networkidle" });
 await pause(3000);                                              // 0:00 clean state + badge
 
 await page.getByRole("button", { name: /run audit/i }).click(); // 0:03 run audit
