@@ -13,17 +13,13 @@ export default function FeatureCard({
   description,
 }: FeatureCardProps) {
   return (
-    <PointerPanel className="group flex min-h-64 flex-col justify-between border border-border-card bg-card p-6 hover:border-azure">
-      <Icon
-        size={24}
-        strokeWidth={1.4}
-        className="text-azure transition-transform duration-500 group-hover:scale-110"
-      />
+    <PointerPanel className="group flex min-h-64 flex-col justify-between border border-border-card bg-card p-6 shadow-sm transition-colors hover:border-azure">
+      <Icon size={24} strokeWidth={1.4} className="text-azure" />
       <div className="mt-12">
-        <h3 className="font-display text-3xl leading-none tracking-[-0.045em] text-on-card transition-transform duration-500 group-hover:translate-x-1">
+        <h3 className="font-display text-3xl leading-none tracking-[-0.045em] text-on-card">
           {title}
         </h3>
-        <p className="mt-4 text-sm leading-relaxed text-muted transition-colors duration-500 group-hover:text-on-card">
+        <p className="mt-4 text-sm leading-relaxed text-muted">
           {description}
         </p>
       </div>

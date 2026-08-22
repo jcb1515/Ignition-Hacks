@@ -15,9 +15,9 @@ export function Tabs({
 
   return (
     <div>
-      <div className="mb-5 flex flex-wrap items-center gap-2 border-b border-border-card pb-3">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
         {label ? (
-          <p className="mr-auto font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+          <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
             {label}
           </p>
         ) : null}
@@ -26,18 +26,13 @@ export function Tabs({
             <button
               key={tab.id}
               onClick={() => setActive(tab.id)}
-              className={`relative px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors duration-300 ${
+              className={`rounded-full px-3 py-1.5 font-sans text-xs font-medium uppercase tracking-wider transition-colors duration-200 ${
                 active === tab.id
-                  ? "text-azure"
-                  : "text-muted hover:text-on-card"
+                  ? "bg-ink text-white"
+                  : "text-muted hover:bg-card-2 hover:text-on-card"
               }`}
             >
               {tab.label}
-              <span
-                className={`absolute inset-x-0 -bottom-3 h-px origin-center bg-azure transition-transform duration-300 ${
-                  active === tab.id ? "scale-x-100" : "scale-x-0"
-                }`}
-              />
             </button>
           ))}
         </div>

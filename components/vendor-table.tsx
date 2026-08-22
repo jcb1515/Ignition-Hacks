@@ -8,16 +8,16 @@ export default function VendorTable({ vendors }: { vendors: Vendor[] }) {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border-card text-left">
-            <th className="pb-3 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-muted">
+            <th className="pb-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Vendor
             </th>
-            <th className="pb-3 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-muted">
+            <th className="pb-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Category
             </th>
-            <th className="pb-3 text-right font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-muted">
+            <th className="pb-3 text-right font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Monthly
             </th>
-            <th className="pb-3 text-center font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-muted">
+            <th className="pb-3 text-center font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Status
             </th>
           </tr>
@@ -32,11 +32,11 @@ export default function VendorTable({ vendors }: { vendors: Vendor[] }) {
               </td>
               <td className="py-3 text-center">
                 {vendor.status === "flagged" ? (
-                  <span className="inline-flex items-center gap-1 bg-red/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-red">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-red/10 px-2.5 py-1 font-sans text-xs font-medium uppercase tracking-wider text-red">
                     <AlertTriangle size={12} /> Flagged
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 bg-azure/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-azure">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-azure/10 px-2.5 py-1 font-sans text-xs font-medium uppercase tracking-wider text-azure">
                     <CheckCircle2 size={12} /> Safe
                   </span>
                 )}

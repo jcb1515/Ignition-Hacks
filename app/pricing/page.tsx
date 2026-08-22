@@ -46,10 +46,10 @@ const tiers = [
 export default function PricingPage() {
   return (
     <div className="bg-page">
-      <section className="border-b border-page/15 bg-ink text-page">
+      <section className="border-b border-border bg-page text-fg">
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
           <Reveal>
-            <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-azure">
+            <p className="font-sans text-xs font-medium uppercase tracking-wider text-azure">
               Access / runway radar
             </p>
           </Reveal>
@@ -60,7 +60,7 @@ export default function PricingPage() {
               </h1>
             </Reveal>
             <Reveal delay={160}>
-              <p className="max-w-md text-xl leading-snug tracking-[-0.025em] text-page/65">
+              <p className="max-w-md text-xl leading-snug tracking-[-0.025em] text-slate">
                 Start with visibility, then expand the agent system as your operations
                 get more complex.
               </p>
@@ -74,32 +74,31 @@ export default function PricingPage() {
           {tiers.map((tier, index) => (
             <Reveal key={tier.name} delay={index * 90}>
               <PointerPanel
-                variant={tier.featured ? "dark" : "light"}
                 className={`flex min-h-[480px] flex-col border p-7 ${
                   tier.featured
-                    ? "border-ink bg-ink text-page"
-                    : "border-ink/20 bg-canvas hover:border-azure"
+                    ? "border-card-2 bg-ink text-white"
+                    : "border-fg/20 bg-canvas hover:border-azure"
                 }`}
               >
-                <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.14em]">
+                <div className="flex items-center justify-between font-sans text-xs font-medium uppercase tracking-wider">
                   <span>0{index + 1} / plan</span>
                   {tier.featured ? (
-                    <span className="bg-azure px-2 py-1 text-page">Most selected</span>
+                    <span className="rounded-full bg-azure px-2 py-1 text-white">Most selected</span>
                   ) : null}
                 </div>
                 <div className="mt-14">
                   <h2 className="font-display text-5xl leading-none tracking-[-0.06em]">{tier.name}</h2>
-                  <p className={`mt-4 max-w-xs text-sm leading-relaxed ${tier.featured ? "text-page/60" : "text-ink/60"}`}>
+                  <p className={`mt-4 max-w-xs text-sm leading-relaxed ${tier.featured ? "text-white/60" : "text-fg/60"}`}>
                     {tier.description}
                   </p>
                   <p className="mt-10 font-display text-6xl leading-none tracking-[-0.07em]">
                     {tier.price}
-                    <span className={`ml-2 font-mono text-[10px] uppercase tracking-[0.1em] ${tier.featured ? "text-page/50" : "text-ink/45"}`}>
+                    <span className={`ml-2 font-sans text-xs font-medium uppercase tracking-wider ${tier.featured ? "text-white/50" : "text-fg/45"}`}>
                       {tier.price === "Custom" || tier.price === "$0" ? "" : "per month"}
                     </span>
                   </p>
                 </div>
-                <ul className={`mt-10 space-y-4 border-t pt-6 text-sm ${tier.featured ? "border-page/20 text-page/75" : "border-ink/15 text-ink/70"}`}>
+                <ul className={`mt-10 space-y-4 border-t pt-6 text-sm ${tier.featured ? "border-white/20 text-white/75" : "border-fg/15 text-fg/70"}`}>
                   {tier.features.map((feature) => (
                     <li key={feature} className="data-row flex gap-3">
                       <Check size={16} className="mt-0.5 shrink-0 text-azure" />
@@ -109,10 +108,10 @@ export default function PricingPage() {
                 </ul>
                 <Link
                   href="/"
-                  className={`group mt-auto inline-flex items-center justify-between px-5 py-4 text-sm font-medium transition-colors duration-300 ${
+                  className={`group mt-auto inline-flex items-center justify-between rounded-full px-5 py-4 text-sm font-medium transition-colors duration-300 ${
                     tier.featured
-                      ? "bg-azure text-page hover:bg-cyan hover:text-ink"
-                      : "bg-ink text-page hover:bg-azure"
+                      ? "bg-azure text-white hover:bg-cyan hover:text-ink"
+                      : "bg-ink text-white hover:bg-azure"
                   }`}
                 >
                   {tier.cta}

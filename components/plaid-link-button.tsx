@@ -103,12 +103,9 @@ export default function PlaidLinkButton({
       <button
         onClick={handleClick}
         disabled={disabled || opening}
-        className="group inline-flex items-center gap-2 border border-page/30 bg-card-2 px-4 py-3 text-sm font-medium text-on-card transition-colors hover:border-azure hover:bg-azure hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+        className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-sm font-medium text-on-card shadow-sm transition-colors hover:border-azure hover:bg-azure hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <span className="relative flex h-2 w-2">
-          <span className="ping-ring absolute inset-0 rounded-full bg-azure" />
-          <span className="relative h-2 w-2 rounded-full bg-azure" />
-        </span>
+        <span className="h-2 w-2 rounded-full bg-azure" />
         {opening ? "Opening Plaid..." : disabled ? "Bank connected" : "Connect bank (Plaid)"}
       </button>
       {error ? (
