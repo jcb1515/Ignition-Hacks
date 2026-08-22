@@ -101,7 +101,10 @@ Also: laptop on power, notifications off, browser zoom 110%, backup video open i
 **"Is this live or scripted?"**
 Demo mode against seeded data, deliberately, so the showcase is deterministic. The live path
 (`DEMO_MODE=false`, Plaid sandbox + Stripe test keys, `POST /api/sync`) feeds the same tables
-and the same agents. Offer to show it.
+and the same agents. Offer to show it — and if Plaid keys are configured, the strongest
+version is on the landing page: **Connect a bank** (Plaid Link, sandbox credentials
+`user_good` / `pass_good`) → the linked Item syncs into the agent tables via
+`POST /api/sync { accessToken }` → **Run audit**. Same agents, a bank the judge just linked.
 
 **"Why four agents instead of one?"**
 Narrow jobs are debuggable and explainable. The Orchestrator is the only one that decides;
