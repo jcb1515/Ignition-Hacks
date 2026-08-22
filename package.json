@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx scripts/seed.ts",
-    "smoke": "tsx scripts/smoke-test.ts"
+    "smoke": "tsx scripts/smoke-test.ts",
+    "preflight": "tsx scripts/preflight.ts",
+    "smoke:int": "tsx scripts/smoke-integrations.ts"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",

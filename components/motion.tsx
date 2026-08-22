@@ -83,28 +83,43 @@ export function CountUp({
   className?: string;
 }) {
   const { ref, inView } = useInView<HTMLSpanElement>(0.4);
-  const [display, setDisplay] = useState(0);
+  const [display, setDisplay] = useState<number | null>(null);
+  const fromRef = useRef(0);
 
   useEffect(() => {
     if (!inView) return;
 
+    // Animate from wherever the number currently sits, not from zero. Values
+    // arrive asynchronously (the page fetches its data), so restarting at 0 on
+    // every change makes the figure crawl and never settle. Reading the start
+    // from a ref also keeps sibling animation ticks from resetting this one.
+    const from = fromRef.current;
     const span = prefersReducedMotion() ? 0 : duration;
     let frame = 0;
     const start = performance.now();
+
     const tick = (now: number) => {
       const progress = span <= 0 ? 1 : Math.min((now - start) / span, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplay(value * eased);
+      const next = from + (value - from) * eased;
+      fromRef.current = next;
+      setDisplay(next);
       if (progress < 1) frame = requestAnimationFrame(tick);
+      else { fromRef.current = value; setDisplay(value); } // guarantee it lands
     };
 
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [inView, value, duration]);
 
+  // `display` is null until the animation actually produces a frame. Falling
+  // back to the real value means a number is never wrong just because the
+  // animation did not run — the count-up is decoration, the figure is not.
+  const shown = display ?? value;
+
   return (
     <span ref={ref} className={className}>
-      {format ? format(display) : Math.round(display).toLocaleString()}
+      {format ? format(shown) : Math.round(shown).toLocaleString()}
     </span>
   );
 }

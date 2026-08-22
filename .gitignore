@@ -45,3 +45,4 @@ next-env.d.ts
 runway.db
 runway.db-wal
 runway.db-shm
+.preflight-int.db*

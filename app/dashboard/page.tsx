@@ -6,6 +6,7 @@ import { ArrowUpRight, Play, RotateCcw } from "lucide-react";
 import AgentStream from "@/components/agent-stream";
 import DataSourceBadge from "@/components/data-source-badge";
 import ApprovalQueue, { type QueueItem } from "@/components/approval-queue";
+import AskAgent from "@/components/ask-agent";
 import BurnChart from "@/components/burn-chart";
 import FlagCard, { type FlagView } from "@/components/flag-card";
 import RunwayChart from "@/components/runway-chart";
@@ -376,6 +377,9 @@ export default function Dashboard() {
               className="max-h-[calc(100vh-8rem)] overflow-y-auto bg-card p-5"
             >
               <AgentStream actions={shownActions} running={running} status={status} />
+            </div>
+            <div className="mt-6">
+              <AskAgent />
             </div>
           </div>
         </div>
