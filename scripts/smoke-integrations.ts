@@ -31,7 +31,7 @@ function check(name: string, ok: boolean, detail = "") {
 const section = (t: string) => console.log(`\n${t}`);
 
 async function main() {
-  console.log("Runway Radar integration smoke test\n" + "=".repeat(50));
+  console.log("Burn Shield integration smoke test\n" + "=".repeat(50));
 
   /* ---- Plaid import, offline ---- */
   section("Plaid import (fake payload)");
@@ -119,7 +119,7 @@ async function main() {
 
   const expect: Array<[string, string, RegExp]> = [
     ["Why did you flag Twilio?", "why_flagged", /4\.00x/],
-    ["what's our runway", "runway", /9\.4 months/],
+    ["how many months of cash do we have", "cash_horizon", /9\.4 months/],
     ["how much can we save", "savings", /\$76,620/],
     ["what's waiting on me", "pending", /^2 decisions/],
     ["what is the approval threshold", "threshold", /\$1,000/],
@@ -198,7 +198,7 @@ async function main() {
   check("slide: 4 findings", u.findings.length === 4, `got ${u.findings.length}`);
   check("slide: headline carries annual savings", /\$76,620\/yr/.test(u.headline), u.headline);
   check("slide: pending = distinct vendors awaiting a human (Twilio, Segment, Datadog)", u.governance.pending === 3, `got ${u.governance.pending}`);
-  check("slide: runway gain > 0", u.runway.monthsGained > 0);
+  check("slide: cash-horizon gain > 0", u.runway.monthsGained > 0);
   check("slide: realised = Confluence (agent) + Segment (human)", u.realised.monthly === 420 + 2176 && u.realised.closedBy.agent === 1 && u.realised.closedBy.human === 1, JSON.stringify(u.realised));
   check("slide: every finding has a why", u.findings.every((f) => f.why.length > 5));
 

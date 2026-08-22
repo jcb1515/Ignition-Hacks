@@ -12,8 +12,8 @@ export default function InvestorUpdatePage() {
   const u = buildInvestorUpdate();
 
   return (
-    <main className="min-h-screen bg-page p-6 text-fg print:p-0">
-      <div className="mx-auto mb-4 flex max-w-[1280px] items-center justify-between print:hidden">
+    <main className="min-h-screen overflow-x-clip bg-page p-4 text-fg sm:p-6 print:p-0">
+      <div className="mx-auto mb-4 flex max-w-[1280px] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between print:hidden">
         <Link href="/" className="font-sans text-xs font-medium uppercase tracking-wider text-muted hover:text-on-card">
           ← Dashboard
         </Link>
@@ -23,29 +23,29 @@ export default function InvestorUpdatePage() {
       </div>
 
       <section
-        className="mx-auto grid aspect-video max-w-[1280px] grid-rows-[auto_auto_1fr_auto] gap-6 bg-card p-12 text-on-card shadow-2xl print:shadow-none"
+        className="mx-auto grid max-w-[1280px] grid-rows-[auto_auto_1fr_auto] gap-5 bg-card p-4 text-on-card shadow-2xl sm:p-8 lg:aspect-video lg:gap-6 lg:p-12 print:aspect-video print:gap-6 print:p-12 print:shadow-none"
         style={{ printColorAdjust: "exact", WebkitPrintColorAdjust: "exact" }}
       >
-        <header className="flex items-end justify-between border-b border-hairline pb-4">
+        <header className="flex flex-col gap-3 border-b border-hairline pb-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="font-sans text-[11px] uppercase tracking-[0.14em] text-muted">
               {u.company} · Investor update · {u.period}
             </p>
-            <h1 className="mt-2 font-display text-4xl font-medium leading-tight tracking-[-0.04em]">
+            <h1 className="mt-2 break-words font-display text-3xl font-medium leading-tight tracking-[-0.04em] sm:text-4xl">
               {u.headline}
             </h1>
           </div>
           <p className="shrink-0 font-sans text-[10px] font-medium uppercase tracking-wider text-muted">
-            Written by Burnshield
+            Written by Burn Shield
           </p>
         </header>
 
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {u.kpis.map((k) => (
-            <div key={k.label} className="border border-border-card bg-card-2 p-4">
+            <div key={k.label} className="min-w-0 border border-border-card bg-card-2 p-3 sm:p-4">
               <p className="font-sans text-[10px] uppercase tracking-[0.12em] text-muted">{k.label}</p>
               <p
-                className="mt-2 font-display text-3xl font-medium leading-none tracking-[-0.04em]"
+                className="mt-2 break-words font-display text-2xl font-medium leading-none tracking-[-0.04em] sm:text-3xl"
                 style={k.accent === "good" ? { color: "var(--color-mint)" } : undefined}
               >
                 {k.value}
@@ -55,13 +55,13 @@ export default function InvestorUpdatePage() {
           ))}
         </div>
 
-        <div className="grid min-h-0 grid-cols-[3fr_2fr] gap-8">
-          <div className="min-h-0">
+        <div className="grid min-h-0 gap-8 lg:grid-cols-[3fr_2fr]">
+          <div className="min-h-0 min-w-0 overflow-x-auto">
             <p className="mb-2 font-sans text-[10px] uppercase tracking-[0.12em] text-muted">What the agent found</p>
             {u.findings.length === 0 ? (
               <p className="text-sm text-muted">{u.audited ? "No anomalies this period." : "No audit run yet."}</p>
             ) : (
-              <table className="w-full text-sm">
+              <table className="w-full min-w-[640px] text-sm">
                 <thead className="font-sans text-[10px] uppercase tracking-[0.1em] text-muted">
                   <tr className="text-left">
                     <th className="pb-1 font-normal">Vendor</th>
@@ -86,9 +86,9 @@ export default function InvestorUpdatePage() {
             )}
           </div>
 
-          <div className="flex flex-col gap-5">
+          <div className="min-w-0 flex flex-col gap-5">
             <div>
-              <p className="mb-2 font-sans text-[10px] uppercase tracking-[0.12em] text-muted">Runway by scenario</p>
+              <p className="mb-2 font-sans text-[10px] uppercase tracking-[0.12em] text-muted">Cash horizon by scenario</p>
               <ul className="space-y-2">
                 {u.runway.scenarios.map((s) => {
                   const max = Math.max(...u.runway.scenarios.map((x) => x.months), 1);

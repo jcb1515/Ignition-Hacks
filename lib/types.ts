@@ -1,8 +1,8 @@
-// Core domain types for Runway Radar.
+// Core domain types for Burn Shield.
 // Mirrors the four-table schema in lib/db/schema.sql.
 
 export type VendorStatus = "safe" | "flagged" | "negotiating" | "cancelled";
-export type Source = "Plaid" | "Stripe";
+export type Source = "Plaid" | "Stripe" | "Upload";
 export type AgentName = "Classifier" | "Negotiator" | "Forecast" | "Orchestrator";
 
 export interface Vendor {
@@ -74,7 +74,7 @@ export interface Flag {
   transactionId: string;
   vendorId: string;
   vendorName: string;
-  kind: "overpriced" | "duplicate" | "usage_drift" | "price_creep";
+  kind: "overpriced" | "duplicate" | "usage_drift" | "price_creep" | "billing_spike";
   confidence: number;
   features: FeatureBreakdown[];
   /** Deterministic one-line summary. The LLM expands this into prose. */

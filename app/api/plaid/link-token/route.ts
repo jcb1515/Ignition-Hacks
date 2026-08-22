@@ -13,8 +13,8 @@ export async function POST() {
 
   try {
     const response = await plaid.linkTokenCreate({
-      user: { client_user_id: "burnshield-user" },
-      client_name: "Burnshield",
+      user: { client_user_id: "burn-shield-user" },
+      client_name: "Burn Shield",
       products: [Products.Transactions],
       country_codes: [CountryCode.Us],
       language: "en",

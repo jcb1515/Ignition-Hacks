@@ -15,18 +15,18 @@ export function Tabs({
 
   return (
     <div>
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+      <div className="mb-5 flex min-w-0 flex-col gap-3 border-b border-border pb-3 sm:flex-row sm:items-center sm:justify-between">
         {label ? (
           <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
             {label}
           </p>
         ) : null}
-        <div className="flex flex-wrap gap-1">
+        <div className="-mx-1 flex max-w-full gap-1 overflow-x-auto px-1 pb-1">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActive(tab.id)}
-              className={`rounded-full px-3 py-1.5 font-sans text-xs font-medium uppercase tracking-wider transition-colors duration-200 ${
+              className={`min-h-10 shrink-0 rounded-full px-3 py-2 font-sans text-xs font-medium uppercase tracking-wider transition-colors duration-200 ${
                 active === tab.id
                   ? "bg-ink text-white"
                   : "text-muted hover:bg-card-2 hover:text-on-card"

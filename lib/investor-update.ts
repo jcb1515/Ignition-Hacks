@@ -37,6 +37,7 @@ function inferKind(features: FeatureBreakdown[]): Flag["kind"] {
   const names = features.map((f) => f.feature);
   if (names.includes("seat_overlap_vs_headcount")) return "duplicate";
   if (names.includes("period_over_period_growth")) return "price_creep";
+  if (names.includes("spike_vs_median")) return "billing_spike";
   if (names.includes("cost_vs_category_mean")) return "overpriced";
   return "usage_drift";
 }
@@ -46,6 +47,7 @@ const KIND_LABEL: Record<Flag["kind"], string> = {
   duplicate: "Duplicate tool",
   usage_drift: "Paying for unused seats",
   price_creep: "Silent price creep",
+  billing_spike: "One-off billing spike",
 };
 
 const KIND_ACTION: Record<Flag["kind"], string> = {
@@ -53,6 +55,7 @@ const KIND_ACTION: Record<Flag["kind"], string> = {
   duplicate: "Cancellation drafted",
   usage_drift: "Tier downgrade drafted",
   price_creep: "Billing review drafted",
+  billing_spike: "Invoice credit requested",
 };
 
 export function buildInvestorUpdate(): InvestorUpdate {
@@ -100,7 +103,7 @@ export function buildInvestorUpdate(): InvestorUpdate {
     ? "No audit has been run yet."
     : flags.length === 0
       ? "Vendor spend is clean this period. No action required."
-      : `${flags.length} spend anomalies found — ${formatCurrency(annual)}/yr recoverable, +${monthsGained} months of runway.`;
+      : `${flags.length} spend anomalies found — ${formatCurrency(annual)}/yr recoverable, +${monthsGained} months of additional cash coverage.`;
 
   const findings = flags
     .sort((a, b) => b.monthlyCost - a.monthlyCost)
@@ -116,13 +119,13 @@ export function buildInvestorUpdate(): InvestorUpdate {
   const narrative = !audited
     ? ["Run an audit from the dashboard to populate this update."]
     : [
-        `Runway Radar audited ${vendors.length} vendors (${formatCurrency(f.vendorSpend)}/mo of tooling spend) against ${period} billing data.`,
+        `Burn Shield audited ${vendors.length} vendors (${formatCurrency(f.vendorSpend)}/mo of tooling spend) against ${period} billing data.`,
         flags.length
           ? `It flagged ${flags.length}: ${flags.map((x) => x.vendorName).join(", ")}. Each flag carries a feature-level breakdown of why it fired.`
           : "Nothing exceeded the anomaly thresholds.",
         realisedMonthly > 0 ? `${formatCurrency(realisedMonthly * 12)}/yr is already locked in through negotiation — ${actions.filter((a) => a.type === "negotiation_accepted").length} closed by the agent under the threshold, ${actions.filter((a) => a.type === "human_accept").length} signed by a human above it.` : "",
         `${drafts.length} vendor emails were drafted. ${pending} exceeded the ${formatCurrency(APPROVAL_THRESHOLD)}/mo autonomy threshold and are held for a human; ${sent} have been released to the sandbox outbox. Nothing is ever sent to a real vendor without sign-off.`,
-        `Acting on all findings moves runway from ${current.runwayMonths.toFixed(1)} to ${cut.runwayMonths.toFixed(1)} months at current revenue (${formatCurrency(currentMrr())} MRR).`,
+        `Acting on all findings extends the cash horizon from ${current.runwayMonths.toFixed(1)} to ${cut.runwayMonths.toFixed(1)} months at current revenue (${formatCurrency(currentMrr())} MRR).`,
       ];
 
   return {
@@ -134,9 +137,9 @@ export function buildInvestorUpdate(): InvestorUpdate {
     headline,
     kpis: [
       { label: "Monthly burn", value: formatCurrency(current.monthlyBurn), sub: `${formatCurrency(f.vendorSpend)} of it is vendors` },
-      { label: "Runway today", value: `${current.runwayMonths.toFixed(1)} mo`, sub: `${formatCurrency(COMPANY.cashOnHand)} cash` },
+      { label: "Cash horizon today", value: `${current.runwayMonths.toFixed(1)} mo`, sub: `${formatCurrency(COMPANY.cashOnHand)} cash` },
       { label: "Recoverable", value: formatCurrency(annual) + "/yr", sub: realisedMonthly > 0 ? `${formatCurrency(realisedMonthly * 12)}/yr already locked in` : `${formatCurrency(monthly)}/mo across ${flags.length} vendors`, accent: "good" },
-      { label: "Runway after", value: `${cut.runwayMonths.toFixed(1)} mo`, sub: `+${monthsGained} months`, accent: "good" },
+      { label: "Cash horizon after", value: `${cut.runwayMonths.toFixed(1)} mo`, sub: `+${monthsGained} months`, accent: "good" },
     ],
     findings,
     runway: {

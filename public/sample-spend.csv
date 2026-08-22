@@ -1,0 +1,73 @@
+date,vendor,category,amount,seats,active_seats,function_tag,contract_terms,contact_email
+2025-08-01,AWS,Infrastructure,3868,0,0,cloud_compute,"Usage-based, monthly",aws-billing@amazon.com
+2025-08-01,Confluence,Productivity,420,12,4,knowledge_base,Monthly,support@atlassian.com
+2025-08-01,Datadog,Infrastructure,1891,12,10,observability,"Usage-based, monthly",billing@datadoghq.com
+2025-08-01,Figma,Design,1080,12,8,design_tool,Annual,billing@figma.com
+2025-08-01,HubSpot,Sales,1450,6,5,crm,Annual,billing@hubspot.com
+2025-08-01,Linear,Productivity,192,12,12,issue_tracking,Monthly,support@linear.app
+2025-08-01,Notion,Productivity,480,14,12,knowledge_base,Monthly,support@notion.so
+2025-08-01,Segment,Analytics,3200,50,6,customer_data_platform,Monthly,billing@segment.com
+2025-08-01,Slack,Communication,2400,12,12,team_chat,Annual,billing@slack.com
+2025-08-01,Twilio,Communication,6400,12,11,programmable_messaging,"Annual, paid monthly",billing@twilio.com
+2025-08-01,Vercel,Infrastructure,2400,12,11,app_hosting,"Pro plan, monthly",support@vercel.com
+2025-08-01,Zoom,Communication,800,12,9,video_conferencing,Monthly,billing@zoom.us
+2025-09-01,AWS,Infrastructure,4062,0,0,cloud_compute,"Usage-based, monthly",aws-billing@amazon.com
+2025-09-01,Confluence,Productivity,420,12,4,knowledge_base,Monthly,support@atlassian.com
+2025-09-01,Datadog,Infrastructure,2130,12,10,observability,"Usage-based, monthly",billing@datadoghq.com
+2025-09-01,Figma,Design,1080,12,8,design_tool,Annual,billing@figma.com
+2025-09-01,HubSpot,Sales,1450,6,5,crm,Annual,billing@hubspot.com
+2025-09-01,Linear,Productivity,192,12,12,issue_tracking,Monthly,support@linear.app
+2025-09-01,Notion,Productivity,480,14,12,knowledge_base,Monthly,support@notion.so
+2025-09-01,Segment,Analytics,3200,50,6,customer_data_platform,Monthly,billing@segment.com
+2025-09-01,Slack,Communication,2400,12,12,team_chat,Annual,billing@slack.com
+2025-09-01,Twilio,Communication,6400,12,11,programmable_messaging,"Annual, paid monthly",billing@twilio.com
+2025-09-01,Vercel,Infrastructure,2400,12,11,app_hosting,"Pro plan, monthly",support@vercel.com
+2025-09-01,Zoom,Communication,800,12,9,video_conferencing,Monthly,billing@zoom.us
+2025-10-01,AWS,Infrastructure,4067,0,0,cloud_compute,"Usage-based, monthly",aws-billing@amazon.com
+2025-10-01,Confluence,Productivity,420,12,4,knowledge_base,Monthly,support@atlassian.com
+2025-10-01,Datadog,Infrastructure,2427,12,10,observability,"Usage-based, monthly",billing@datadoghq.com
+2025-10-01,Figma,Design,1080,12,8,design_tool,Annual,billing@figma.com
+2025-10-01,HubSpot,Sales,1450,6,5,crm,Annual,billing@hubspot.com
+2025-10-01,Linear,Productivity,192,12,12,issue_tracking,Monthly,support@linear.app
+2025-10-01,Notion,Productivity,480,14,12,knowledge_base,Monthly,support@notion.so
+2025-10-01,Segment,Analytics,3200,50,6,customer_data_platform,Monthly,billing@segment.com
+2025-10-01,Slack,Communication,2400,12,12,team_chat,Annual,billing@slack.com
+2025-10-01,Twilio,Communication,6400,12,11,programmable_messaging,"Annual, paid monthly",billing@twilio.com
+2025-10-01,Vercel,Infrastructure,2400,12,11,app_hosting,"Pro plan, monthly",support@vercel.com
+2025-10-01,Zoom,Communication,800,12,9,video_conferencing,Monthly,billing@zoom.us
+2025-11-01,AWS,Infrastructure,4339,0,0,cloud_compute,"Usage-based, monthly",aws-billing@amazon.com
+2025-11-01,Confluence,Productivity,420,12,4,knowledge_base,Monthly,support@atlassian.com
+2025-11-01,Datadog,Infrastructure,2715,12,10,observability,"Usage-based, monthly",billing@datadoghq.com
+2025-11-01,Figma,Design,1080,12,8,design_tool,Annual,billing@figma.com
+2025-11-01,HubSpot,Sales,1450,6,5,crm,Annual,billing@hubspot.com
+2025-11-01,Linear,Productivity,192,12,12,issue_tracking,Monthly,support@linear.app
+2025-11-01,Notion,Productivity,480,14,12,knowledge_base,Monthly,support@notion.so
+2025-11-01,Segment,Analytics,3200,50,6,customer_data_platform,Monthly,billing@segment.com
+2025-11-01,Slack,Communication,2400,12,12,team_chat,Annual,billing@slack.com
+2025-11-01,Twilio,Communication,6400,12,11,programmable_messaging,"Annual, paid monthly",billing@twilio.com
+2025-11-01,Vercel,Infrastructure,2400,12,11,app_hosting,"Pro plan, monthly",support@vercel.com
+2025-11-01,Zoom,Communication,800,12,9,video_conferencing,Monthly,billing@zoom.us
+2025-12-01,AWS,Infrastructure,4415,0,0,cloud_compute,"Usage-based, monthly",aws-billing@amazon.com
+2025-12-01,Confluence,Productivity,420,12,4,knowledge_base,Monthly,support@atlassian.com
+2025-12-01,Datadog,Infrastructure,3065,12,10,observability,"Usage-based, monthly",billing@datadoghq.com
+2025-12-01,Figma,Design,1080,12,8,design_tool,Annual,billing@figma.com
+2025-12-01,HubSpot,Sales,1450,6,5,crm,Annual,billing@hubspot.com
+2025-12-01,Linear,Productivity,192,12,12,issue_tracking,Monthly,support@linear.app
+2025-12-01,Notion,Productivity,480,14,12,knowledge_base,Monthly,support@notion.so
+2025-12-01,Segment,Analytics,3200,50,6,customer_data_platform,Monthly,billing@segment.com
+2025-12-01,Slack,Communication,2400,12,12,team_chat,Annual,billing@slack.com
+2025-12-01,Twilio,Communication,6400,12,11,programmable_messaging,"Annual, paid monthly",billing@twilio.com
+2025-12-01,Vercel,Infrastructure,2400,12,11,app_hosting,"Pro plan, monthly",support@vercel.com
+2025-12-01,Zoom,Communication,800,12,9,video_conferencing,Monthly,billing@zoom.us
+2026-01-01,AWS,Infrastructure,4224,0,0,cloud_compute,"Usage-based, monthly",aws-billing@amazon.com
+2026-01-01,Confluence,Productivity,420,12,4,knowledge_base,Monthly,support@atlassian.com
+2026-01-01,Datadog,Infrastructure,3375,12,10,observability,"Usage-based, monthly",billing@datadoghq.com
+2026-01-01,Figma,Design,1080,12,8,design_tool,Annual,billing@figma.com
+2026-01-01,HubSpot,Sales,1450,6,5,crm,Annual,billing@hubspot.com
+2026-01-01,Linear,Productivity,192,12,12,issue_tracking,Monthly,support@linear.app
+2026-01-01,Notion,Productivity,480,14,12,knowledge_base,Monthly,support@notion.so
+2026-01-01,Segment,Analytics,3200,50,6,customer_data_platform,Monthly,billing@segment.com
+2026-01-01,Slack,Communication,2400,12,12,team_chat,Annual,billing@slack.com
+2026-01-01,Twilio,Communication,6400,12,11,programmable_messaging,"Annual, paid monthly",billing@twilio.com
+2026-01-01,Vercel,Infrastructure,2400,12,11,app_hosting,"Pro plan, monthly",support@vercel.com
+2026-01-01,Zoom,Communication,800,12,9,video_conferencing,Monthly,billing@zoom.us

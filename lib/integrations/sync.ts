@@ -28,7 +28,7 @@ export interface SyncResult {
   stripe: { configured: boolean; revenue?: StripeRevenue; error?: string };
 }
 
-function slug(s: string): string {
+export function slug(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 40);
 }
 
@@ -60,7 +60,7 @@ const FUNCTION_TAGS: Record<string, string> = {
   openai: "llm_api", anthropic: "llm_api",
 };
 
-function functionTagFor(merchant: string): string {
+export function functionTagFor(merchant: string): string {
   const m = merchant.toLowerCase();
   for (const [key, tag] of Object.entries(FUNCTION_TAGS)) {
     if (m.includes(key)) return tag;

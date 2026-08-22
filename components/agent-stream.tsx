@@ -4,6 +4,9 @@ import { Bot, CircleCheck, Loader2, ShieldAlert } from "lucide-react";
 import { formatCurrency } from "@/lib/types";
 import type { AgentAction } from "@/lib/types";
 
+const cashHorizonCopy = (value: string) =>
+  value.replace(/\brunway\b/gi, "cash horizon");
+
 const AGENT_COLOR: Record<string, string> = {
   Classifier: "var(--color-series-1)",
   Forecast: "var(--color-series-2)",
@@ -28,7 +31,7 @@ export default function AgentStream({
       {running && (
         <div className="mb-3 flex items-center gap-2 border border-border-card bg-card-2 px-3 py-2">
           <Loader2 size={13} className="animate-spin text-on-card" />
-          <span className="font-sans text-[11px] text-muted">{status || "Working..."}</span>
+          <span className="font-sans text-[11px] text-muted">{cashHorizonCopy(status || "Working...")}</span>
         </div>
       )}
 
@@ -47,7 +50,7 @@ export default function AgentStream({
               <span className="inline-flex items-center gap-1.5 font-sans text-[10px] font-medium uppercase tracking-[0.1em]">
                 <Bot size={11} style={{ color: AGENT_COLOR[a.agent] }} />
                 <span style={{ color: AGENT_COLOR[a.agent] }}>{a.agent}</span>
-                <span className="text-muted">/ {a.type.replaceAll("_", " ")}</span>
+                <span className="text-muted">/ {cashHorizonCopy(a.type.replaceAll("_", " "))}</span>
               </span>
               <span className="font-sans text-[10px] text-muted">{a.timestamp}</span>
             </div>
@@ -55,7 +58,7 @@ export default function AgentStream({
             {a.target && (
               <p className="mb-1 text-sm font-medium text-on-card">{a.target}</p>
             )}
-            <p className="text-sm leading-relaxed text-muted">{a.reasoning}</p>
+            <p className="text-sm leading-relaxed text-muted">{cashHorizonCopy(a.reasoning)}</p>
 
             <div className="mt-3 flex items-center justify-between">
               <span className="font-sans text-xs text-muted">

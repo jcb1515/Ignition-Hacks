@@ -18,7 +18,7 @@ const page = await ctx.newPage();
 const scrollTo = async (loc) => { await loc.scrollIntoViewIfNeeded(); await pause(400); };
 
 await fetch(BASE + "/api/reset", { method: "POST" });
-await page.goto(BASE + "/dashboard", { waitUntil: "networkidle" });
+await page.goto(BASE + "/#try", { waitUntil: "networkidle" });
 await pause(3000);                                              // 0:00 clean state + badge
 
 await page.getByRole("button", { name: /run audit/i }).click(); // 0:03 run audit
@@ -49,7 +49,7 @@ if (await negotiate.count()) {
   await snap("negotiation");
 }
 
-const chart = page.getByText(/runway/i).first();                // 0:37 runway chart
+const chart = page.getByText(/cash horizon/i).first();         // 0:37 cash-horizon chart
 if (await chart.count()) await scrollTo(chart);
 await pause(5000);
 

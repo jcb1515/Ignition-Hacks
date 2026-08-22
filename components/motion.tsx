@@ -248,23 +248,37 @@ export function Marquee({
   duration?: number;
   className?: string;
 }) {
-  const doubled = useMemo(() => [...items, ...items], [items]);
+  const repeatCount = 4;
+  const sequence = useMemo(
+    () => Array.from({ length: repeatCount }, () => items).flat(),
+    [items]
+  );
+
+  const group = (copy: number) => (
+    <div className="flex shrink-0" aria-hidden="true">
+      {sequence.map((item, index) => (
+        <span
+          key={`${copy}-${item}-${index}`}
+          className="flex shrink-0 items-center gap-4 whitespace-nowrap px-6 font-sans text-xs font-medium uppercase tracking-wider"
+        >
+          {item}
+          <span className="h-1 w-1 rounded-full bg-azure" />
+        </span>
+      ))}
+    </div>
+  );
 
   return (
-    <div className={`marquee-host overflow-hidden ${className}`}>
+    <div
+      className={`marquee-host overflow-hidden ${className}`}
+      aria-label={items.join(" · ")}
+    >
       <div
         className="marquee-track"
-        style={{ "--marquee-duration": `${duration}s` } as CSSProperties}
+        style={{ "--marquee-duration": `${duration * repeatCount}s` } as CSSProperties}
       >
-        {doubled.map((item, index) => (
-          <span
-            key={`${item}-${index}`}
-            className="flex shrink-0 items-center gap-4 whitespace-nowrap px-6 font-sans text-xs font-medium uppercase tracking-wider"
-          >
-            {item}
-            <span className="h-1 w-1 rounded-full bg-azure" />
-          </span>
-        ))}
+        {group(0)}
+        {group(1)}
       </div>
     </div>
   );

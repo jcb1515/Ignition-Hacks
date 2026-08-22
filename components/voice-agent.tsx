@@ -10,6 +10,7 @@ import {
 } from "react";
 import { Bot, Loader2, Mic, MicOff, Send, Volume2 } from "lucide-react";
 import { MagneticButton, PointerPanel } from "@/components/motion";
+import type { DataMutation } from "@/components/agent-dashboard";
 import { formatCurrency } from "@/lib/types";
 
 interface Answer {
@@ -143,11 +144,11 @@ function buildSummary(state: VoiceState | null): string {
  */
 export default function VoiceAgent({
   onRunAudit,
-  onReload,
+  onDataChanged,
   running,
 }: {
   onRunAudit?: () => Promise<void>;
-  onReload?: () => Promise<void>;
+  onDataChanged?: (reason: DataMutation) => void | Promise<void>;
   running?: boolean;
 }) {
   const [transcript, setTranscriptState] = useState("");
@@ -383,13 +384,13 @@ export default function VoiceAgent({
         await onRunAudit();
       } else {
         await runAuditDirectly();
-        await onReload?.();
+        await onDataChanged?.("audit");
       }
       await askAndSpeak("What did you find?");
     } finally {
       setBusy(false);
     }
-  }, [addMessage, askAndSpeak, onReload, onRunAudit, running, runAuditDirectly, speak]);
+  }, [addMessage, askAndSpeak, onDataChanged, onRunAudit, running, runAuditDirectly, speak]);
 
   const reseedCommand = useCallback(async () => {
     setBusy(true);
@@ -397,7 +398,7 @@ export default function VoiceAgent({
     speak("Resetting the demo.");
     try {
       await fetch("/api/reset", { method: "POST" });
-      await onReload?.();
+      await onDataChanged?.("reseed");
       const state = await fetchState();
       const text = state
         ? `Reset complete. ${buildSummary(state)}`
@@ -407,7 +408,7 @@ export default function VoiceAgent({
     } finally {
       setBusy(false);
     }
-  }, [addMessage, fetchState, onReload, speak]);
+  }, [addMessage, fetchState, onDataChanged, speak]);
 
   const approveAllCommand = useCallback(async () => {
     setBusy(true);
@@ -452,14 +453,14 @@ export default function VoiceAgent({
         });
       }
 
-      await onReload?.();
+      await onDataChanged?.("decision");
       const text = `Approved ${held.length} held draft${held.length === 1 ? "" : "s"} with ${formatCurrency(totalSavings)}/mo in estimated savings.`;
       addMessage("agent", text);
       speak(text);
     } finally {
       setBusy(false);
     }
-  }, [addMessage, fetchState, onReload, speak]);
+  }, [addMessage, fetchState, onDataChanged, speak]);
 
   const syncCommand = useCallback(async () => {
     setBusy(true);
@@ -494,11 +495,11 @@ export default function VoiceAgent({
       }
       addMessage("agent", text);
       speak(text);
-      await onReload?.();
+      await onDataChanged?.("decision");
     } finally {
       setBusy(false);
     }
-  }, [addMessage, onReload, speak]);
+  }, [addMessage, onDataChanged, speak]);
 
   const handleCommand = useCallback(
     async (raw: string) => {
@@ -820,8 +821,8 @@ export default function VoiceAgent({
   }, [isClient]);
 
   return (
-    <PointerPanel className="border border-border-card bg-card p-6 text-on-card">
-      <div className="mb-4 flex items-center justify-between">
+    <PointerPanel className="min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-7">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-muted">
             Voice copilot
@@ -849,8 +850,8 @@ export default function VoiceAgent({
         </button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_220px]">
-        <div className="flex h-[300px] flex-col">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[1fr_220px]">
+        <div className="flex h-[300px] min-w-0 flex-col">
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-2">
             {messages.length === 0 && !listening && (
               <p className="text-sm leading-relaxed text-muted">
@@ -942,7 +943,7 @@ export default function VoiceAgent({
           </form>
         </div>
 
-        <div className="flex flex-col items-center justify-center rounded-xl border border-border-card bg-card-2 p-5">
+        <div className="flex min-w-0 flex-col items-center justify-center rounded-xl border border-border-card bg-card-2 p-5">
           {isProcessing ? (
             <div className="flex flex-col items-center gap-3 text-azure">
               <Loader2 size={32} className="animate-spin" />

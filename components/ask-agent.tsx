@@ -31,7 +31,7 @@ export default function AskAgent() {
   const [listening, setListening] = useState(false);
   const [speak, setSpeak] = useState(true);
   const recRef = useRef<Recognition | null>(null);
-  const chips = history.at(-1)?.a.suggestions ?? ["Why did you flag Twilio?", "What's our runway?", "What's waiting on me?"];
+  const chips = history.at(-1)?.a.suggestions ?? ["Why did you flag Twilio?", "How many months of cash do we have?", "What's waiting on me?"];
 
   // Client-only capability check without a setState-in-effect.
   const canListen = useSyncExternalStore(() => () => {}, () => Boolean(getRecognition()), () => false);
@@ -92,7 +92,7 @@ export default function AskAgent() {
 
       <div className="max-h-64 space-y-3 overflow-y-auto">
         {history.length === 0 && (
-          <p className="text-xs text-muted">Ask why something was flagged, what runway looks like, or what&apos;s waiting on you.</p>
+          <p className="text-xs text-muted">Ask why something was flagged, what the cash horizon looks like, or what&apos;s waiting on you.</p>
         )}
         {history.map((h, i) => (
           <div key={i}>
@@ -108,7 +108,7 @@ export default function AskAgent() {
       <div className="mt-3 flex flex-wrap gap-1.5">
         {chips.map((c) => (
           <button key={c} type="button" onClick={() => void submit(c)} disabled={busy}
-            className="border border-border-card px-2 py-1 text-[11px] text-muted transition-colors hover:bg-card-3 hover:text-on-card disabled:opacity-50">
+            className="min-h-10 border border-border-card px-3 py-2 text-[11px] text-muted transition-colors hover:bg-card-3 hover:text-on-card disabled:opacity-50">
             {c}
           </button>
         ))}
@@ -122,13 +122,13 @@ export default function AskAgent() {
         />
         {canListen && (
           <button type="button" onClick={toggleMic} disabled={busy} title="Ask out loud"
-            className="border border-border-card px-3 text-on-card transition-colors hover:bg-card-3 disabled:opacity-50"
+            className="min-h-11 min-w-11 border border-border-card px-3 text-on-card transition-colors hover:bg-card-3 disabled:opacity-50"
             style={listening ? { color: "var(--color-series-1)" } : undefined}>
             {listening ? <MicOff size={14} /> : <Mic size={14} />}
           </button>
         )}
         <button type="submit" disabled={busy || !q.trim()} title="Ask"
-          className="border border-border-card px-3 text-on-card transition-colors hover:bg-card-3 disabled:opacity-50">
+          className="min-h-11 min-w-11 border border-border-card px-3 text-on-card transition-colors hover:bg-card-3 disabled:opacity-50">
           <Send size={14} />
         </button>
       </form>

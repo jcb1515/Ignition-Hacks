@@ -10,6 +10,7 @@ import BurnChart from "@/components/burn-chart";
 import FlagCard, { type FlagView } from "@/components/flag-card";
 import RunwayChart from "@/components/runway-chart";
 import StatTile from "@/components/stat-tile";
+import UploadPanel from "@/components/upload-panel";
 import VendorTable from "@/components/vendor-table";
 import { Tabs } from "@/components/tabs";
 import { MagneticButton, PointerPanel } from "@/components/motion";
@@ -20,6 +21,8 @@ interface Scenario {
   label: string; description: string; monthlyBurn: number;
   netBurn: number; runwayMonths: number; path: number[];
 }
+export type DataMutation = "import" | "audit" | "reseed" | "decision";
+
 interface State {
   company: { name: string; headcount: number; cashOnHand: number; mrr: number };
   revenue: {
@@ -45,25 +48,37 @@ interface State {
   audited: boolean;
 }
 
-export default function Dashboard() {
+export default function Dashboard({
+  onDataChanged,
+}: {
+  onDataChanged?: (reason: DataMutation) => void | Promise<void>;
+}) {
   const [state, setState] = useState<State | null>(null);
   const [live, setLive] = useState<AgentAction[]>([]);
   const [running, setRunning] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState<string | null>(null);
   const streamRef = useRef<HTMLDivElement>(null);
 
   /** Manual refresh, used after an audit or an approval decision. */
-  const load = useCallback(async () => {
+  const load = useCallback(async (): Promise<State | null> => {
     try {
-      const res = await fetch("/api/state", { cache: "no-store" });
+      const res = await fetch(`/api/state?refresh=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error((await res.json()).error ?? "failed to load");
-      setState(await res.json());
+      const nextState = await res.json() as State;
+      setState(nextState);
       setError(null);
+      return nextState;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not reach the API");
+      return null;
     }
   }, []);
+
+  const refreshAll = useCallback(async (reason: DataMutation) => {
+    await Promise.all([load(), Promise.resolve(onDataChanged?.(reason))]);
+  }, [load, onDataChanged]);
 
   // Initial load. State is set from the fetch callback rather than the effect
   // body, and the guard stops a slow response writing to an unmounted page.
@@ -139,7 +154,7 @@ export default function Dashboard() {
           else if (event.type === "error") setError(event.message);
         }
       }
-      await load();
+      await refreshAll("audit");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Audit failed");
     } finally {
@@ -153,7 +168,7 @@ export default function Dashboard() {
     setStatus("Reseeding...");
     await fetch("/api/reset", { method: "POST" });
     setLive([]);
-    await load();
+    await refreshAll("reseed");
     setRunning(false);
     setStatus("");
   };
@@ -164,7 +179,7 @@ export default function Dashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ draftId, decision }),
     });
-    await load();
+    await refreshAll("decision");
   };
 
   useEffect(() => {
@@ -196,7 +211,7 @@ export default function Dashboard() {
 
   if (error && !state) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-24">
+      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
         <h1 className="font-display text-4xl tracking-[-0.05em]">Dashboard unavailable</h1>
         <p className="mt-4 text-muted">{error}</p>
         <p className="mt-2 text-sm text-muted">
@@ -208,7 +223,7 @@ export default function Dashboard() {
 
   if (!state) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-24">
+      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
         <p className="font-sans text-sm text-muted">Loading...</p>
       </div>
     );
@@ -221,7 +236,7 @@ export default function Dashboard() {
   return (
     <div className="bg-page">
       {/* Command bar */}
-      <PointerPanel className="mb-6 border border-border-card bg-card p-6 text-on-card">
+      <PointerPanel className="mb-6 border border-border-card bg-card p-4 text-on-card sm:p-6">
         <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-3">
             <DataSourceBadge />
@@ -230,21 +245,21 @@ export default function Dashboard() {
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="grid grid-cols-2 items-center gap-3 sm:flex sm:flex-wrap">
             <MagneticButton
               onClick={reseed}
-              disabled={running}
-              className="inline-flex items-center gap-2 rounded-full border border-fg px-4 py-2.5 text-sm font-medium text-fg hover:bg-ink hover:text-white disabled:opacity-50"
+              disabled={running || refreshing}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-fg px-4 py-2.5 text-sm font-medium text-fg hover:bg-ink hover:text-white disabled:opacity-50"
             >
               <RotateCcw size={14} /> Reseed
             </MagneticButton>
             <MagneticButton
               onClick={runAudit}
-              disabled={running}
-              className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-white hover:bg-azure disabled:opacity-60"
+              disabled={running || refreshing}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-white hover:bg-azure disabled:opacity-60"
             >
               <Play size={14} />
-              {running ? "Auditing..." : "Run audit"}
+              {refreshing ? "Refreshing..." : running ? "Auditing..." : "Run audit"}
             </MagneticButton>
           </div>
         </div>
@@ -275,7 +290,7 @@ export default function Dashboard() {
           accent={state.revenue.source === "stripe" ? "good" : "neutral"}
         />
         <StatTile
-          label="Runway"
+          label="Cash horizon"
           value={`${current.runwayMonths} mo`}
           sub={`${mc.p10}–${mc.p90} months across ${mc.trials.toLocaleString()} Monte Carlo trials`}
           accent="warn"
@@ -288,7 +303,7 @@ export default function Dashboard() {
         <StatTile
           label="Identified savings"
           value={`${formatCurrency(state.forecast.totalMonthlySavings)}/mo`}
-          sub={`Takes runway to ${cut.runwayMonths} months if every remediation lands`}
+          sub={`Extends cash to ${cut.runwayMonths} months if every remediation lands`}
           accent="good"
         />
       </div>
@@ -297,12 +312,33 @@ export default function Dashboard() {
       {/* Main grid */}
       <div className="grid w-full gap-8 py-10 lg:grid-cols-[1.25fr_1fr]">
         {/* Left column */}
-        <div className="space-y-8">
+        <div className="min-w-0 space-y-8">
+          <section>
+            <h2 className="mb-4 font-sans text-xs font-medium uppercase tracking-wider text-muted">
+              Your data
+            </h2>
+            <UploadPanel
+              disabled={running || refreshing}
+              onImported={async () => {
+                setRefreshing(true);
+                setLive([]);
+                setStatus("Refreshing imported data...");
+                setError(null);
+                try {
+                  await refreshAll("import");
+                } finally {
+                  setRefreshing(false);
+                  setStatus("");
+                }
+              }}
+            />
+          </section>
+
           <section>
             <h2 className="mb-4 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Findings
             </h2>
-            <PointerPanel className="border border-border-card bg-card p-5">
+            <PointerPanel className="min-w-0 border border-border-card bg-card p-3 sm:p-5">
               {state.flags.length === 0 ? (
                 <p className="py-8 text-center text-sm text-muted">
                   No findings yet. Run an audit.
@@ -310,7 +346,10 @@ export default function Dashboard() {
               ) : (
                 <div className="space-y-3">
                   {state.flags.map((f) => (
-                    <FlagCard key={f.vendorId} flag={f} />
+                    <FlagCard
+                      key={`${f.transactionId ?? f.vendorId}:${f.headline}:${f.confidence}`}
+                      flag={f}
+                    />
                   ))}
                 </div>
               )}
@@ -321,13 +360,13 @@ export default function Dashboard() {
             <h2 className="mb-4 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Projection
             </h2>
-            <PointerPanel className="border border-border-card bg-card p-5">
+            <PointerPanel className="min-w-0 border border-border-card bg-card p-3 sm:p-5">
               <Tabs
                 defaultTab="runway"
                 tabs={[
                   {
                     id: "runway",
-                    label: "Runway scenarios",
+                    label: "Cash-horizon scenarios",
                     content: (
                       <div>
                         <RunwayChart data={runwaySeries} />
@@ -370,21 +409,22 @@ export default function Dashboard() {
             <h2 className="mb-4 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Approvals
             </h2>
-            <PointerPanel className="border border-border-card bg-card p-5">
+            <PointerPanel className="min-w-0 border border-border-card bg-card p-3 sm:p-5">
               <ApprovalQueue
+                key={state.drafts.map((draft) => draft.id).join("|") || "empty"}
                 drafts={queue}
                 threshold={state.config.approvalThreshold}
                 onDecide={decide}
-                onNegotiated={load}
+                onNegotiated={() => { void refreshAll("decision"); }}
               />
             </PointerPanel>
           </section>
         </div>
 
         {/* Right column: the agent's reasoning */}
-        <div>
+        <div className="min-w-0">
           <div className="lg:sticky lg:top-6">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h2 className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
                 Agent action log
               </h2>
@@ -399,9 +439,9 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-            <PointerPanel className="border border-border-card bg-card p-5">
-              <div ref={streamRef} className="max-h-[calc(100vh-8rem)] overflow-y-auto">
-                <AgentStream actions={shownActions} running={running} status={status} />
+            <PointerPanel className="min-w-0 border border-border-card bg-card p-3 sm:p-5">
+              <div ref={streamRef} className="max-h-[32rem] overflow-y-auto lg:max-h-[calc(100vh-8rem)]">
+                <AgentStream actions={shownActions} running={running || refreshing} status={status} />
               </div>
             </PointerPanel>
           </div>

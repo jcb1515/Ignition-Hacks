@@ -1,4 +1,4 @@
-# Runway Radar — Architecture
+# Burn Shield — Architecture
 
 One Next.js app, one SQLite file, no separate backend service. Agents run inside
 API routes; the dashboard consumes them over Server-Sent Events. Everything below

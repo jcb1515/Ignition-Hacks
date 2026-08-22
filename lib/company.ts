@@ -1,6 +1,6 @@
 /**
  * Company constants for the seeded startup. The Forecast Agent needs the
- * non-vendor side of burn (payroll, rent) to produce a runway number that
+ * non-vendor side of burn (payroll, rent) to produce a cash-horizon number that
  * isn't nonsense, and the Classifier needs headcount to detect seat
  * double-provisioning across duplicate tools.
  */
@@ -31,4 +31,4 @@ export const DEMO_MODE = process.env.DEMO_MODE !== "false";
  * animation rather than an agent working. Pacing the stream lets the log build
  * while the presenter narrates. Set to 0 in tests so they stay fast.
  */
-export const AUDIT_PACE_MS = Number(process.env.AUDIT_PACE_MS ?? (DEMO_MODE ? 380 : 0));
+export const AUDIT_PACE_MS = Number(process.env.AUDIT_PACE_MS ?? 0);

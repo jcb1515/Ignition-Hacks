@@ -9,12 +9,15 @@
  *
  * Exits non-zero on any failure so it can gate a script or a CI step.
  */
-import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { classify } from "../lib/agents/classifier";
 import { forecast, estimateSavings } from "../lib/agents/forecast";
 import { runAudit } from "../lib/agents/orchestrator";
 import { deliver } from "../lib/mailer";
 import { APPROVAL_THRESHOLD } from "../lib/company";
+import { importSpendFile } from "../lib/import";
+import { seed } from "../lib/db/seed";
 import { getTransactions, getVendors, getDrafts } from "../lib/db/queries";
 
 let failures = 0;
@@ -35,11 +38,11 @@ function section(title: string) {
 }
 
 async function main() {
-  console.log("Runway Radar smoke test\n" + "=".repeat(50));
+  console.log("Burn Shield smoke test\n" + "=".repeat(50));
 
   /* ---- seed ---- */
   section("Seed");
-  execFileSync("npx", ["tsx", "scripts/seed.ts"], { stdio: "pipe" });
+  seed();
 
   const txs = getTransactions();
   const vendors = getVendors();
@@ -54,9 +57,37 @@ async function main() {
   /* ---- determinism ---- */
   section("Determinism");
   const before = JSON.stringify(getTransactions().map((t) => [t.id, t.amount]));
-  execFileSync("npx", ["tsx", "scripts/seed.ts"], { stdio: "pipe" });
+  seed();
   const after = JSON.stringify(getTransactions().map((t) => [t.id, t.amount]));
   check("reseed is byte-identical", before === after, "seed PRNG is not deterministic");
+
+  /* ---- repeated CSV / JSON imports ---- */
+  section("Import refresh cycles");
+  const csv = readFileSync(join(process.cwd(), "public", "sample-spend.csv"), "utf8");
+  const csvResult = importSpendFile(csv, "sample-spend.csv", { replace: true });
+  const csvForecast = forecast();
+  check("CSV import replaces vendor data", csvResult.vendors === 12 && getVendors().length === 12);
+  check("CSV totals drive the forecast", csvForecast.vendorSpend === 26_421, `got ${csvForecast.vendorSpend}`);
+  check("CSV import clears prior findings and approvals", getTransactions().every((t) => !t.flagged) && getDrafts().length === 0);
+
+  for await (const event of runAudit()) { if (event.type === "done") break; }
+  check("audit repopulates imported findings", getTransactions().filter((t) => t.flagged).length === 4);
+  check("audit repopulates imported approvals", getDrafts().length === 4);
+
+  const json = JSON.stringify([
+    { vendor: "Alpha Cloud", amount: 100, date: "2026-01-01", category: "Infrastructure" },
+    { vendor: "Alpha Cloud", amount: 150, date: "2026-02-01", category: "Infrastructure" },
+    { vendor: "Beta CRM", amount: 300, date: "2026-01-01", category: "Sales" },
+    { vendor: "Beta CRM", amount: 900, date: "2026-02-01", category: "Sales" },
+  ]);
+  const jsonResult = importSpendFile(json, "custom-spend.json", { replace: true });
+  const jsonForecast = forecast();
+  check("JSON import replaces the previous CSV", jsonResult.vendors === 2 && getVendors().length === 2);
+  check("JSON totals immediately drive the forecast", jsonForecast.vendorSpend === 1_050, `got ${jsonForecast.vendorSpend}`);
+  check("JSON history reflects uploaded monthly totals", jsonForecast.history.at(-1)?.vendorSpend === 1_050);
+  check("second import clears stale findings and approvals", getTransactions().every((t) => !t.flagged) && getDrafts().length === 0);
+
+  seed();
 
   /* ---- classifier: the Tier 1 gate ---- */
   section("Classifier (Tier 1 gate)");
@@ -101,7 +132,7 @@ async function main() {
   check("three scenarios produced", f.scenarios.length === 3, `got ${f.scenarios.length}`);
   check("savings are positive", f.totalMonthlySavings > 0, `got ${f.totalMonthlySavings}`);
   check(
-    "cutting costs extends runway",
+    "cutting costs extends the cash horizon",
     f.scenarios[1].runwayMonths > f.scenarios[0].runwayMonths,
     `${f.scenarios[1].runwayMonths} vs ${f.scenarios[0].runwayMonths}`
   );
@@ -137,7 +168,7 @@ async function main() {
     check("drafted one email per flag", summary.draftsCreated === 4, `got ${summary.draftsCreated}`);
     check("held the expensive ones for a human", summary.pendingApproval === 2,
       `got ${summary.pendingApproval}; Twilio and Segment should exceed the $${APPROVAL_THRESHOLD} threshold`);
-    check("runway improves after remediation", summary.runwayAfter > summary.runwayBefore,
+    check("cash horizon improves after remediation", summary.runwayAfter > summary.runwayBefore,
       `${summary.runwayBefore} -> ${summary.runwayAfter}`);
   }
 

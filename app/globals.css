@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Burnshield surfaces — light mode default */
+  /* Burn Shield surfaces — light mode default */
   --color-page: #ffffff;
   --color-card: #ffffff;
   --color-card-2: #f8fafc;
@@ -70,12 +70,25 @@ html[data-theme="dark"] {
   --color-foreground: #ffffff;
 }
 
+html,
 body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+body {
+  min-width: 320px;
   background-color: var(--color-page);
   color: var(--color-fg);
   font-family: var(--font-body);
   line-height: 1.5;
   letter-spacing: -0.01em;
+}
+
+button,
+a,
+input {
+  touch-action: manipulation;
 }
 
 h1,
@@ -103,6 +116,17 @@ li {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
   }
 }
 
@@ -195,6 +219,23 @@ li {
 
 .animate-fade-in {
   animation: fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dashboard-view {
+  view-transition-name: dashboard-view;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-old(dashboard-view) {
+  animation: fade-out 0.18s ease-in both;
+}
+
+::view-transition-new(dashboard-view) {
+  animation: fade-in 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-sweep {

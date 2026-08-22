@@ -141,7 +141,7 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
 
   /* ---- 2. Forecast ---- */
   await pace();
-  yield { type: "status", message: "Forecast agent projecting runway scenarios..." };
+  yield { type: "status", message: "Forecast agent projecting cash-horizon scenarios..." };
   await pace();
 
   const f = forecast(flags);
@@ -162,10 +162,10 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
   yield {
     type: "action",
     action: record(
-      "Forecast", "runway_projection",
+      "Forecast", "cash_horizon_projection",
       `Burn is ${formatCurrency(current.monthlyBurn)}/mo against ${formatCurrency(current.monthlyBurn - current.netBurn)}/mo of revenue, so net ${formatCurrency(current.netBurn)}/mo. ` +
-      `That is ${current.runwayMonths} months of runway at current spend. Across ${mcCurrent.trials.toLocaleString()} Monte Carlo trials the realistic range is ${mcCurrent.p10} to ${mcCurrent.p90} months (median ${mcCurrent.p50}). ` +
-      `Remediating all ${flags.length} flags takes runway to ${cut.runwayMonths} months; adding a hiring freeze takes it to ${freeze.runwayMonths}.`,
+      `That is ${current.runwayMonths} months of cash at current spend. Across ${mcCurrent.trials.toLocaleString()} Monte Carlo trials the realistic range is ${mcCurrent.p10} to ${mcCurrent.p90} months (median ${mcCurrent.p50}). ` +
+      `Remediating all ${flags.length} flags extends cash to ${cut.runwayMonths} months; adding a hiring freeze takes it to ${freeze.runwayMonths}.`,
       { dollarImpact: f.totalMonthlySavings, humanApproved: true }
     ),
   };
@@ -261,7 +261,7 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
     action: record(
       "Orchestrator", "audit_complete",
       `Audit complete. ${flags.length} vendors flagged, ${draftsCreated} emails drafted, ${pendingApproval} held for approval. ` +
-      `Total identified savings ${formatCurrency(f.totalMonthlySavings)}/mo (${formatCurrency(f.totalMonthlySavings * 12)}/yr), which is ${monthsGained} additional months of runway if every remediation lands.`,
+      `Total identified savings ${formatCurrency(f.totalMonthlySavings)}/mo (${formatCurrency(f.totalMonthlySavings * 12)}/yr), which is ${monthsGained} additional months of cash coverage if every remediation lands.`,
       { dollarImpact: f.totalMonthlySavings, humanApproved: true }
     ),
   };

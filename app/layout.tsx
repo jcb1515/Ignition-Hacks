@@ -1,13 +1,23 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import Nav from "@/components/nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Burnshield — Fintech Burn-Rate Workflow",
+  title: "Burn Shield — Fintech Burn-Rate Workflow",
   description:
-    "Burnshield is an agentic financial system for early-stage startups that monitors burn rate and automates spend decisions with human approval.",
+    "Burn Shield is an agentic financial system for early-stage startups that monitors burn rate and automates spend decisions with human approval.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
 
 export default function RootLayout({

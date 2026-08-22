@@ -1,10 +1,10 @@
 /**
- * Forecast Agent — burn and runway projection.
+ * Forecast Agent — burn and cash-horizon projection.
  *
  * Pure arithmetic, no LLM. Language models are bad at arithmetic and there is
  * no reason to ask one for a number we can compute exactly.
  *
- * Produces three scenarios plus a Monte Carlo band, because a single runway
+ * Produces three scenarios plus a Monte Carlo band, because a single cash-horizon estimate
  * number implies a precision the underlying assumptions do not support.
  */
 import { COMPANY } from "@/lib/company";
@@ -35,7 +35,7 @@ export interface ForecastResult {
   monteCarlo: Record<string, MonteCarloBand>;
   /**
    * Historical burn, oldest first. `burn` is everything; `vendorSpend` is the
-   * slice Runway Radar can actually act on — payroll swamps it in the total,
+   * slice Burn Shield can actually act on — payroll swamps it in the total,
    * so the chart needs both lines to tell the story.
    */
   history: Array<{ month: string; burn: number; vendorSpend: number }>;
@@ -85,6 +85,15 @@ export function estimateSavings(flag: Flag, vendors: Vendor[]): number {
       const floor = Math.max(0.35, utilisation + 0.15);
       return Math.round(v.monthlyCost * (1 - floor));
     }
+    case "billing_spike": {
+      // The excess over the vendor's median invoice: a one-off credit, not a
+      // monthly saving. Still the dollar impact the approval gate should see.
+      const amounts = getTransactions().filter((t) => t.vendorId === v.id).map((t) => t.amount);
+      if (amounts.length < 2) return 0;
+      const sorted = [...amounts].sort((a, b) => a - b);
+      const median = sorted[Math.floor(sorted.length / 2)];
+      return Math.max(0, Math.round(Math.max(...amounts) - median));
+    }
     case "price_creep": {
       // Roll back to the median of the observed history.
       const amounts = getTransactions()
@@ -120,7 +129,7 @@ function project(monthlyBurn: number, mrr: number): { runway: number; path: numb
  * persistent burn multiplier once (sigma 12%) and a persistent MRR growth
  * rate once, then adds smaller monthly noise on top.
  *
- * Runway is interpolated within the final month rather than rounded to a whole
+ * Cash horizon is interpolated within the final month rather than rounded to a whole
  * month, otherwise the percentiles quantise onto the same integer.
  *
  * Seeded, so the band is identical on every run.
@@ -178,7 +187,11 @@ export function forecast(flags: Flag[] = []): ForecastResult {
   const fixed = COMPANY.payroll + COMPANY.overhead;
   const currentBurn = vendorSpend + fixed;
 
-  const totalMonthlySavings = flags.reduce((s, f) => s + estimateSavings(f, vendors), 0);
+  // One-off credits (billing spikes) don't reduce the run-rate, so they stay
+  // out of the monthly number the scenarios are built from.
+  const totalMonthlySavings = flags
+    .filter((f) => f.kind !== "billing_spike")
+    .reduce((s, f) => s + estimateSavings(f, vendors), 0);
 
   const defs = [
     {

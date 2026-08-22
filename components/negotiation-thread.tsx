@@ -80,11 +80,11 @@ export default function NegotiationThread({
   };
 
   return (
-    <div className="border border-border-card bg-card-2 p-4">
-      <div className="mb-3 flex items-center justify-between gap-3">
+    <div className="min-w-0 border border-border-card bg-card-2 p-3 sm:p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <p className="font-sans text-[10px] uppercase tracking-[0.12em] text-muted">Negotiation · {vendorName}</p>
         <button type="button" onClick={negotiate} disabled={running}
-          className="inline-flex items-center gap-1.5 border border-border-card px-3 py-1.5 font-sans text-[10px] uppercase tracking-[0.12em] text-on-card transition-colors hover:bg-card-3 disabled:opacity-50">
+          className="inline-flex min-h-10 items-center gap-1.5 border border-border-card px-3 py-2 font-sans text-[10px] uppercase tracking-[0.12em] text-on-card transition-colors hover:bg-card-3 disabled:opacity-50">
           {running ? <Loader2 size={12} className="animate-spin" /> : <Handshake size={12} />}
           {running ? "Negotiating" : hasThread ? "Re-run" : "Negotiate"}
         </button>
@@ -102,7 +102,7 @@ export default function NegotiationThread({
           const decision = /accept|escalat|evaluate|opened/.test(a.type);
           return (
             <li key={a.id} className={`flex ${vendorTurn ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] border px-3 py-2 text-xs leading-relaxed ${
+              <div className={`max-w-[95%] break-words border px-3 py-2 text-xs leading-relaxed sm:max-w-[85%] ${
                 vendorTurn ? "border-border-card bg-card text-muted"
                 : decision ? "border-[var(--color-series-3)] bg-card-3 text-on-card"
                 : "border-border-card bg-card-3 text-on-card"}`}>
@@ -113,7 +113,7 @@ export default function NegotiationThread({
                 </p>
                 {a.reasoning.replace(/^\[[^\]]+\]\s*/, "")}
                 {a.approvalRequired && !a.humanApproved && /^negotiation_(accept_pending|escalated)$/.test(a.type) && (
-                  <div className="mt-2 flex gap-2">
+                  <div className="mt-2 flex flex-wrap gap-2">
                     <button type="button" onClick={() => void decide(a.id, "accept")}
                       className="inline-flex items-center gap-1 border border-border-card px-2 py-1 font-sans text-[10px] uppercase tracking-[0.1em] text-on-card hover:bg-card">
                       <Check size={11} /> Accept {formatCurrency(a.dollarImpact)}/mo

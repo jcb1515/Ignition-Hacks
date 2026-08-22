@@ -229,6 +229,11 @@ function askFor(flag: Flag, vendor: Vendor, savings: number): { intent: string; 
         intent: "tier downgrade",
         instruction: `Request a downgrade. We are provisioned for ${vendor.seats} seats but only ${vendor.activeSeats} are active. Ask what tier fits actual usage and whether the change can take effect next billing cycle rather than at renewal.`,
       };
+    case "billing_spike":
+      return {
+        intent: "invoice credit request",
+        instruction: `One invoice was far above our normal monthly amount with no change in usage or plan on our side. Ask for an itemised explanation of that invoice and a credit of roughly ${formatCurrency(savings)} for the overage, applied to the next bill. Be factual, not accusatory — it may be a metering or billing error.`,
+      };
     case "price_creep":
       return {
         intent: "billing review",
@@ -249,7 +254,9 @@ export async function negotiate(flag: Flag, vendor: Vendor, allVendors: Vendor[]
         ? `${vendor.name} — plan downgrade request`
         : flag.kind === "price_creep"
           ? `${vendor.name} — billing review request`
-          : `${vendor.name} — rate review request`;
+          : flag.kind === "billing_spike"
+            ? `${vendor.name} — query on an unusually high invoice`
+            : `${vendor.name} — rate review request`;
 
   const evidence = flag.features
     .slice(0, 2)
@@ -312,6 +319,19 @@ We're reviewing our ${vendor.category.toLowerCase()} spend ahead of next quarter
 Could you help us find a plan that matches actual usage? We're targeting something closer to ${target}/month. We'd also like to know whether a change can take effect at the next billing cycle rather than waiting for renewal.
 
 Happy to jump on a short call this week.
+
+The ${COMPANY.name} finance team`;
+  }
+
+  if (flag.kind === "billing_spike") {
+    const credit = formatCurrency(savings);
+    return `Hi ${vendor.name} team,
+
+While reconciling our accounts we noticed one ${vendor.name} invoice that was well above our usual monthly amount of ${cost}, with no change in our plan or usage that would explain it.
+
+Could you send an itemised breakdown of that invoice? If the overage turns out to be a metering or billing error, we'd ask for a credit of approximately ${credit} against our next bill.
+
+Happy to share our own usage records if that helps trace it.
 
 The ${COMPANY.name} finance team`;
   }
