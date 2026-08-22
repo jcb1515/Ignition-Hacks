@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
-@theme inline {
+@theme {
   /* Runway Radar surfaces — light mode default */
   --color-page: #ffffff;
   --color-card: #ffffff;
   --color-card-2: #f8fafc;
   --color-card-3: #f1f5f9;
-  --color-ink: #0f172a;
+  --color-ink: #171717;
   --color-canvas: #ffffff;
-  --color-fg: #0f172a;
-  --color-on-card: #0f172a;
+  --color-fg: #171717;
+  --color-on-card: #171717;
   --color-muted: #64748b;
   --color-slate: #94a3b8;
   --color-hairline: rgba(226, 232, 240, 0.8);
@@ -30,7 +30,7 @@
 
   /* Theme */
   --color-background: #ffffff;
-  --color-foreground: #0f172a;
+  --color-foreground: #171717;
 
   /* Typography */
   --font-display: "Helvetica", "Helvetica Neue", Arial, sans-serif;
@@ -41,21 +41,20 @@
 
 /* Dark mode overrides */
 html[data-theme="dark"] {
-  --color-page: #0b0e14;
-  --color-card: #0d1017;
-  --color-card-2: #151a24;
-  --color-card-3: #1d2430;
-  --color-ink: #0f172a;
-  --color-canvas: #0b0e14;
-  --color-fg: #f4f7fb;
-  --color-on-card: #f4f7fb;
-  --color-muted: #94a0b8;
-  --color-slate: #626e85;
-  --color-hairline: rgba(244, 247, 251, 0.14);
-  --color-border: #232b38;
-  --color-border-card: #232b38;
-  --color-background: #0b0e14;
-  --color-foreground: #f4f7fb;
+  --color-page: #0a0a0a;
+  --color-card: #111111;
+  --color-card-2: #161616;
+  --color-card-3: #1c1c1c;
+  --color-canvas: #0a0a0a;
+  --color-fg: #ffffff;
+  --color-on-card: #ffffff;
+  --color-muted: #9ca3af;
+  --color-slate: #6b7280;
+  --color-hairline: rgba(255, 255, 255, 0.12);
+  --color-border: #2a2a2a;
+  --color-border-card: #2a2a2a;
+  --color-background: #0a0a0a;
+  --color-foreground: #ffffff;
 }
 
 body {
@@ -233,6 +232,11 @@ li {
   mask-image: radial-gradient(circle at center, black, transparent 78%);
 }
 
+html[data-theme="dark"] .signal-grid {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+}
+
 /* Rounded card */
 .pointer-panel {
   position: relative;
@@ -300,6 +304,10 @@ li {
 
 .data-row:hover {
   background-color: rgba(61, 123, 255, 0.04);
+}
+
+html[data-theme="dark"] .data-row:hover {
+  background-color: rgba(61, 123, 255, 0.08);
 }
 
 /* Themed scrollbar */

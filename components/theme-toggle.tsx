@@ -34,14 +34,16 @@ export default function ThemeToggle() {
     setTheme(next);
   };
 
+  const isDark = mounted ? theme === "dark" : false;
+
   return (
     <button
       onClick={toggle}
       className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-on-card shadow-sm transition-colors hover:border-azure hover:bg-azure hover:text-white"
-      aria-label={mounted && theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       suppressHydrationWarning
     >
-      {mounted && theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+      {isDark ? <Moon size={16} /> : <Sun size={16} />}
     </button>
   );
 }
