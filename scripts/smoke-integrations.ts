@@ -12,6 +12,8 @@ import { stripeConfigured, pullTestRevenue } from "../lib/integrations/stripe";
 import { plaidConfigured } from "../lib/integrations/plaid";
 import { ask } from "../lib/ask";
 import { buildInvestorUpdate } from "../lib/investor-update";
+import { lookupBillingContact, resolveBillingContact, type SearchProvider } from "../lib/agents/negotiator";
+import type { Vendor } from "../lib/types";
 import { runAudit } from "../lib/agents/orchestrator";
 import { getTransactionsForVendor, getVendor, setVendorStatus } from "../lib/db/queries";
 import { resetDb } from "../lib/db";
@@ -61,6 +63,39 @@ async function main() {
   check("test key is configured", stripeConfigured());
   if (saved === undefined) delete process.env.STRIPE_SECRET_KEY; else process.env.STRIPE_SECRET_KEY = saved;
   check("plaid unconfigured without keys", plaidConfigured() === Boolean(process.env.PLAID_CLIENT_ID && process.env.PLAID_SECRET));
+
+  /* ---- Billing-contact resolver (tool call #1 of the Negotiator) ---- */
+  section("Contact resolver");
+  const vendor: Vendor = {
+    id: "v_test", name: "Atlassian", category: "Productivity", monthlyCost: 420,
+    contractTerms: "monthly", lastContactDate: "2025-06-01", contactEmail: "support@atlassian.com",
+    status: "safe", functionTag: "knowledge_base", seats: 12, activeSeats: 4,
+  };
+  const hit = (email: string, citation?: string): SearchProvider => async () => ({ email, source: "stub search", citation });
+  const nothing: SearchProvider = async () => undefined;
+  const boom: SearchProvider = async () => { throw new Error("provider down"); };
+  const garbage: SearchProvider = async () => ({ email: "not an email", source: "stub" });
+  let calls = 0;
+  const counting: SearchProvider = async () => { calls += 1; return undefined; };
+
+  let r = await resolveBillingContact(vendor, []);
+  check("no providers → vendor record", r.email === "support@atlassian.com" && r.source === "vendor record on file");
+  r = await resolveBillingContact(vendor, [nothing, boom, garbage]);
+  check("empty / throwing / malformed providers → fall through, never throw", r.source === "vendor record on file");
+  r = await resolveBillingContact(vendor, [hit("billing@some-aggregator.io", "https://aggregator.io")]);
+  check("off-domain address is rejected", r.email === "support@atlassian.com", `accepted ${r.email}`);
+  r = await resolveBillingContact(vendor, [hit("admin@atlassian.com.evil.net")]);
+  check("look-alike domain is rejected", r.email === "support@atlassian.com", `accepted ${r.email}`);
+  r = await resolveBillingContact(vendor, [hit("sales-ops-support@atlassian.com", "https://atlassian.com/contact")]);
+  check("same-domain address is accepted with citation", r.email === "sales-ops-support@atlassian.com" && r.citation === "https://atlassian.com/contact" && r.source === "stub search");
+  r = await resolveBillingContact(vendor, [hit("ar@billing.atlassian.com")]);
+  check("subdomain of vendor domain is accepted", r.email === "ar@billing.atlassian.com");
+  r = await resolveBillingContact(vendor, [boom, hit("ar@atlassian.com"), counting]);
+  check("first good tier wins; later tiers not called", r.email === "ar@atlassian.com" && calls === 0);
+  r = await resolveBillingContact({ ...vendor, contactEmail: "" }, [hit("x@atlassian.com")]);
+  check("no domain on file → providers skipped, inferred alias", r.source === "inferred billing alias");
+  r = await lookupBillingContact(vendor);
+  check("DEMO_MODE entry point makes no lookups", r.source === "vendor record on file");
 
   /* ---- Q&A + slide on a real audit ---- */
   section("Ask + investor update (seeded audit)");

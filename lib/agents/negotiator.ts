@@ -14,7 +14,7 @@ import { formatCurrency } from "@/lib/types";
 import type { Flag, Vendor } from "@/lib/types";
 import { generate } from "@/lib/llm";
 import { estimateSavings } from "@/lib/agents/forecast";
-import { COMPANY } from "@/lib/company";
+import { COMPANY, DEMO_MODE } from "@/lib/company";
 
 export interface NegotiationDraft {
   vendorId: string;
@@ -23,6 +23,8 @@ export interface NegotiationDraft {
   body: string;
   toEmail: string;
   contactSource: string;
+  /** Supporting URL when the address came from a live search. */
+  contactCitation?: string;
   monthlySavings: number;
   /** "llm" when a model wrote it, "fallback" when the template did. */
   source: string;
@@ -30,50 +32,179 @@ export interface NegotiationDraft {
 
 /* ---------------- tool 1: billing contact lookup ---------------- */
 
-/**
- * Resolves a vendor's billing contact. Tries a real lookup when a search key
- * is configured, then falls back to the address on file and finally to the
- * conventional billing@ alias. Returns the provenance so the action log can
- * say where the address came from rather than pretending it was always known.
- */
-export async function lookupBillingContact(
-  vendor: Vendor
-): Promise<{ email: string; source: string }> {
-  const key = process.env.SEARCH_API_KEY;
-  const domain = vendor.contactEmail.split("@")[1];
+export interface ContactResolution {
+  email: string;
+  /** Where the address came from, shown verbatim in the action log. */
+  source: string;
+  /** Supporting URL when a search produced the address. */
+  citation?: string;
+}
 
-  if (key && domain) {
-    try {
-      const res = await fetch(
-        `https://api.tavily.com/search`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            api_key: key,
-            query: `${vendor.name} billing contact email for enterprise account changes`,
-            max_results: 3,
-          }),
-          signal: AbortSignal.timeout(8000),
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        const blob = JSON.stringify(data);
-        const match = blob.match(
-          new RegExp(`[a-zA-Z0-9._%+-]+@${domain.replace(".", "\\.")}`)
-        );
-        if (match) return { email: match[0], source: "web search (Tavily)" };
+/**
+ * Only accept an address on the vendor's own domain.
+ *
+ * Search results are full of aggregators, directories and support-desk relays.
+ * An address scraped from one of those is worse than no lookup at all, because
+ * it looks authoritative in the log while being wrong. Subdomains are allowed
+ * (billing.atlassian.com), unrelated hosts are not.
+ */
+function onVendorDomain(email: string, domain: string): boolean {
+  const at = email.lastIndexOf("@");
+  if (at < 0) return false;
+  const host = email.slice(at + 1).toLowerCase();
+  const d = domain.toLowerCase();
+  return host === d || host.endsWith(`.${d}`);
+}
+
+const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+
+/** First address in `text` that belongs to `domain`, if any. */
+function firstMatchingEmail(text: string, domain: string): string | undefined {
+  for (const candidate of text.match(EMAIL_RE) ?? []) {
+    if (onVendorDomain(candidate, domain)) return candidate;
+  }
+  return undefined;
+}
+
+/**
+ * Composio's managed web search, invoked through the local `composio` CLI.
+ *
+ * The CLI carries its own managed credentials, so this needs no signup and no
+ * key in .env — which is the whole reason it is the first tier. It is a real
+ * network call to a real search API with its own auth and failure modes, not
+ * another prompt to the same model.
+ *
+ * Shelling out rather than calling the HTTP API directly is deliberate: the
+ * v3 REST endpoint wants a dashboard API key, while the CLI credential is
+ * already present on a machine where someone has run `composio login`.
+ */
+async function viaComposio(
+  vendor: Vendor,
+  domain: string
+): Promise<ContactResolution | undefined> {
+  const { execFile } = await import("node:child_process");
+  const { promisify } = await import("node:util");
+  const run = promisify(execFile);
+
+  // Deliberately not site:-restricted. A site: operator makes the search
+  // summarise the vendor's billing *docs* rather than surface an address, and
+  // returns nothing usable. The on-domain check below is what enforces
+  // correctness, so the query itself can stay broad.
+  const query = `${vendor.name} billing support contact email address`;
+
+  let stdout: string;
+  try {
+    ({ stdout } = await run(
+      "composio",
+      ["execute", "COMPOSIO_SEARCH_WEB", "-d", JSON.stringify({ query })],
+      { timeout: 25_000, maxBuffer: 4 * 1024 * 1024 }
+    ));
+  } catch {
+    return undefined; // CLI missing, not logged in, or timed out
+  }
+
+  let body: unknown;
+  try {
+    body = JSON.parse(stdout);
+  } catch {
+    return undefined;
+  }
+
+  const data = (body as { successful?: boolean; data?: Record<string, unknown> });
+  if (data?.successful === false) return undefined;
+
+  const answer = String(data?.data?.answer ?? "");
+  const citations = (data?.data?.citations ?? []) as Array<{ url?: string }>;
+
+  const email =
+    firstMatchingEmail(answer, domain) ??
+    firstMatchingEmail(JSON.stringify(citations), domain);
+  if (!email) return undefined;
+
+  return {
+    email,
+    source: "live web search (Composio)",
+    citation: citations.find((c) => c.url)?.url,
+  };
+}
+
+/** Tavily, kept as a second search provider when a key is configured. */
+async function viaTavily(
+  vendor: Vendor,
+  domain: string
+): Promise<ContactResolution | undefined> {
+  const key = process.env.SEARCH_API_KEY;
+  if (!key) return undefined;
+
+  const res = await fetch("https://api.tavily.com/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      api_key: key,
+      query: `${vendor.name} billing contact email for enterprise account changes`,
+      max_results: 3,
+    }),
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) return undefined;
+
+  const data = await res.json();
+  const email = firstMatchingEmail(JSON.stringify(data), domain);
+  return email ? { email, source: "web search (Tavily)" } : undefined;
+}
+
+/** A search provider: takes a vendor and its domain, returns a hit or nothing. */
+export type SearchProvider = (
+  vendor: Vendor,
+  domain: string
+) => Promise<ContactResolution | undefined>;
+
+/**
+ * The resolution policy, with its providers injected.
+ *
+ * Pure with respect to the environment: it reads no env vars and opens no
+ * connections of its own, so the fallback order and the same-domain rule can
+ * be tested directly by passing stub providers. `lookupBillingContact` is the
+ * thin env-driven wrapper around it.
+ *
+ * Providers are tried in order. Any that throws or returns nothing falls
+ * through to the next — a contact lookup must never be able to fail a whole
+ * audit. If none produce an on-domain address, the address on file wins.
+ */
+export async function resolveBillingContact(
+  vendor: Vendor,
+  providers: SearchProvider[] = []
+): Promise<ContactResolution> {
+  const domain = vendor.contactEmail.split("@")[1] ?? "";
+
+  if (domain) {
+    for (const provider of providers) {
+      try {
+        const hit = await provider(vendor, domain);
+        // Re-check the domain here rather than trusting the provider, so a
+        // badly-behaved provider cannot smuggle an aggregator address through.
+        if (hit && onVendorDomain(hit.email, domain)) return hit;
+      } catch {
+        // fall through to the next tier
       }
-    } catch {
-      // fall through to the offline resolution below
     }
   }
 
   if (vendor.contactEmail) {
     return { email: vendor.contactEmail, source: "vendor record on file" };
   }
-  return { email: `billing@${domain ?? "example.com"}`, source: "inferred billing alias" };
+  return { email: `billing@${domain || "example.com"}`, source: "inferred billing alias" };
+}
+
+/**
+ * Env-driven entry point used by the Negotiator.
+ *
+ * In DEMO_MODE no providers are passed at all, so the demo makes no network
+ * calls and always resolves from the vendor record — deterministically.
+ */
+export async function lookupBillingContact(vendor: Vendor): Promise<ContactResolution> {
+  const providers = DEMO_MODE ? [] : [viaComposio, viaTavily];
+  return resolveBillingContact(vendor, providers);
 }
 
 /* ---------------- tool 2: draft the message ---------------- */
@@ -149,6 +280,7 @@ export async function negotiate(flag: Flag, vendor: Vendor, allVendors: Vendor[]
     body: result.text,
     toEmail: contact.email,
     contactSource: contact.source,
+    contactCitation: contact.citation,
     monthlySavings: savings,
     source: result.source,
   };

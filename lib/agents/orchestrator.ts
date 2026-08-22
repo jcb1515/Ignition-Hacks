@@ -220,7 +220,7 @@ export async function* runAudit(): AsyncGenerator<AuditEvent> {
       type: "action",
       action: record(
         "Negotiator", `draft_${flag.kind === "duplicate" ? "cancellation" : "renegotiation"}`,
-        `Drafted a ${flag.kind === "duplicate" ? "cancellation" : "renegotiation"} email to ${vendor.name} at ${draft.toEmail} (address resolved via ${draft.contactSource}). ` +
+        `Drafted a ${flag.kind === "duplicate" ? "cancellation" : "renegotiation"} email to ${vendor.name} at ${draft.toEmail} (address resolved via ${draft.contactSource}${draft.contactCitation ? `, source: ${draft.contactCitation}` : ""}). ` +
         `Estimated impact ${formatCurrency(savings)}/mo. ` +
         `Written by ${draft.source === "llm" ? "language model" : "deterministic template"}.`,
         { target: vendor.name, dollarImpact: savings }
