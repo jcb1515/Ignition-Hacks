@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCurrency } from "@/lib/data";
+import { formatCurrency } from "@/lib/types";
 import { usePlaid, toTransactions } from "@/lib/use-plaid";
 import PlaidLinkButton from "@/components/plaid-link-button";
 import TransactionFeed from "@/components/transaction-feed";

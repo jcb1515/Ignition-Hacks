@@ -7,11 +7,30 @@ export interface PlaidConnection {
   itemId: string;
 }
 
+interface PlaidHandler {
+  open: () => void;
+}
+
+interface PlaidGlobal {
+  create: (config: {
+    token: string;
+    onSuccess: (publicToken: string) => void | Promise<void>;
+    onExit: () => void;
+    onLoad: () => void;
+  }) => PlaidHandler;
+}
+
+declare global {
+  interface Window {
+    Plaid?: PlaidGlobal;
+  }
+}
+
 let plaidScriptPromise: Promise<void> | null = null;
 
 function loadPlaidScript(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
-  if ((window as any).Plaid) return Promise.resolve();
+  if (window.Plaid) return Promise.resolve();
   if (plaidScriptPromise) return plaidScriptPromise;
 
   const existing = document.querySelector(
@@ -19,7 +38,7 @@ function loadPlaidScript(): Promise<void> {
   );
   if (existing) {
     plaidScriptPromise = new Promise((resolve, reject) => {
-      if ((window as any).Plaid) return resolve();
+      if (window.Plaid) return resolve();
       existing.addEventListener("load", () => resolve());
       existing.addEventListener("error", () =>
         reject(new Error("Plaid script failed to load"))
@@ -65,7 +84,8 @@ export default function PlaidLinkButton({
       }
 
       await loadPlaidScript();
-      const Plaid = (window as any).Plaid;
+      const Plaid = window.Plaid;
+      if (!Plaid) throw new Error("Plaid script did not initialise");
 
       const handler = Plaid.create({
         token: data.link_token,

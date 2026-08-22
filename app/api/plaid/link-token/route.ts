@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getPlaid } from "@/lib/plaid";
 import { CountryCode, Products } from "plaid";
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   const plaid = getPlaid();
   if (!plaid) {
     return NextResponse.json(

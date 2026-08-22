@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import type { Transaction } from "@/lib/data";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import type { Transaction } from "@/lib/types";
 
 export interface PlaidAccount {
   account_id: string;
@@ -34,101 +34,103 @@ export interface PlaidState {
   balance: number;
 }
 
+const TOKEN_KEY = "plaid_access_token";
+const TOKEN_EVENT = "plaid-connected";
+
+/**
+ * The access token lives in localStorage and is read through an external
+ * store, so the hook never calls setState inside an effect and the server
+ * render (no token) hydrates cleanly before the client snapshot takes over.
+ */
+function readToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function subscribeToken(onChange: () => void) {
+  window.addEventListener(TOKEN_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(TOKEN_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+function writeToken(token: string | null) {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  } catch {}
+  window.dispatchEvent(new CustomEvent(TOKEN_EVENT, { detail: token }));
+}
+
+interface PlaidData {
+  loading: boolean;
+  accounts: PlaidAccount[];
+  transactions: PlaidTransaction[];
+  balance: number;
+}
+
+const EMPTY: PlaidData = { loading: false, accounts: [], transactions: [], balance: 0 };
+
 export function usePlaid() {
-  const [state, setState] = useState<PlaidState>({
-    accessToken: null,
-    connected: false,
-    loading: false,
-    accounts: [],
-    transactions: [],
-    balance: 0,
-  });
+  const accessToken = useSyncExternalStore(subscribeToken, readToken, () => null);
+  const [data, setData] = useState<PlaidData>(EMPTY);
 
+  // Fetch whenever the token changes. Every setData here happens after an
+  // await, i.e. in an async continuation, never synchronously in the effect.
   useEffect(() => {
-    const saved = localStorage.getItem("plaid_access_token");
-    if (saved) {
-      setState((s) => ({ ...s, accessToken: saved, connected: true }));
-    }
+    if (!accessToken) return;
+    let cancelled = false;
 
-    const onConnect = (e: Event) => {
-      const token = (e as CustomEvent<string>).detail || localStorage.getItem("plaid_access_token");
-      if (token) {
-        setState((s) => ({ ...s, accessToken: token, connected: true }));
+    const run = async () => {
+      await Promise.resolve();
+      if (cancelled) return;
+      setData((s) => ({ ...s, loading: true }));
+      try {
+        const body = JSON.stringify({ access_token: accessToken });
+        const headers = { "Content-Type": "application/json" };
+        const [accountsRes, txRes] = await Promise.all([
+          fetch("/api/plaid/accounts", { method: "POST", headers, body }),
+          fetch("/api/plaid/transactions", { method: "POST", headers, body }),
+        ]);
+        const accountsData = await accountsRes.json();
+        const txData = await txRes.json();
+        if (cancelled) return;
+
+        const accounts: PlaidAccount[] = accountsData.accounts || [];
+        const transactions: PlaidTransaction[] = txData.transactions || [];
+        const balance = accounts.reduce((sum, a) => sum + (a.balances.current || 0), 0);
+        setData({ loading: false, accounts, transactions, balance });
+      } catch (err) {
+        console.error("Plaid fetch failed:", err);
+        if (!cancelled) setData((s) => ({ ...s, loading: false }));
       }
     };
+    void run();
 
-    window.addEventListener("plaid-connected", onConnect);
-    return () => window.removeEventListener("plaid-connected", onConnect);
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken]);
+
+  const connect = useCallback((token: string) => {
+    writeToken(token);
   }, []);
-
-  const fetchPlaid = useCallback(async (token: string) => {
-    setState((s) => ({ ...s, loading: true }));
-    try {
-      const [accountsRes, txRes] = await Promise.all([
-        fetch("/api/plaid/accounts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ access_token: token }),
-        }),
-        fetch("/api/plaid/transactions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ access_token: token }),
-        }),
-      ]);
-
-      const accountsData = await accountsRes.json();
-      const txData = await txRes.json();
-
-      const accounts: PlaidAccount[] = accountsData.accounts || [];
-      const transactions: PlaidTransaction[] = txData.transactions || [];
-      const balance = accounts.reduce(
-        (sum: number, a: PlaidAccount) => sum + (a.balances.current || 0),
-        0
-      );
-
-      setState((s) => ({
-        ...s,
-        loading: false,
-        accounts,
-        transactions,
-        balance,
-      }));
-    } catch (err) {
-      console.error("Plaid fetch failed:", err);
-      setState((s) => ({ ...s, loading: false }));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (state.accessToken) {
-      localStorage.setItem("plaid_access_token", state.accessToken);
-      fetchPlaid(state.accessToken);
-    }
-  }, [state.accessToken, fetchPlaid]);
-
-  const connect = useCallback(
-    (accessToken: string) => {
-      localStorage.setItem("plaid_access_token", accessToken);
-      setState((s) => ({ ...s, accessToken, connected: true }));
-      window.dispatchEvent(
-        new CustomEvent("plaid-connected", { detail: accessToken })
-      );
-    },
-    []
-  );
 
   const disconnect = useCallback(() => {
-    localStorage.removeItem("plaid_access_token");
-    setState({
-      accessToken: null,
-      connected: false,
-      loading: false,
-      accounts: [],
-      transactions: [],
-      balance: 0,
-    });
+    writeToken(null);
+    setData(EMPTY);
   }, []);
+
+  const state: PlaidState = {
+    accessToken,
+    connected: Boolean(accessToken),
+    ...data,
+  };
 
   return { ...state, connect, disconnect };
 }
