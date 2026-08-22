@@ -17,7 +17,9 @@ import type { Vendor } from "../lib/types";
 import { runAudit } from "../lib/agents/orchestrator";
 import { runNegotiation, MAX_ROUNDS, TOLERANCE, type NegotiationSummary } from "../lib/agents/negotiation";
 import { APPROVAL_THRESHOLD } from "../lib/company";
-import { getTransactionsForVendor, getVendor, setVendorStatus } from "../lib/db/queries";
+import { POST as decide } from "../app/api/negotiate/decide/route";
+import { NextRequest } from "next/server";
+import { getActions, getTransactionsForVendor, getVendor, setVendorStatus } from "../lib/db/queries";
 import { resetDb } from "../lib/db";
 
 let failures = 0, checks = 0;
@@ -161,12 +163,37 @@ async function main() {
   for await (const ev of runNegotiation("v_vercel")) { if (ev.type === "done") noFlag = ev.summary; }
   check("unflagged vendor → no_flag, no actions", noFlag?.outcome === "no_flag");
 
+  const post = (body: unknown) => decide(new NextRequest("http://local/api/negotiate/decide", { method: "POST", body: JSON.stringify(body), headers: { "Content-Type": "application/json" } }));
+  const pendingSeg = getActions(2000).find((a) => a.type === "negotiation_accept_pending" && a.target === "Segment")!;
+  let res = await post({ actionId: pendingSeg.id, decision: "accept" });
+  check("decide: human accepts the held Segment deal", res.status === 200 && (await res.json()).monthlySavings === 2176);
+  check("decide: vendor moves to negotiating", getVendor("v_segment")?.status === "negotiating");
+  check("decide: writes a human_accept row", getActions(50).some((a) => a.type === "human_accept" && a.target === "Segment" && a.dollarImpact === 2176));
+  res = await post({ actionId: pendingSeg.id, decision: "accept" });
+  check("decide: second decision → 409", res.status === 409);
+  const escTw = getActions(2000).find((a) => a.type === "negotiation_escalated" && a.target === "Twilio")!;
+  res = await post({ actionId: escTw.id, decision: "walk" });
+  check("decide: human walks on Twilio, vendor stays flagged", res.status === 200 && getVendor("v_twilio")?.status === "flagged");
+  const plain = getActions(2000).find((a) => a.type === "negotiation_round")!;
+  res = await post({ actionId: plain.id, decision: "accept" });
+  check("decide: non-gated action → 409", res.status === 409);
+  res = await post({ actionId: "nope", decision: "accept" });
+  check("decide: unknown → 404", res.status === 404);
+  res = await post({});
+  check("decide: bad body → 400", res.status === 400);
+
+  const negQ = await ask("how did the Segment negotiation go?");
+  check("ask: negotiation summary after the loop", negQ.intent === "negotiation" && /sign-off/.test(negQ.answer), negQ.answer);
+  const negQ2 = await ask("what's the Confluence deal");
+  check("ask: autonomous close reported", negQ2.intent === "negotiation" && /closed it myself/.test(negQ2.answer), negQ2.answer);
+
   const u = buildInvestorUpdate();
   check("slide: audited", u.audited);
   check("slide: 4 findings", u.findings.length === 4, `got ${u.findings.length}`);
   check("slide: headline carries annual savings", /\$76,620\/yr/.test(u.headline), u.headline);
   check("slide: pending = distinct vendors awaiting a human (Twilio, Segment, Datadog)", u.governance.pending === 3, `got ${u.governance.pending}`);
   check("slide: runway gain > 0", u.runway.monthsGained > 0);
+  check("slide: realised = Confluence (agent) + Segment (human)", u.realised.monthly === 420 + 2176 && u.realised.closedBy.agent === 1 && u.realised.closedBy.human === 1, JSON.stringify(u.realised));
   check("slide: every finding has a why", u.findings.every((f) => f.why.length > 5));
 
   console.log("\n" + "=".repeat(50));

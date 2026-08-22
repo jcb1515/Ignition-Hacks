@@ -77,6 +77,35 @@ flowchart LR
 In demo mode the Orchestrator paces events so the log visibly builds; the smoke test
 sets pace to zero.
 
+## The negotiation loop (after the audit)
+
+The audit sends one ask per flag. `lib/agents/negotiation.ts` runs the rest of the
+conversation against `lib/agents/counterparty.ts`, a deterministic simulated vendor
+(in production: an inbound-email parser; the policy above it would not change).
+
+```
+target     = cost − Forecast.estimateSavings(flag)
+ceiling    = target × 1.08
+loop ≤ 3 rounds:
+  ask → vendor replies (counter | retention | final | accept)
+  offer ≤ ceiling        → ACCEPT   (savings > threshold ⇒ written as pending, not done)
+  vendor said "final"    → ESCALATE (human decides: take best offer, or walk)
+  otherwise              → COUNTER at midpoint(target, offer)
+```
+
+The approval gate applies to *commitments*, not just emails: the agent may haggle
+on its own; it may not sign on its own. On the seed data the four vendors end four
+different ways — autonomous close (Confluence), deal-reached-but-held (Segment), and
+two escalations (Twilio, Datadog) — which is the point: the interesting decisions are
+the ones it hands back.
+
+Every turn is an `agent_actions` row (`negotiation_*` / `vendor_*`, target = vendor
+name), so the thread is reconstructable from the log and the Q&A agent can summarise it.
+The human side is `POST /api/negotiate/decide { actionId, decision: accept | walk }`,
+which only accepts `negotiation_accept_pending` / `negotiation_escalated` rows, refuses a
+second decision, and writes a `human_accept` / `human_walk` row so the log shows who
+signed. The thread component renders Accept / Walk on exactly those rows.
+
 ## The two modes
 
 | | `DEMO_MODE=true` (default) | `DEMO_MODE=false` |
@@ -125,6 +154,8 @@ lib/
     classifier.ts       four detectors + linear scorer
     forecast.ts         scenarios, Monte Carlo, savings estimates
     negotiator.ts       three-tier contact resolver (tool call) + draft
+    negotiation.ts      multi-round loop: ask / counter / accept / escalate
+    counterparty.ts     deterministic simulated vendor
     orchestrator.ts     runAudit() async generator, approval policy
   llm.ts                NIM client with mandatory fallback
   mailer.ts             Mailtrap-only delivery
@@ -135,7 +166,7 @@ lib/
   ask.ts                intent router + grounded LLM fallback
   investor-update.ts    slide payload from the audit
 app/api/
-  audit   state   approve   reset   sync   ask   investor-update
+  audit   state   approve   reset   sync   ask   investor-update   negotiate   negotiate/decide
 app/
   dashboard/            the product
   investor-update/      the closer

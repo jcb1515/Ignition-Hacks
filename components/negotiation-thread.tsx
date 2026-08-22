@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Handshake, Loader2, ShieldAlert, UserRound, Bot } from "lucide-react";
+import { Check, Handshake, Loader2, ShieldAlert, UserRound, Bot, X } from "lucide-react";
 import { formatCurrency } from "@/lib/types";
 import type { AgentAction } from "@/lib/types";
 
@@ -68,6 +68,17 @@ export default function NegotiationThread({
 
   const hasThread = actions.length > 0;
 
+  const decide = async (actionId: string, decision: "accept" | "walk") => {
+    const res = await fetch("/api/negotiate/decide", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actionId, decision }),
+    });
+    if (res.ok) {
+      const t = await fetch(`/api/negotiate?vendorId=${encodeURIComponent(vendorId)}`, { cache: "no-store" });
+      if (t.ok) setActions((await t.json()).actions ?? []);
+      onDone?.();
+    }
+  };
+
   return (
     <div className="border border-border-card bg-card-2 p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -101,6 +112,18 @@ export default function NegotiationThread({
                   {a.approvalRequired && !a.humanApproved && <ShieldAlert size={10} style={{ color: "var(--color-series-1)" }} />}
                 </p>
                 {a.reasoning.replace(/^\[[^\]]+\]\s*/, "")}
+                {a.approvalRequired && !a.humanApproved && /^negotiation_(accept_pending|escalated)$/.test(a.type) && (
+                  <div className="mt-2 flex gap-2">
+                    <button type="button" onClick={() => void decide(a.id, "accept")}
+                      className="inline-flex items-center gap-1 border border-border-card px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-on-card hover:bg-card">
+                      <Check size={11} /> Accept {formatCurrency(a.dollarImpact)}/mo
+                    </button>
+                    <button type="button" onClick={() => void decide(a.id, "walk")}
+                      className="inline-flex items-center gap-1 border border-border-card px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted hover:bg-card">
+                      <X size={11} /> Walk
+                    </button>
+                  </div>
+                )}
               </div>
             </li>
           );

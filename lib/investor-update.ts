@@ -27,6 +27,7 @@ export interface InvestorUpdate {
   findings: Array<{ vendor: string; kind: string; monthlyCost: string; confidence: string; why: string; action: string }>;
   runway: { scenarios: Array<{ label: string; months: number; netBurn: string }>; monthsGained: number };
   governance: { threshold: string; pending: number; approved: number; sent: number };
+  realised: { monthly: number; annual: number; closedBy: { agent: number; human: number } };
   narrative: string[];
 }
 
@@ -78,6 +79,12 @@ export function buildInvestorUpdate(): InvestorUpdate {
 
   // Vendors awaiting a human decision, not raw action rows — a negotiation
   // adds several escalation rows for the same vendor.
+  // Savings that are actually locked in: closed by the agent under threshold,
+  // or signed by a human above it. Investors care about this number, not the
+  // identified one.
+  const realisedMonthly = actions
+    .filter((a) => a.type === "negotiation_accepted" || a.type === "human_accept")
+    .reduce((s, a) => s + a.dollarImpact, 0);
   const pending = new Set(actions.filter((a) => a.approvalRequired && !a.humanApproved).map((a) => a.target)).size;
   const approved = drafts.filter((d) => d.approved).length;
   const sent = drafts.filter((d) => d.sent).length;
@@ -112,6 +119,7 @@ export function buildInvestorUpdate(): InvestorUpdate {
         flags.length
           ? `It flagged ${flags.length}: ${flags.map((x) => x.vendorName).join(", ")}. Each flag carries a feature-level breakdown of why it fired.`
           : "Nothing exceeded the anomaly thresholds.",
+        realisedMonthly > 0 ? `${formatCurrency(realisedMonthly * 12)}/yr is already locked in through negotiation — ${actions.filter((a) => a.type === "negotiation_accepted").length} closed by the agent under the threshold, ${actions.filter((a) => a.type === "human_accept").length} signed by a human above it.` : "",
         `${drafts.length} vendor emails were drafted. ${pending} exceeded the ${formatCurrency(APPROVAL_THRESHOLD)}/mo autonomy threshold and are held for a human; ${sent} have been released to the sandbox outbox. Nothing is ever sent to a real vendor without sign-off.`,
         `Acting on all findings moves runway from ${current.runwayMonths.toFixed(1)} to ${cut.runwayMonths.toFixed(1)} months at current revenue (${formatCurrency(COMPANY.mrr)} MRR).`,
       ];
@@ -126,7 +134,7 @@ export function buildInvestorUpdate(): InvestorUpdate {
     kpis: [
       { label: "Monthly burn", value: formatCurrency(current.monthlyBurn), sub: `${formatCurrency(f.vendorSpend)} of it is vendors` },
       { label: "Runway today", value: `${current.runwayMonths.toFixed(1)} mo`, sub: `${formatCurrency(COMPANY.cashOnHand)} cash` },
-      { label: "Recoverable", value: formatCurrency(annual) + "/yr", sub: `${formatCurrency(monthly)}/mo across ${flags.length} vendors`, accent: "good" },
+      { label: "Recoverable", value: formatCurrency(annual) + "/yr", sub: realisedMonthly > 0 ? `${formatCurrency(realisedMonthly * 12)}/yr already locked in` : `${formatCurrency(monthly)}/mo across ${flags.length} vendors`, accent: "good" },
       { label: "Runway after", value: `${cut.runwayMonths.toFixed(1)} mo`, sub: `+${monthsGained} months`, accent: "good" },
     ],
     findings,
@@ -135,6 +143,13 @@ export function buildInvestorUpdate(): InvestorUpdate {
       monthsGained,
     },
     governance: { threshold: formatCurrency(APPROVAL_THRESHOLD) + "/mo", pending, approved, sent },
-    narrative,
+    realised: {
+      monthly: realisedMonthly, annual: realisedMonthly * 12,
+      closedBy: {
+        agent: actions.filter((a) => a.type === "negotiation_accepted").length,
+        human: actions.filter((a) => a.type === "human_accept").length,
+      },
+    },
+    narrative: narrative.filter(Boolean),
   };
 }

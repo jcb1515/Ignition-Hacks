@@ -114,6 +114,9 @@ export default function InvestorUpdatePage() {
                 <span className="font-mono text-on-card">{u.governance.approved}</span> approved,{" "}
                 <span className="font-mono text-on-card">{u.governance.sent}</span> released to sandbox outbox.
                 No email reaches a real vendor without sign-off.
+                {u.realised.monthly > 0 && (
+                  <> Locked in so far: <span className="font-mono" style={{ color: "var(--color-mint)" }}>{"$" + u.realised.monthly.toLocaleString()}/mo</span> ({u.realised.closedBy.agent} closed by the agent, {u.realised.closedBy.human} signed by a human).</>
+                )}
               </p>
             </div>
           </div>
