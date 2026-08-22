@@ -109,8 +109,32 @@ approximation needed. It's SHAP in spirit and in math, without a trained model t
 Continuous mode (re-audit on every new Plaid transaction), a real contract-terms parser so
 renewal dates drive timing, and a feedback loop where rejected drafts tune the threshold.
 
-## Backup recording
+## Backup recording — one-take shot list
 
-`docs/backup-demo.gif` — the full click path, recorded against a fresh `npm run seed`.
-No audio; you narrate over it live exactly as above. Keep it open in a second tab during
-judging. Re-record if the dashboard changes materially after it was captured.
+`docs/backup-demo.gif` (or `.mp4`). Real screen capture by the presenter — **⌘⇧5 → "Record Selected
+Portion"**, draw the box around the browser, no audio. You narrate over it live. Target ~75 s.
+
+Before pressing record:
+```bash
+npm run seed && npm run dev          # fresh data, server up
+```
+Browser at `http://localhost:3000/dashboard`, zoom 110%, window ~1440×900, no other tabs visible.
+
+| t | Shot | Hold |
+|---|---|---|
+| 0:00 | Dashboard, clean state. Cursor over the **Demo mode · seeded data** badge. | 3 s |
+| 0:03 | Click **Run audit**. Do not move the mouse — let the log build. It takes ~9 s; all four Classifier flags, the Forecast line, then four Negotiator drafts with two **escalate_for_approval** lines. | 10 s |
+| 0:13 | Scroll the action log so one `escalate_for_approval` line is centred (it names the $1,000/mo threshold). | 4 s |
+| 0:17 | Click the **Twilio** flag card to expand it. The feature bars (4.00× category mean) are the explainability shot. | 6 s |
+| 0:23 | Scroll to the **approval queue**. Two held drafts. Open **Twilio**; show the email body and `billing@twilio.com`. | 6 s |
+| 0:29 | Click **Approve**. Status flips; if Mailtrap is configured, switch to the Mailtrap tab and show the message in the inbox, then back. | 8 s |
+| 0:37 | Scroll to the **runway chart**: three scenario lines, band, 9.4 → 10.1 mo. | 5 s |
+| 0:42 | Type **"why did you flag Segment?"** in *Ask the agent* and submit. Let the answer render. | 8 s |
+| 0:50 | Click **Investor update →**. Hold on the slide. | 6 s |
+| 0:56 | ⌘P, show the print preview for 2 s, Esc. End on the slide. | 4 s |
+
+Stop recording. Save as `docs/backup-demo.mp4` (or convert to GIF), commit it, then run
+`npx tsx scripts/preflight.ts` — it checks the file exists.
+
+Re-record if the dashboard changes materially. One take is fine; the data is deterministic, so a
+second take looks identical to the first.
