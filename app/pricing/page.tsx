@@ -49,7 +49,7 @@ export default function PricingPage() {
       <section className="border-b border-border bg-page text-fg">
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
           <Reveal>
-            <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-azure">
+            <p className="font-sans text-xs font-medium uppercase tracking-wider text-azure">
               Access / runway radar
             </p>
           </Reveal>
@@ -80,7 +80,7 @@ export default function PricingPage() {
                     : "border-fg/20 bg-canvas hover:border-azure"
                 }`}
               >
-                <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.14em]">
+                <div className="flex items-center justify-between font-sans text-xs font-medium uppercase tracking-wider">
                   <span>0{index + 1} / plan</span>
                   {tier.featured ? (
                     <span className="rounded-full bg-azure px-2 py-1 text-white">Most selected</span>
@@ -93,7 +93,7 @@ export default function PricingPage() {
                   </p>
                   <p className="mt-10 font-display text-6xl leading-none tracking-[-0.07em]">
                     {tier.price}
-                    <span className={`ml-2 font-mono text-[10px] uppercase tracking-[0.1em] ${tier.featured ? "text-white/50" : "text-fg/45"}`}>
+                    <span className={`ml-2 font-sans text-xs font-medium uppercase tracking-wider ${tier.featured ? "text-white/50" : "text-fg/45"}`}>
                       {tier.price === "Custom" || tier.price === "$0" ? "" : "per month"}
                     </span>
                   </p>

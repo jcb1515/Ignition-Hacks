@@ -48,7 +48,7 @@ export default function FeaturesPage() {
       <section className="border-b border-border bg-page text-fg">
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
           <Reveal>
-            <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-azure">
+            <p className="font-sans text-xs font-medium uppercase tracking-wider text-azure">
               Runway Radar / agent system
             </p>
           </Reveal>
@@ -81,7 +81,7 @@ export default function FeaturesPage() {
             <h2 className="font-display text-5xl font-medium leading-none tracking-[-0.055em] sm:text-6xl">
               A narrow job for every agent.
             </h2>
-            <p className="max-w-xs font-mono text-[10px] uppercase tracking-[0.13em] text-fg/50">
+            <p className="max-w-xs font-sans text-xs font-medium uppercase tracking-wider text-fg/50">
               Clear roles prevent black-box decisions.
             </p>
           </div>
@@ -98,7 +98,7 @@ export default function FeaturesPage() {
       <section className="border-y border-border bg-card text-fg">
         <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-16 sm:px-10 lg:grid-cols-[0.8fr_1.2fr] lg:px-14 lg:py-20">
           <Reveal>
-            <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-muted">
+            <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
               The operating loop
             </p>
           </Reveal>

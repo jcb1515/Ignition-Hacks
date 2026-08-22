@@ -20,7 +20,7 @@ export default function TransactionFeed({
         >
           <div>
             <p className="font-medium text-on-card">{tx.vendorName}</p>
-            <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">
+            <p className="mt-0.5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               {tx.date} · {tx.source}
               {tx.confidence ? ` · ${Math.round(tx.confidence * 100)}% confidence` : ""}
             </p>

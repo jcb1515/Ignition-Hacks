@@ -8,13 +8,13 @@ export default function ActionLog({ actions }: { actions: AgentAction[] }) {
       {actions.map((action) => (
         <div key={action.id} className="group py-4 transition-colors duration-200 first:pt-0 last:pb-0 hover:bg-card-2">
           <div className="mb-2 flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-muted">
+            <span className="inline-flex items-center gap-1.5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               <Bot size={12} className="text-azure" />
               {action.agent}
             </span>
-            <span className="font-mono text-[10px] text-slate">{action.timestamp}</span>
+            <span className="font-sans text-xs font-medium uppercase tracking-wider text-slate">{action.timestamp}</span>
           </div>
-          <p className="mb-2 font-mono text-xs uppercase tracking-[0.08em] text-on-card">
+          <p className="mb-2 font-sans text-sm font-medium uppercase tracking-wider text-on-card">
             {action.type.replaceAll("_", " ")}
             {action.target && ` · ${action.target}`}
           </p>
@@ -27,7 +27,7 @@ export default function ActionLog({ actions }: { actions: AgentAction[] }) {
                 ? formatCurrency(Math.abs(action.dollarImpact))
                 : "—"}
             </span>
-            <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">
+            <span className="inline-flex items-center gap-1 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               {action.humanApproved ? (
                 <>
                   <CheckCircle2 size={12} className="text-azure" /> Approved

@@ -165,14 +165,6 @@ export default function Home() {
         <div className="mx-auto grid max-w-[1440px] gap-12 px-6 py-16 sm:px-10 lg:grid-cols-[1.06fr_0.94fr] lg:px-14 lg:py-24">
           <div className="flex flex-col justify-between">
             <div>
-              <Reveal>
-                <p className="mb-8 flex items-center gap-3 font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
-                  <span className="relative flex h-2 w-2">
-                    <span className="relative h-2 w-2 rounded-full bg-azure" />
-                  </span>
-                  Agent online / watching spend
-                </p>
-              </Reveal>
               <Reveal delay={80}>
                 <h1 className="max-w-3xl font-display text-[clamp(4rem,8.4vw,9rem)] font-medium leading-[0.84] tracking-[-0.075em]">
                   Find what is
@@ -204,7 +196,7 @@ export default function Home() {
           <Reveal delay={220}>
             <PointerPanel className="relative h-full min-h-[430px] overflow-hidden border border-border bg-card p-5 sm:p-7">
               <div className="relative flex h-full flex-col justify-between">
-                <div className="flex items-start justify-between border-b border-border pb-4 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+                <div className="flex items-start justify-between border-b border-border pb-4 font-sans text-xs font-medium uppercase tracking-wider text-muted">
                   <span>Runway radar / live</span>
                   <span className="text-azure">{isRunning ? "Scanning" : "Nominal"}</span>
                 </div>
@@ -222,7 +214,7 @@ export default function Home() {
                       format={(n) => n.toFixed(0).padStart(2, "0")}
                       className="font-display text-5xl leading-none tracking-[-0.06em] text-on-card"
                     />
-                    <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.12em] text-muted">
+                    <span className="mt-1 font-sans text-xs font-medium uppercase tracking-wider text-muted">
                       months out
                     </span>
                   </div>
@@ -261,7 +253,7 @@ export default function Home() {
         <Reveal>
           <div className="mb-8 flex flex-col justify-between gap-6 border-b border-fg/20 pb-6 sm:flex-row sm:items-end">
             <div>
-              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-fg/50">
+              <p className="font-sans text-xs font-medium uppercase tracking-wider text-fg/50">
                 Live agent dashboard
               </p>
               <h2 className="mt-4 font-display text-5xl font-medium leading-none tracking-[-0.055em] sm:text-6xl">
@@ -372,7 +364,7 @@ export default function Home() {
                             style={{ width: `${Math.min((runway / 12) * 100, 100)}%` }}
                           />
                         </div>
-                        <div className="mt-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
+                        <div className="mt-6 flex justify-between font-sans text-xs font-medium uppercase tracking-wider text-muted">
                           <span>Today</span>
                           <span>Projected zero cash</span>
                         </div>
@@ -535,7 +527,7 @@ export default function Home() {
         <div className="grid gap-6 md:grid-cols-3">
           <Reveal>
             <PointerPanel className="h-full border border-border-card bg-card p-6 text-on-card">
-              <p className="mb-5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+              <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
                 Agent health
               </p>
               <div className="space-y-4">
@@ -548,7 +540,7 @@ export default function Home() {
           </Reveal>
           <Reveal delay={90}>
             <PointerPanel className="h-full border border-border-card bg-card p-6 text-on-card">
-              <p className="mb-5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+              <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
                 Top flags this month
               </p>
               <div className="space-y-3">
@@ -568,7 +560,7 @@ export default function Home() {
           </Reveal>
           <Reveal delay={180}>
             <PointerPanel className="h-full border border-border-card bg-card p-6 text-on-card">
-              <p className="mb-5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+              <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
                 Quick actions
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -585,7 +577,7 @@ export default function Home() {
         <div className="mt-6">
           <Reveal>
             <PointerPanel className="border border-border-card bg-card p-6 text-on-card">
-              <p className="mb-5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+              <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
                 Bank account
               </p>
               <BankPanel />
@@ -601,7 +593,7 @@ export default function Home() {
             <div className="flex flex-col justify-between">
               <Reveal>
                 <div>
-                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-muted">
+                  <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
                     Agentic, not automatic
                   </p>
                   <h2 className="mt-7 max-w-xl font-display text-5xl font-medium leading-[0.9] tracking-[-0.06em] sm:text-7xl">
@@ -620,7 +612,7 @@ export default function Home() {
               {agentSteps.map((step, index) => (
                 <Reveal key={step.number} delay={index * 110}>
                   <div className="group grid grid-cols-[56px_1fr] gap-4 border-b border-border py-7 transition-colors last:border-b-0 hover:bg-card-2 sm:grid-cols-[72px_1fr_1.1fr] sm:gap-7">
-                    <span className="font-mono text-[10px] tracking-[0.12em] text-azure">{step.number}</span>
+                    <span className="font-sans text-xs font-medium uppercase tracking-wider text-azure">{step.number}</span>
                     <h3 className="font-display text-2xl tracking-[-0.04em] sm:text-3xl">
                       {step.title}
                     </h3>
@@ -641,7 +633,7 @@ export default function Home() {
             </p>
           </Reveal>
           <Reveal delay={120}>
-            <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+            <div className="flex items-center gap-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               <Bot size={15} /> Runway Radar / 2026
             </div>
           </Reveal>
@@ -662,7 +654,7 @@ function Metric({
 }) {
   return (
     <div className="bg-card-2 px-3 py-3 transition-colors duration-300 hover:bg-card-3 sm:px-4 sm:py-4">
-      <p className="font-mono text-[8px] uppercase tracking-[0.11em] text-muted">{label}</p>
+      <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
       <CountUp value={value} format={format} className="mt-2 block text-sm font-medium tracking-[-0.02em] text-on-card sm:text-base" />
     </div>
   );
@@ -680,7 +672,7 @@ function StatPill({
   return (
     <div>
       <CountUp value={value} format={format} className="font-display text-2xl font-medium leading-none" />
-      <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-fg/50">{label}</p>
+      <p className="mt-1 font-sans text-xs font-medium uppercase tracking-wider text-fg/50">{label}</p>
     </div>
   );
 }
@@ -700,7 +692,7 @@ function AgentRow({
         <Icon size={16} className="text-azure" />
         <span className="text-sm font-medium text-on-card">{name}</span>
       </div>
-      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{status}</span>
+      <span className="font-sans text-xs font-medium uppercase tracking-wider text-muted">{status}</span>
     </div>
   );
 }
@@ -735,7 +727,7 @@ function StatMini({
   return (
     <div>
       <p className={`font-display text-xl font-medium leading-none ${className}`}>{value}</p>
-      <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{label}</p>
+      <p className="mt-1 font-sans text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
     </div>
   );
 }
@@ -790,7 +782,7 @@ function FlagRow({
     <div className="data-row flex items-center justify-between border border-border-card bg-card-2 p-3 hover:border-red">
       <div>
         <p className="text-sm font-medium text-on-card">{name}</p>
-        <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-muted">{reason}</p>
+        <p className="mt-0.5 font-sans text-xs font-medium uppercase tracking-wider text-muted">{reason}</p>
       </div>
       <span className="font-mono text-sm font-medium text-red">{formatCurrency(amount)}</span>
     </div>

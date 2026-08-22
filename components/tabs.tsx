@@ -17,7 +17,7 @@ export function Tabs({
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
         {label ? (
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+          <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
             {label}
           </p>
         ) : null}
@@ -26,7 +26,7 @@ export function Tabs({
             <button
               key={tab.id}
               onClick={() => setActive(tab.id)}
-              className={`rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors duration-200 ${
+              className={`rounded-full px-3 py-1.5 font-sans text-xs font-medium uppercase tracking-wider transition-colors duration-200 ${
                 active === tab.id
                   ? "bg-ink text-white"
                   : "text-muted hover:bg-card-2 hover:text-on-card"

@@ -28,7 +28,7 @@ export default function BankPanel() {
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
           <div className="rounded-xl border border-border-card bg-card-2 p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
+            <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Bank balance
             </p>
             <p className="mt-2 font-display text-2xl font-medium text-on-card">
@@ -36,7 +36,7 @@ export default function BankPanel() {
             </p>
           </div>
           <div className="rounded-xl border border-border-card bg-card-2 p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
+            <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Accounts
             </p>
             <p className="mt-2 font-display text-2xl font-medium text-on-card">
@@ -47,7 +47,7 @@ export default function BankPanel() {
 
         {accounts.length > 0 && (
           <div className="rounded-xl border border-border-card bg-card-2 p-4">
-            <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
+            <p className="mb-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               Connected accounts
             </p>
             <div className="space-y-2">
@@ -75,7 +75,7 @@ export default function BankPanel() {
       </div>
 
       <div className="rounded-xl border border-border-card bg-card-2 p-4">
-        <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
+        <p className="mb-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">
           Recent bank transactions
         </p>
         {txs.length > 0 ? (

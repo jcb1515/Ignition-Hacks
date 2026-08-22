@@ -244,7 +244,7 @@ export function Marquee({
         {doubled.map((item, index) => (
           <span
             key={`${item}-${index}`}
-            className="flex shrink-0 items-center gap-4 whitespace-nowrap px-6 font-mono text-[11px] uppercase tracking-[0.14em]"
+            className="flex shrink-0 items-center gap-4 whitespace-nowrap px-6 font-sans text-xs font-medium uppercase tracking-wider"
           >
             {item}
             <span className="h-1 w-1 rounded-full bg-azure" />
