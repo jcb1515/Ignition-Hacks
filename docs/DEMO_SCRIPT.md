@@ -16,8 +16,8 @@ open http://localhost:3000/dashboard
 If preflight prints anything but `PREFLIGHT CLEAR`: **do not debug live.** Play the backup recording.
 
 ```bash
-ls -la docs/backup-demo.gif                # the fallback must exist before you walk in
-open docs/backup-demo.gif                  # and be open in a second tab/window
+ls -la docs/backup-demo.webm               # the fallback must exist before you walk in
+open -a "Google Chrome" docs/backup-demo.webm   # and be open in a second tab/window
 ```
 
 Also: laptop on power, notifications off, browser zoom 110%, backup video open in a second tab.
@@ -111,7 +111,9 @@ renewal dates drive timing, and a feedback loop where rejected drafts tune the t
 
 ## Backup recording — one-take shot list
 
-`docs/backup-demo.gif` (or `.mp4`). Real screen capture by the presenter — **⌘⇧5 → "Record Selected
+`docs/backup-demo.webm` is a scripted Playwright capture of the full path (~75 s, real motion,
+real paced stream, real Mailtrap delivery) — it exists and passes preflight. If you want a
+hand-recorded version instead, follow the shot list below with the presenter — **⌘⇧5 → "Record Selected
 Portion"**, draw the box around the browser, no audio. You narrate over it live. Target ~75 s.
 
 Before pressing record:
@@ -133,7 +135,7 @@ Browser at `http://localhost:3000/dashboard`, zoom 110%, window ~1440×900, no o
 | 0:50 | Click **Investor update →**. Hold on the slide. | 6 s |
 | 0:56 | ⌘P, show the print preview for 2 s, Esc. End on the slide. | 4 s |
 
-Stop recording. Save as `docs/backup-demo.mp4` (or convert to GIF), commit it, then run
+Stop recording. Save as `docs/backup-demo.mp4` (or `.webm`/`.gif`/`.mov`), commit it, then run
 `npx tsx scripts/preflight.ts` — it checks the file exists.
 
 Re-record if the dashboard changes materially. One take is fine; the data is deterministic, so a
