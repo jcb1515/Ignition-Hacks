@@ -1,6 +1,6 @@
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
-import { formatCurrency } from "@/lib/data";
-import type { Vendor } from "@/lib/data";
+import { formatCurrency } from "@/lib/types";
+import type { Vendor } from "@/lib/types";
 
 export default function VendorTable({ vendors }: { vendors: Vendor[] }) {
   return (

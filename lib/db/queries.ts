@@ -217,3 +217,53 @@ export function approveDraft(id: string): void {
 export function markDraftSent(id: string): void {
   db().prepare("UPDATE drafts SET sent = 1 WHERE id = ?").run(id);
 }
+
+/* ---------- upserts, for live sync from Plaid / Stripe ---------- */
+
+/**
+ * Inserts a vendor, or updates the mutable fields if it already exists.
+ * Live sync re-runs against the same vendor ids, so plain inserts would throw.
+ * `status` is deliberately not overwritten — that is the agents' column, and a
+ * sync should not silently un-flag something the Classifier flagged.
+ */
+export function upsertVendor(v: Vendor): void {
+  db().prepare(`
+    INSERT INTO vendors (id, name, category, monthly_cost, contract_terms,
+                         last_contact_date, contact_email, status, function_tag, seats, active_seats)
+    VALUES (@id, @name, @category, @monthlyCost, @contractTerms,
+            @lastContactDate, @contactEmail, @status, @functionTag, @seats, @activeSeats)
+    ON CONFLICT(id) DO UPDATE SET
+      name              = excluded.name,
+      category          = excluded.category,
+      monthly_cost      = excluded.monthly_cost,
+      contract_terms    = excluded.contract_terms,
+      last_contact_date = excluded.last_contact_date,
+      contact_email     = excluded.contact_email,
+      function_tag      = excluded.function_tag,
+      seats             = excluded.seats,
+      active_seats      = excluded.active_seats
+  `).run(v);
+}
+
+/**
+ * Inserts a transaction, or updates the amount if the provider restated it.
+ * Classifier output (flagged/reason/confidence/features) is preserved — a
+ * re-sync must not quietly erase a finding.
+ */
+export function upsertTransaction(t: Transaction): void {
+  db().prepare(`
+    INSERT INTO transactions (id, vendor_id, vendor_name, amount, date, source, flagged, reason, confidence, features)
+    VALUES (@id, @vendorId, @vendorName, @amount, @date, @source, @flagged, @reason, @confidence, @features)
+    ON CONFLICT(id) DO UPDATE SET
+      amount      = excluded.amount,
+      vendor_name = excluded.vendor_name,
+      date        = excluded.date,
+      source      = excluded.source
+  `).run({
+    ...t,
+    flagged: t.flagged ? 1 : 0,
+    reason: t.reason ?? null,
+    confidence: t.confidence ?? null,
+    features: t.features ?? null,
+  });
+}

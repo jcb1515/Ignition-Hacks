@@ -1,6 +1,6 @@
 import { Bot, CheckCircle2, XCircle } from "lucide-react";
-import { formatCurrency } from "@/lib/data";
-import type { AgentAction } from "@/lib/data";
+import { formatCurrency } from "@/lib/types";
+import type { AgentAction } from "@/lib/types";
 
 export default function ActionLog({ actions }: { actions: AgentAction[] }) {
   return (

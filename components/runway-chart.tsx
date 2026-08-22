@@ -1,85 +1,46 @@
 "use client";
 
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
+  CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-import { formatCurrency } from "@/lib/data";
+import { formatCurrency } from "@/lib/types";
 
+/** Cash remaining per month under each scenario. Zero means out of money. */
 export default function RunwayChart({
   data,
 }: {
-  data: {
-    month: string;
-    current: number;
-    aggressiveCut: number;
-    hiringFreeze: number;
-  }[];
+  data: { month: string; [scenario: string]: number | string }[];
 }) {
+  const series = [
+    { key: "Current", color: "#d2562d" },
+    { key: "Aggressive cut", color: "#2d9bd2" },
+    { key: "Hiring freeze", color: "#8d2dd2" },
+  ];
+
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={data}
-          margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="rgba(255, 255, 255, 0.1)"
-          />
-          <XAxis
-            dataKey="month"
-            stroke="#6b7280"
-            tick={{ fill: "#9ca3af", fontSize: 12 }}
-          />
+        <LineChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(248,247,241,0.08)" />
+          <XAxis dataKey="month" stroke="#9a9d94" fontSize={11} tickLine={false} axisLine={false} />
           <YAxis
-            tickFormatter={(v) => `$${v / 1000}k`}
-            stroke="#6b7280"
-            tick={{ fill: "#9ca3af", fontSize: 12 }}
+            stroke="#9a9d94" fontSize={11} tickLine={false} axisLine={false}
+            tickFormatter={(v: number) => `$${Math.round(v / 1000)}k`}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#18181b",
-              border: "1px solid #2a2a32",
-              borderRadius: "8px",
-              color: "#ffffff",
+              background: "#1b1d1b", border: "1px solid #32352f",
+              borderRadius: 8, fontSize: 12, color: "#f8f7f1",
             }}
-            formatter={(value: number | string | ReadonlyArray<number | string> | undefined, name: number | string | undefined) => [
-              value === undefined ? "—" : formatCurrency(Number(Array.isArray(value) ? value[0] : value)),
-              name,
-            ]}
+            formatter={(v, name) => [formatCurrency(Number(v ?? 0)), String(name)]}
           />
-          <Legend wrapperStyle={{ fontSize: "12px", color: "#9ca3af" }} />
-          <Line
-            type="monotone"
-            dataKey="current"
-            name="Current"
-            stroke="#34d399"
-            strokeWidth={2}
-            dot={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="aggressiveCut"
-            name="Aggressive cut"
-            stroke="#60a5fa"
-            strokeWidth={2}
-            dot={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="hiringFreeze"
-            name="Hiring freeze"
-            stroke="#f472b6"
-            strokeWidth={2}
-            dot={false}
-          />
+          <Legend wrapperStyle={{ fontSize: 11, color: "#9a9d94" }} />
+          {series.map((s) => (
+            <Line
+              key={s.key} type="monotone" dataKey={s.key} name={s.key}
+              stroke={s.color} strokeWidth={2} dot={false}
+            />
+          ))}
         </LineChart>
       </ResponsiveContainer>
     </div>

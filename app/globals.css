@@ -25,6 +25,19 @@
   --color-lime: #cef84f;
   --color-coral: #ef6f54;
 
+  /* Chart series — validated for OKLCH lightness band, chroma floor, CVD
+     separation and contrast against the #121312 card surface. Distinct from the
+     brand accents above, which are too light to sit on a dark chart surface.
+     Assign in fixed order; never cycle. */
+  --color-series-1: #d2562d;
+  --color-series-2: #2d9bd2;
+  --color-series-3: #8d2dd2;
+
+  /* Diverging pair for signed feature contributions, neutral gray at zero. */
+  --color-push: #d2562d;
+  --color-pull: #2d9bd2;
+  --color-zero: #686c64;
+
   /* Theme */
   --color-background: #eeece4;
   --color-foreground: #101210;
