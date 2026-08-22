@@ -8,37 +8,37 @@ const agents = [
     icon: BarChart3,
     title: "Classifier",
     description:
-      "Reads Plaid and Stripe activity, identifies duplicate subscriptions, and scores every anomaly against category benchmarks.",
+      "Reads your fintech stack — Plaid, Stripe, and cards — to spot duplicate subscriptions and spending that breaks category patterns.",
   },
   {
     icon: Mail,
     title: "Negotiator",
     description:
-      "Drafts the renegotiation or cancellation email for flagged vendors, and never sends above the approval threshold.",
+      "Drafts the renegotiation or cancellation email for flagged spend, and keeps every high-impact send behind your approval.",
   },
   {
     icon: TrendingDown,
     title: "Forecast",
     description:
-      "Projects current, aggressive-cut, and hiring-freeze scenarios so every decision has a visible runway impact.",
+      "Projects current, aggressive-cut, and hiring-freeze scenarios so every decision shows its runway impact.",
   },
   {
     icon: Bot,
     title: "Orchestrator",
     description:
-      "Chooses which agent runs next, maintains the action log, and enforces the human approval policy.",
+      "Routes each step of the workflow, maintains the action log, and enforces your approval policy.",
   },
   {
     icon: Eye,
     title: "Explainability",
     description:
-      "Surfaces the benchmark, confidence score, and reasoning behind each flag instead of hiding the model's work.",
+      "Surfaces the benchmark, confidence, and dollar impact behind every burn-rate flag.",
   },
   {
     icon: Shield,
     title: "Approval gate",
     description:
-      "A configurable dollar threshold keeps humans accountable for high-impact decisions by default.",
+      "A configurable dollar threshold keeps humans accountable for high-impact spend decisions.",
   },
 ];
 
@@ -49,26 +49,26 @@ export default function FeaturesPage() {
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
           <Reveal>
             <p className="font-sans text-xs font-medium uppercase tracking-wider text-azure">
-              Runway Radar / agent system
+              Burnshield / fintech workflow
             </p>
           </Reveal>
           <div className="mt-10 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
             <Reveal delay={80}>
               <h1 className="max-w-4xl font-display text-[clamp(3.6rem,7.6vw,8.5rem)] font-medium leading-[0.84] tracking-[-0.07em]">
-                Four narrow agents. One explainable loop.
+                One fintech workflow. Full burn-rate visibility.
               </h1>
             </Reveal>
             <Reveal delay={160}>
               <p className="max-w-md text-xl leading-snug tracking-[-0.025em] text-slate">
-                Each agent has a single job, so every recommendation can be traced,
-                questioned, and approved by a human.
+                Built for early-stage startups: every signal is traced, every action is
+                approved by you.
               </p>
             </Reveal>
           </div>
         </div>
         <div className="border-t border-border py-3">
           <Marquee
-            items={["Classifier", "Negotiator", "Forecast", "Orchestrator", "Explainability", "Approval gate"]}
+            items={["Connect", "Classify", "Forecast", "Negotiate", "Explain", "Approve"]}
             duration={26}
             className="text-muted"
           />
@@ -79,10 +79,10 @@ export default function FeaturesPage() {
         <Reveal>
           <div className="mb-10 flex flex-col justify-between gap-5 border-b border-fg/20 pb-6 sm:flex-row sm:items-end">
             <h2 className="font-display text-5xl font-medium leading-none tracking-[-0.055em] sm:text-6xl">
-              A narrow job for every agent.
+              A focused step for every financial decision.
             </h2>
             <p className="max-w-xs font-sans text-xs font-medium uppercase tracking-wider text-fg/50">
-              Clear roles prevent black-box decisions.
+              Clear steps prevent black-box spend decisions.
             </p>
           </div>
         </Reveal>
@@ -99,13 +99,13 @@ export default function FeaturesPage() {
         <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-16 sm:px-10 lg:grid-cols-[0.8fr_1.2fr] lg:px-14 lg:py-20">
           <Reveal>
             <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
-              The operating loop
+              The burn-rate workflow
             </p>
           </Reveal>
           <div>
             <Reveal delay={80}>
               <h2 className="font-display text-5xl font-medium leading-[0.9] tracking-[-0.055em] sm:text-6xl">
-                Spot the signal. Test the reasoning. Approve the move.
+                Track the burn. Surface the waste. Approve the fix.
               </h2>
             </Reveal>
             <Reveal delay={160}>
@@ -113,7 +113,7 @@ export default function FeaturesPage() {
                 href="/"
                 className="group mt-10 inline-flex items-center gap-3 rounded-full border border-fg/20 bg-page px-5 py-4 text-sm font-medium shadow-sm transition-colors duration-300 hover:bg-ink hover:text-white"
               >
-                Open the live dashboard
+                Open the burn dashboard
                 <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </Link>
             </Reveal>
