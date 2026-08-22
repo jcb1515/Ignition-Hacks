@@ -98,8 +98,7 @@ async function main() {
   r = await resolveBillingContact(vendor, [liar]);
   check("provider claiming a verified source cannot smuggle an off-domain address", r.email === "support@atlassian.com");
   r = await resolveBillingContact({ ...vendor, contactEmail: "nonsense" }, [counting]);
-  check("contactEmail without @ → providers skipped, no throw", calls === 0);
-  // TODO(negotiator): a record without "@" is currently returned verbatim; should fall to the inferred alias.
+  check("contactEmail without @ → providers skipped, inferred alias", calls === 0 && r.email.includes("@") && r.source === "inferred billing alias");
   r = await lookupBillingContact(vendor);
   check("DEMO_MODE entry point makes no lookups", r.source === "vendor record on file");
 
