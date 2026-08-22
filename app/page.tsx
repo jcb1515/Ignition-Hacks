@@ -12,14 +12,15 @@ import {
 } from "lucide-react";
 import {
   actions as initialActions,
-  burnData,
+  burnData as mockBurnData,
   formatCurrency,
-  runwayData,
-  transactions,
-  vendors as initialVendors,
+  runwayData as mockRunwayData,
 } from "@/lib/data";
-import type { AgentAction, Vendor } from "@/lib/data";
+import type { AgentAction, BurnPoint, ForecastPoint, Transaction, Vendor } from "@/lib/data";
+import { useBilling } from "@/lib/use-billing";
+import { usePlaid } from "@/lib/use-plaid";
 import ActionLog from "@/components/action-log";
+import BankPanel from "@/components/bank-panel";
 import BurnChart from "@/components/burn-chart";
 import EmailPreview from "@/components/email-preview";
 import RunwayChart from "@/components/runway-chart";
@@ -56,12 +57,18 @@ const agentSteps = [
 export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
   const [actions, setActions] = useState<AgentAction[]>(initialActions);
-  const [vendors] = useState<Vendor[]>(initialVendors);
+  const billing = useBilling();
+  const plaid = usePlaid();
 
-  const burn = 38400;
-  const runway = 8;
+  const burn = billing.monthlyBurn;
+  const bankBalance = plaid.balance;
+  const plaidConnected = plaid.connected;
+  const plaidReady = plaidConnected && !plaid.loading;
+  const runway = plaidReady
+    ? Math.max(0, Math.floor(bankBalance / (burn || 1)))
+    : 8;
   const savings = 12800;
-  const flagged = vendors.filter((vendor) => vendor.status === "flagged").length;
+  const flagged = billing.vendors.filter((vendor) => vendor.status === "flagged").length;
 
   const runAudit = () => {
     setIsRunning(true);
@@ -85,15 +92,71 @@ export default function Home() {
 
   const categorySpend = useMemo(() => {
     const map = new Map<string, number>();
-    vendors.forEach((vendor) => {
+    billing.vendors.forEach((vendor) => {
       map.set(vendor.category, (map.get(vendor.category) || 0) + vendor.monthlyCost);
     });
     return Array.from(map.entries())
       .map(([category, amount]) => ({ category, amount }))
       .sort((a, b) => b.amount - a.amount);
-  }, [vendors]);
+  }, [billing.vendors]);
 
-  const flaggedTx = transactions.filter((transaction) => transaction.flagged);
+  const otherBurn = Math.max(0, burn - categorySpend.reduce((sum, c) => sum + c.amount, 0));
+
+  const burnSeries: BurnPoint[] = useMemo(() => {
+    const byMonth = new Map<string, number>();
+    billing.transactions.forEach((t) => {
+      const month = t.date.slice(0, 7);
+      byMonth.set(month, (byMonth.get(month) || 0) + t.amount);
+    });
+    if (byMonth.size >= 3) {
+      return Array.from(byMonth.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .slice(-12)
+        .map(([month, amount]) => ({
+          month: new Date(`${month}-01`).toLocaleString("en-US", { month: "short" }),
+          burn: Math.round(amount),
+        }));
+    }
+    const ratio = burn / 38400;
+    return mockBurnData.map((p) => ({ ...p, burn: Math.round(p.burn * ratio) }));
+  }, [billing.transactions, burn]);
+
+  const runwaySeries: ForecastPoint[] = useMemo(() => {
+    const start = plaidReady ? bankBalance : burn * runway;
+    const months: string[] = [];
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      months.push(d.toLocaleString("en-US", { month: "short" }));
+    }
+    const currentBurn = burn;
+    const cutBurn = Math.max(0, burn - savings);
+    const freezeBurn = Math.round(burn * 0.75);
+    return months.map((month, i) => {
+      const m = i + 1;
+      return {
+        month,
+        current: Math.max(0, start - currentBurn * m),
+        aggressiveCut: Math.max(0, start - cutBurn * m),
+        hiringFreeze: Math.max(0, start - freezeBurn * m),
+      };
+    });
+  }, [burn, runway, savings, bankBalance, plaidReady]);
+
+  const peakBurn = useMemo(
+    () => Math.max(...burnSeries.map((p) => p.burn), burn),
+    [burnSeries, burn]
+  );
+  const avgBurn = useMemo(
+    () =>
+      Math.round(
+        burnSeries.reduce((sum, p) => sum + p.burn, 0) /
+          (burnSeries.length || 1)
+      ),
+    [burnSeries]
+  );
+
+  const flaggedTx = billing.transactions.filter((transaction) => transaction.flagged);
 
   return (
     <div className="relative overflow-hidden bg-page text-ink">
@@ -140,7 +203,7 @@ export default function Home() {
 
           {/* Radar */}
           <Reveal delay={220}>
-            <PointerPanel className="relative h-full min-h-[430px] overflow-hidden border border-page/20 bg-[#0f131b] p-5 sm:p-7" tilt={4}>
+            <PointerPanel className="relative h-full min-h-[430px] overflow-hidden border border-page/20 bg-[#0f131b] p-5 sm:p-7">
               <div className="signal-grid absolute inset-0 opacity-60" />
               <div className="relative flex h-full flex-col justify-between">
                 <div className="flex items-start justify-between border-b border-page/15 pb-4 font-mono text-[10px] uppercase tracking-[0.14em] text-page/60">
@@ -169,10 +232,13 @@ export default function Home() {
                     </span>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-px border border-page/15 bg-page/15">
+                <div className={`grid gap-px border border-page/15 bg-page/15 ${plaidReady ? "grid-cols-4" : "grid-cols-3"}`}>
                   <Metric label="Monthly burn" value={burn} format={formatCurrency} />
                   <Metric label="Flagged" value={flagged} format={(n) => `${Math.round(n)} vendors`} />
                   <Metric label="Savings found" value={savings} format={formatCurrency} />
+                  {plaidReady ? (
+                    <Metric label="Bank balance" value={bankBalance} format={formatCurrency} />
+                  ) : null}
                 </div>
               </div>
             </PointerPanel>
@@ -308,7 +374,7 @@ export default function Home() {
                         <div className="mt-8 h-2 w-full bg-card-2">
                           <div
                             className="bar-grow h-2 bg-gradient-to-r from-azure via-sky to-cyan"
-                            style={{ width: `${(runway / 12) * 100}%` }}
+                            style={{ width: `${Math.min((runway / 12) * 100, 100)}%` }}
                           />
                         </div>
                         <div className="mt-6 flex justify-between font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
@@ -326,7 +392,7 @@ export default function Home() {
                         <p className="mb-2 text-center text-sm text-muted">
                           Current, aggressive cut, and hiring freeze
                         </p>
-                        <RunwayChart data={runwayData} />
+                        <RunwayChart data={runwaySeries} />
                       </div>
                     ),
                   },
@@ -364,12 +430,12 @@ export default function Home() {
                   {
                     id: "vendors",
                     label: "Vendors",
-                    content: <VendorTable vendors={vendors.slice(0, 6)} />,
+                    content: <VendorTable vendors={billing.vendors.slice(0, 6)} />,
                   },
                   {
                     id: "transactions",
                     label: "Transactions",
-                    content: <TransactionFeed transactions={transactions.slice(0, 6)} />,
+                    content: <TransactionFeed transactions={billing.transactions.slice(0, 6)} />,
                   },
                   {
                     id: "categories",
@@ -396,7 +462,7 @@ export default function Home() {
         {/* Charts + console */}
         <div className="mb-6 grid gap-6 lg:grid-cols-2">
           <Reveal>
-            <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card" tilt={2}>
+            <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card">
               <Tabs
                 label="Burn lab"
                 defaultTab="trend"
@@ -408,29 +474,34 @@ export default function Home() {
                       <div>
                         <div className="mb-4 flex flex-wrap items-center gap-6">
                           <StatMini label="Current" value={formatCurrency(burn)} className="text-azure" />
-                          <StatMini label="Peak" value={formatCurrency(41000)} className="text-red" />
-                          <StatMini label="Avg" value={formatCurrency(35800)} className="text-sky" />
+                          <StatMini label="Peak" value={formatCurrency(peakBurn)} className="text-red" />
+                          <StatMini label="Avg" value={formatCurrency(avgBurn)} className="text-sky" />
                         </div>
-                        <BurnChart data={burnData} />
+                        <BurnChart data={burnSeries} />
                       </div>
                     ),
                   },
                   {
                     id: "scenarios",
                     label: "Scenarios",
-                    content: <RunwayChart data={runwayData} />,
+                    content: <RunwayChart data={runwaySeries} />,
                   },
                   {
                     id: "breakdown",
                     label: "Breakdown",
                     content: (
                       <div className="space-y-3">
-                        <BreakdownRow label="Communication" amount={8800} total={burn} />
-                        <BreakdownRow label="Infrastructure" amount={2400} total={burn} />
-                        <BreakdownRow label="Analytics" amount={3200} total={burn} />
-                        <BreakdownRow label="Design" amount={1080} total={burn} />
-                        <BreakdownRow label="Productivity" amount={1092} total={burn} />
-                        <BreakdownRow label="Other" amount={22028} total={burn} />
+                        {categorySpend.map(({ category, amount }) => (
+                          <BreakdownRow
+                            key={category}
+                            label={category}
+                            amount={amount}
+                            total={burn}
+                          />
+                        ))}
+                        {otherBurn > 0 && (
+                          <BreakdownRow label="Other" amount={otherBurn} total={burn} />
+                        )}
                       </div>
                     ),
                   },
@@ -440,7 +511,7 @@ export default function Home() {
           </Reveal>
 
           <Reveal delay={90}>
-            <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card" tilt={2}>
+            <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card">
               <Tabs
                 label="Agent console"
                 defaultTab="log"
@@ -449,7 +520,14 @@ export default function Home() {
                   {
                     id: "draft",
                     label: "Draft",
-                    content: <EmailPreview vendor={vendors.find((vendor) => vendor.name === "Twilio")!} />,
+                    content: (
+                    <EmailPreview
+                      vendor={
+                        billing.vendors.find((vendor) => vendor.name === "Twilio") ||
+                        billing.vendors[0]
+                      }
+                    />
+                  ),
                   },
                   { id: "flags", label: "Flags", content: <TransactionFeed transactions={flaggedTx} /> },
                 ]}
@@ -479,9 +557,17 @@ export default function Home() {
                 Top flags this month
               </p>
               <div className="space-y-3">
-                <FlagRow name="Twilio" amount={6400} reason="Over benchmark" />
-                <FlagRow name="Segment" amount={3200} reason="Flat usage" />
-                <FlagRow name="Confluence" amount={420} reason="Duplicate" />
+                {billing.vendors
+                  .filter((vendor) => vendor.status === "flagged")
+                  .slice(0, 3)
+                  .map((vendor) => (
+                    <FlagRow
+                      key={vendor.id}
+                      name={vendor.name}
+                      amount={vendor.monthlyCost}
+                      reason={vendor.monthlyCost > 3000 ? "Over benchmark" : "Category flag"}
+                    />
+                  ))}
               </div>
             </PointerPanel>
           </Reveal>
@@ -496,6 +582,18 @@ export default function Home() {
                 <QuickAction label="Export CSV" />
                 <QuickAction label="Reset demo" />
               </div>
+            </PointerPanel>
+          </Reveal>
+        </div>
+
+        {/* Bank account */}
+        <div className="mt-6">
+          <Reveal>
+            <PointerPanel className="border border-border-card bg-card p-6 text-on-card">
+              <p className="mb-5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+                Bank account
+              </p>
+              <BankPanel />
             </PointerPanel>
           </Reveal>
         </div>
