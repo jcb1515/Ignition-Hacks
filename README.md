@@ -150,7 +150,7 @@ the live sandbox integration works underneath it, which you can show on request.
 | Route | What it is |
 |---|---|
 | `/` | Overview, reading live numbers from the database |
-| `/dashboard` | The product: findings, projection, approvals, action log |
+| `/#try` (home, agent view) | The product: findings, projection, approvals, action log |
 | `/investor-update` | Auto-generated 16:9 investor slide (⌘P → PDF) |
 | `POST /api/audit` | Runs the audit, streams events as SSE |
 | `GET /api/state` | Everything the dashboard renders, in one round trip |
