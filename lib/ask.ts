@@ -124,20 +124,20 @@ const RULES: Rule[] = [
     },
   },
   {
-    intent: "pending",
-    test: (q) => /(pending|waiting|approv|need(s)? me|my (decision|sign)|held|queue)/.test(q),
-    answer: (_q, c) => {
-      const held = c.drafts.filter((d) => !d.approved);
-      if (!held.length) return c.audited ? "Nothing is waiting on you. Every held draft has been decided." : "Nothing yet — run an audit.";
-      const names = held.map((d) => c.vendors.find((v) => v.id === d.vendorId)?.name ?? d.vendorId);
-      return `${held.length} draft${held.length > 1 ? "s" : ""} waiting on you: ${names.join(" and ")}. Each one is above the ${formatCurrency(APPROVAL_THRESHOLD)}/mo threshold, so I drafted but didn't act. Approve them in the queue and they go to the sandbox outbox.`;
-    },
-  },
-  {
     intent: "threshold",
     test: (q) => /(threshold|autonom|without (asking|approval)|on (its|your) own|guardrail|safe)/.test(q),
     answer: () =>
       `The approval threshold is ${formatCurrency(APPROVAL_THRESHOLD)} a month. Below it I act autonomously — draft and queue the message. Above it I draft and stop until a human approves. Nothing ever goes to a real vendor: the mailer only accepts a sandbox host. That threshold is a policy choice, not a solved safety problem; a real deployment would need stronger guardrails.`,
+  },
+  {
+    intent: "pending",
+    test: (q) => /(pending|waiting|approv|need(s)? me|my (decision|sign)|held|queue)/.test(q),
+    answer: (_q, c) => {
+      const held = c.actions.filter((a) => a.approvalRequired && !a.humanApproved);
+      if (!held.length) return c.audited ? "Nothing is waiting on you. Every held draft has been decided." : "Nothing yet — run an audit.";
+      const names = [...new Set(held.map((a) => a.target ?? "a vendor"))];
+      return `${held.length} draft${held.length > 1 ? "s" : ""} waiting on you: ${names.join(" and ")}. Each one is above the ${formatCurrency(APPROVAL_THRESHOLD)}/mo threshold, so I drafted but didn't act. Approve them in the queue and they go to the sandbox outbox.`;
+    },
   },
   {
     intent: "biggest",
@@ -156,7 +156,8 @@ const RULES: Rule[] = [
       const d = c.drafts.find((x) => x.vendorId === v.id);
       const base = `${v.name}: ${formatCurrency(v.monthlyCost)}/mo, ${v.category}, ${v.contractTerms.toLowerCase()} terms, ${v.activeSeats} of ${v.seats} seats active.`;
       if (!fl) return `${base} Not flagged.`;
-      const draft = d ? ` I drafted a message to ${d.toEmail}${d.approved ? " and it's been approved" : d.sent ? "" : " — it's waiting for approval"}.` : "";
+      const heldHere = c.actions.some((a) => a.approvalRequired && !a.humanApproved && a.target === v.name);
+      const draft = d ? ` I drafted a message to ${d.toEmail}${d.approved ? " and it's been approved" : heldHere ? " — it's waiting for your approval" : " and queued it (under the autonomy threshold)"}.` : "";
       return `${base} Flagged as ${KIND_PHRASE[fl.kind]} at ${Math.round(fl.confidence * 100)}% confidence.${draft}`;
     },
   },
@@ -166,7 +167,7 @@ const RULES: Rule[] = [
     answer: (_q, c) => {
       if (!c.audited) return "No audit has run yet. Hit Run audit and ask me again.";
       const [cur, cut] = c.f.scenarios;
-      return `I audited ${c.vendors.length} vendors and flagged ${c.flags.length}: ${c.flags.map((f) => f.vendorName).join(", ")}. That's ${formatCurrency(c.f.totalMonthlySavings * 12)} a year recoverable, moving runway from ${months(cur.runwayMonths)} to ${months(cut.runwayMonths)}. ${c.drafts.filter((d) => !d.approved).length} drafts are held for your approval.`;
+      return `I audited ${c.vendors.length} vendors and flagged ${c.flags.length}: ${c.flags.map((f) => f.vendorName).join(", ")}. That's ${formatCurrency(c.f.totalMonthlySavings * 12)} a year recoverable, moving runway from ${months(cur.runwayMonths)} to ${months(cut.runwayMonths)}. ${new Set(c.actions.filter((a) => a.approvalRequired && !a.humanApproved).map((a) => a.target)).size} drafts are held for your approval.`;
     },
   },
 ];

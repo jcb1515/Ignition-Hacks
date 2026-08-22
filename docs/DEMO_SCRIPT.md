@@ -54,7 +54,13 @@ Also: laptop on power, notifications off, browser zoom 110%, backup video open i
    "Acting on all four moves runway from 9.4 to 10.1 months — $76,620 a year recovered
    from tools nobody was looking at."
 
-7. **Closer: /investor-update** (30s)
+7. **Ask it out loud** (30s, optional — only if the room is quiet)
+   Click the mic in "Ask the agent" and say: *"Why did you flag Twilio?"*
+   It answers from its own action log (not an LLM) and reads the Shapley breakdown back.
+   Fallbacks: type the question, or click a suggestion chip. If the mic permission prompt
+   appears, that is the moment to say "browser speech API, nothing hosted."
+
+8. **Closer: /investor-update** (30s)
    Open `http://localhost:3000/investor-update`.
    "And the agent writes its own board slide from its own action log. ⌘P, it's a PDF."
    End on this screen. Do not go back to the log.
