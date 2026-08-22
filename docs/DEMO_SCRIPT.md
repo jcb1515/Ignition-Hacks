@@ -15,6 +15,11 @@ open http://localhost:3000/dashboard
 
 If preflight prints anything but `PREFLIGHT CLEAR`: **do not debug live.** Play the backup recording.
 
+```bash
+ls -la docs/backup-demo.gif                # the fallback must exist before you walk in
+open docs/backup-demo.gif                  # and be open in a second tab/window
+```
+
 Also: laptop on power, notifications off, browser zoom 110%, backup video open in a second tab.
 
 ## The click path (≈4 min)
@@ -37,7 +42,10 @@ Also: laptop on power, notifications off, browser zoom 110%, backup video open i
      - **Segment** — 6 of 50 seats active (12%) → paying for unused seats
      - **Datadog** — +78% over six periods, no plan change → silent price creep
    - Forecast runs three scenarios + a 4,000-trial Monte Carlo.
-   - Negotiator looks up each billing contact, then drafts — "two tool calls, not one."
+   - Negotiator **searches the web** for each vendor's billing contact, cites its source
+     in the log, then drafts — "two real tool calls, not two prompts." Read one citation
+     aloud (e.g. Atlassian's sales-ops-support@ address). If search is unavailable it says
+     so and uses the address on file — never a made-up one.
 
 4. **Expand one flag card → feature breakdown** (30s)
    "This is the explainability layer. Each flag is a linear score whose per-feature
@@ -103,5 +111,6 @@ renewal dates drive timing, and a feedback loop where rejected drafts tune the t
 
 ## Backup recording
 
-Record the full click path once at hour ~21 with `npm run seed` fresh. 1080p, no audio —
-you narrate over it live exactly as above. Keep it open in a second tab during judging.
+`docs/backup-demo.gif` — the full click path, recorded against a fresh `npm run seed`.
+No audio; you narrate over it live exactly as above. Keep it open in a second tab during
+judging. Re-record if the dashboard changes materially after it was captured.

@@ -57,9 +57,13 @@ flowchart LR
    summary of it. Flags are written back onto the transaction rows.
 3. **Forecast** projects 18 months of cash under *Current*, *Aggressive cut*, and
    *Hiring freeze*, plus a 4,000-trial Monte Carlo band per scenario. Snapshots persist.
-4. **Negotiator**, per flag: resolves a billing contact (Tavily web search when a key
-   exists, otherwise the vendor record — provenance is logged), then drafts. The LLM
-   writes the prose when available; otherwise a deterministic template does.
+4. **Negotiator**, per flag: resolves a billing contact with a three-tier resolver —
+   Composio managed web search (with citations) → Tavily → the vendor record on file.
+   This is the second real tool call in the chain, not a second prompt: the agent does
+   research to find where the email should go, and the action log records which tier
+   answered and the source it cited. A searched address is accepted only if it is on the
+   vendor's own domain; anything else falls through. The resolver never throws. Then it
+   drafts: the LLM writes the prose when available, otherwise a deterministic template.
 5. **Orchestrator** compares each draft's estimated impact with `APPROVAL_THRESHOLD`
    ($1,000/mo). Under it: queued. Over it: held, `approval_required=1`. Every step is
    an `agent_actions` row with its reasoning text, streamed to the browser as it is
@@ -75,7 +79,7 @@ sets pace to zero.
 |---|---|---|
 | Data | `npm run seed` — byte-identical every run | seeded **plus** `POST /api/sync` from Plaid sandbox / Stripe test |
 | LLM | never called; templates | NVIDIA NIM, primary → backup → template |
-| Contact lookup | vendor record | Tavily search → vendor record |
+| Contact lookup | vendor record | Composio web search → Tavily → vendor record |
 | Email | drafts table only (Mailtrap if configured) | same |
 | Q&A (`/api/ask`) | rule router only | rule router, LLM for open questions, grounded on a facts blob |
 | Determinism | total | prose varies; flags and numbers do not |
@@ -89,6 +93,8 @@ and the live path is the same code underneath" answer true.
 - `lib/mailer.ts` throws on any SMTP host that is not a Mailtrap sandbox.
 - `lib/integrations/stripe.ts` throws on any key that is not `sk_test_`.
 - `lib/integrations/plaid.ts` has `sandbox.plaid.com` hard-coded; no env var selects another.
+- The contact resolver rejects any searched address not on the vendor's own domain —
+  a lookup that returns an aggregator's address is worse than no lookup.
 - `/api/approve` is the only path that marks a draft approved, and it requires a draft id
   and an explicit `"approve" | "reject"`.
 - `scripts/preflight.ts` refuses to clear if `DEMO_MODE=false`, a live key, or a
@@ -114,7 +120,7 @@ lib/
   agents/
     classifier.ts       four detectors + linear scorer
     forecast.ts         scenarios, Monte Carlo, savings estimates
-    negotiator.ts       contact lookup tool + draft
+    negotiator.ts       three-tier contact resolver (tool call) + draft
     orchestrator.ts     runAudit() async generator, approval policy
   llm.ts                NIM client with mandatory fallback
   mailer.ts             Mailtrap-only delivery
@@ -136,4 +142,5 @@ scripts/
   preflight.ts          T-10 gate: env + both suites + live routes
 docs/
   DEMO_SCRIPT.md        what to say and click
+  backup-demo.gif       recorded click path — the fallback if anything fails live
 ```

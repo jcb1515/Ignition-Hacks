@@ -34,6 +34,7 @@ ok("no live Stripe key", !(env.STRIPE_SECRET_KEY ?? "").startsWith("sk_live_"), 
 ok("no live Plaid env", !/production|development/i.test(env.PLAID_ENV ?? ""), "sandbox only");
 ok("SMTP, if set, is a sandbox host", !env.SMTP_HOST || /mailtrap|sandbox/i.test(env.SMTP_HOST), `SMTP_HOST=${env.SMTP_HOST}`);
 ok("runway.db exists", existsSync(join(process.cwd(), env.DATABASE_PATH ?? "runway.db")), "run `npm run seed`");
+ok("backup recording exists (docs/backup-demo.gif)", existsSync(join(process.cwd(), "docs", "backup-demo.gif")), "the fallback is not optional — record it before judging");
 
 /* ---- suites ---- */
 console.log("\nSmoke suites");
