@@ -126,27 +126,34 @@ function detectDuplicates(vendors: Vendor[]): Flag[] {
     for (let i = 0; i < group.length; i++) {
       for (let j = i + 1; j < group.length; j++) {
         const a = group[i], b = group[j];
-        const combined = a.activeSeats + b.activeSeats;
+        // Imported data often knows provisioned seats but not active ones.
+        // Provisioned is the honest upper bound; say so in the evidence.
+        const activeA = a.activeSeats > 0 ? a.activeSeats : a.seats;
+        const activeB = b.activeSeats > 0 ? b.activeSeats : b.seats;
+        const assumed = a.activeSeats === 0 || b.activeSeats === 0;
+        const combined = activeA + activeB;
         const overlapRatio = combined / COMPANY.headcount;
         if (overlapRatio <= 1.0) continue; // no double-provisioning
 
         // Flag the weaker of the pair.
-        const utilA = a.activeSeats / a.seats;
-        const utilB = b.activeSeats / b.seats;
-        const weak = utilA <= utilB ? a : b;
+        const utilA = activeA / a.seats;
+        const utilB = activeB / b.seats;
+        // Equal utilisation: flag the pricier one, otherwise the emptier one.
+        const weak = utilA < utilB ? a : utilB < utilA ? b : a.monthlyCost >= b.monthlyCost ? a : b;
         const strong = weak === a ? b : a;
-        const weakUtil = weak.activeSeats / weak.seats;
+        const weakUtil = (weak === a ? activeA : activeB) / weak.seats;
+        const strongUtil = (strong === a ? activeA : activeB) / strong.seats;
 
         const { confidence, features } = linearScore(-1.6, [
           {
             feature: "seat_overlap_vs_headcount",
-            value: `${combined} active seats across both for ${COMPANY.headcount} employees`,
+            value: `${combined} ${assumed ? "provisioned" : "active"} seats across both for ${COMPANY.headcount} employees`,
             weight: 2.6, x: overlapRatio, baseline: 1.0,
           },
           {
             feature: "utilisation_gap",
-            value: `${weak.name} at ${Math.round(weakUtil * 100)}% vs ${strong.name} at ${Math.round((strong.activeSeats / strong.seats) * 100)}%`,
-            weight: 2.2, x: strong.activeSeats / strong.seats - weakUtil, baseline: 0,
+            value: `${weak.name} at ${Math.round(weakUtil * 100)}% vs ${strong.name} at ${Math.round(strongUtil * 100)}%`,
+            weight: 2.2, x: strongUtil - weakUtil, baseline: 0,
           },
           {
             feature: "same_function",
@@ -176,6 +183,10 @@ function detectUsageDrift(vendors: Vendor[]): Flag[] {
   const flags: Flag[] = [];
   for (const v of vendors) {
     if (v.seats < 5) continue;
+    // Zero active seats means "unknown" (bank exports and uploads rarely carry
+    // usage), not "nobody uses it". Without a real utilisation figure there is
+    // no drift to detect.
+    if (v.activeSeats === 0) continue;
     const utilisation = v.activeSeats / v.seats;
     if (utilisation > 0.4) continue;
 
@@ -263,6 +274,69 @@ function detectPriceCreep(vendors: Vendor[]): Flag[] {
   return flags;
 }
 
+/* ------------------------------------------------------------------ */
+/* Detector 5: billing spike — one period far above the vendor's norm   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A single invoice at 2x+ the vendor's median is an overage, a double bill or
+ * a mis-tiered month — the kind of thing nobody notices until the quarter
+ * closes. Unlike price creep this is about one period, not a trend, so the
+ * remedy is a credit request rather than a rate change.
+ */
+function detectBillingSpikes(vendors: Vendor[]): Flag[] {
+  const flags: Flag[] = [];
+  for (const v of vendors) {
+    const txs = getTransactionsForVendor(v.id);
+    if (txs.length < 4) continue;
+    const amounts = txs.map((t) => t.amount);
+    const sorted = [...amounts].sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)];
+    if (median <= 0) continue;
+
+    let peakIdx = 0;
+    for (let i = 1; i < amounts.length; i++) if (amounts[i] > amounts[peakIdx]) peakIdx = i;
+    const peak = amounts[peakIdx];
+    const ratio = peak / median;
+    if (ratio < 2.0) continue;
+
+    // A peak that is also the start of a sustained climb is price creep's job.
+    const after = amounts.slice(peakIdx + 1);
+    const reverted = after.length === 0 || after.every((a) => a < peak * 0.75);
+    if (!reverted) continue;
+
+    const excess = peak - median;
+    const periodsAgo = amounts.length - 1 - peakIdx;
+
+    const { confidence, features } = linearScore(-1.8, [
+      {
+        feature: "spike_vs_median",
+        value: `${ratio.toFixed(1)}x the vendor's median ($${Math.round(peak).toLocaleString()} vs $${Math.round(median).toLocaleString()})`,
+        weight: 1.6, x: ratio, baseline: 1.0,
+      },
+      {
+        feature: "excess_dollars",
+        value: `$${Math.round(excess).toLocaleString()} above the normal invoice`,
+        weight: 0.0006, x: excess, baseline: 200,
+      },
+      {
+        feature: "reverted_after",
+        value: periodsAgo === 0 ? "the spike is the latest period" : `back to normal for ${periodsAgo} ${periodsAgo === 1 ? "period" : "periods"} since`,
+        weight: 0.6, x: reverted ? 1 : 0, baseline: 0,
+      },
+    ]);
+
+    if (confidence < 0.6) continue;
+    flags.push({
+      transactionId: txs[peakIdx].id, vendorId: v.id, vendorName: v.name,
+      kind: "billing_spike", confidence, features,
+      monthlyCost: v.monthlyCost,
+      headline: `${v.name} billed $${Math.round(peak).toLocaleString()} in ${txs[peakIdx].date.slice(0, 7)}, ${ratio.toFixed(1)}x its usual $${Math.round(median).toLocaleString()} — a one-off overage worth querying.`,
+    });
+  }
+  return flags;
+}
+
 const monthsSince = (iso: string) => {
   const then = new Date(iso).getTime();
   const now = new Date("2026-01-21").getTime();
@@ -272,26 +346,36 @@ const monthsSince = (iso: string) => {
 /* ------------------------------------------------------------------ */
 
 /**
- * Runs all four detectors over the latest billing period.
+ * Runs all five detectors. Four look at the latest billing period; the
+ * billing-spike detector scans the history.
  * One flag per vendor: if several detectors fire, the most confident wins.
  */
 export function classify(): Flag[] {
   const vendors = getVendors();
+  // Each flag is written onto a transaction row. Prefer the latest billing
+  // period; fall back to the vendor's most recent charge, because uploaded
+  // data is rarely aligned to the same month for every vendor.
   const latest = getLatestPeriodTransactions();
   const txByVendor = new Map(latest.map((t) => [t.vendorId, t.id]));
+  for (const v of vendors) {
+    if (txByVendor.has(v.id)) continue;
+    const last = getTransactionsForVendor(v.id).at(-1);
+    if (last) txByVendor.set(v.id, last.id);
+  }
 
   const all = [
     ...detectOverpriced(vendors),
     ...detectDuplicates(vendors),
     ...detectUsageDrift(vendors),
     ...detectPriceCreep(vendors),
+    ...detectBillingSpikes(vendors),
   ];
 
   const best = new Map<string, Flag>();
   for (const f of all) {
     const existing = best.get(f.vendorId);
     if (!existing || f.confidence > existing.confidence) {
-      best.set(f.vendorId, { ...f, transactionId: txByVendor.get(f.vendorId) ?? "" });
+      best.set(f.vendorId, { ...f, transactionId: f.transactionId || (txByVendor.get(f.vendorId) ?? "") });
     }
   }
 

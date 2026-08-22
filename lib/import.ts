@@ -23,7 +23,7 @@
  * same vendor in one month are summed.
  */
 import { resetDb } from "@/lib/db";
-import { getVendor, upsertTransaction, upsertVendor } from "@/lib/db/queries";
+import { getVendor, setSetting, upsertTransaction, upsertVendor } from "@/lib/db/queries";
 import { functionTagFor, slug } from "@/lib/integrations/sync";
 
 export interface SpendRow {
@@ -48,7 +48,8 @@ export interface ImportResult {
 }
 
 const ALIASES: Record<keyof SpendRow, string[]> = {
-  vendor: ["vendor", "merchant", "name", "description", "payee", "vendor_name", "vendorname"],
+  // Specific names first: a bank export has both "merchant" and a free-text "description".
+  vendor: ["vendor", "vendor_name", "vendorname", "merchant", "payee", "name", "description"],
   amount: ["amount", "cost", "total", "monthly_cost", "monthlycost", "spend", "charge", "price"],
   date: ["date", "period", "month", "billing_period", "billingperiod", "posted", "transaction_date"],
   category: ["category", "type", "department"],
@@ -159,21 +160,69 @@ export function normaliseRows(records: Record<string, unknown>[]): { rows: Spend
   return { rows, skipped, warnings };
 }
 
-/** Parses a file body by name/content. JSON may be an array or { transactions: [...] } / { rows: [...] }. */
-export function parseSpendFile(text: string, filename = ""): Record<string, unknown>[] {
+export interface ParsedSpendFile {
+  records: Record<string, unknown>[];
+  /** Optional vendor side-table from a full-workspace JSON export. */
+  vendors: Record<string, unknown>[];
+  /** Optional workspace header, e.g. { name, approval_threshold }. */
+  workspace?: Record<string, unknown>;
+}
+
+const isRecord = (r: unknown): r is Record<string, unknown> => Boolean(r) && typeof r === "object" && !Array.isArray(r);
+
+/**
+ * Parses a file body by name/content. JSON may be a bare array of rows, or a
+ * workspace object: { workspace?, vendors?, transactions | rows | data }.
+ * Other top-level keys (agent_actions, forecast_snapshots…) are agent OUTPUT
+ * and are ignored on import — the agents regenerate them from the raw spend.
+ */
+export function parseSpendFile(text: string, filename = ""): ParsedSpendFile {
   const trimmed = text.trim();
   const looksJson = filename.toLowerCase().endsWith(".json") || trimmed.startsWith("[") || trimmed.startsWith("{");
-  if (looksJson) {
-    const data = JSON.parse(trimmed) as unknown;
-    const arr = Array.isArray(data)
-      ? data
-      : data && typeof data === "object"
-        ? ((data as Record<string, unknown>).transactions ?? (data as Record<string, unknown>).rows ?? (data as Record<string, unknown>).data)
-        : undefined;
-    if (!Array.isArray(arr)) throw new Error("JSON must be an array of rows, or an object with a transactions/rows array");
-    return arr.filter((r) => r && typeof r === "object") as Record<string, unknown>[];
+  if (!looksJson) return { records: parseCsv(text), vendors: [] };
+
+  const data = JSON.parse(trimmed) as unknown;
+  if (Array.isArray(data)) return { records: data.filter(isRecord), vendors: [] };
+  if (!isRecord(data)) throw new Error("JSON must be an array of rows, or an object with a transactions/rows array");
+  const arr = data.transactions ?? data.rows ?? data.data;
+  if (!Array.isArray(arr)) throw new Error("JSON must be an array of rows, or an object with a transactions/rows array");
+  return {
+    records: arr.filter(isRecord),
+    vendors: Array.isArray(data.vendors) ? data.vendors.filter(isRecord) : [],
+    workspace: isRecord(data.workspace) ? data.workspace : undefined,
+  };
+}
+
+/**
+ * Fills row metadata from a vendors side-table, matched by vendor_id or name.
+ * Rows keep their own values when they have them. Seat counts are pulled out
+ * of free-text contract terms ("… 20 seats.") when no seats column exists.
+ */
+export function mergeVendorMetadata(rows: SpendRow[], records: Record<string, unknown>[], vendors: Record<string, unknown>[]): void {
+  if (vendors.length === 0) return;
+  const byId = new Map<string, Record<string, unknown>>();
+  const byName = new Map<string, Record<string, unknown>>();
+  for (const v of vendors) {
+    if (typeof v.id === "string") byId.set(v.id, v);
+    const n = pick(v, "vendor");
+    if (typeof n === "string") byName.set(n.trim().toLowerCase(), v);
   }
-  return parseCsv(text);
+  rows.forEach((row, i) => {
+    const rec = records[i];
+    const vid = rec?.vendor_id ?? rec?.vendorId ?? rec?.vendorID;
+    const v = (typeof vid === "string" && byId.get(vid)) || byName.get(row.vendor.toLowerCase());
+    if (!v) return;
+    const cat = pick(v, "category"); if (row.category === undefined && typeof cat === "string" && cat.trim()) row.category = cat.trim();
+    const terms = pick(v, "contractTerms"); if (row.contractTerms === undefined && typeof terms === "string" && terms.trim()) row.contractTerms = terms.trim();
+    const email = pick(v, "contactEmail"); if (row.contactEmail === undefined && typeof email === "string" && email.includes("@")) row.contactEmail = email.trim();
+    const tag = pick(v, "functionTag"); if (row.functionTag === undefined && typeof tag === "string" && tag.trim()) row.functionTag = tag.trim();
+    const seats = toNumber(pick(v, "seats")); if (row.seats === undefined && seats !== undefined) row.seats = seats;
+    const active = toNumber(pick(v, "activeSeats")); if (row.activeSeats === undefined && active !== undefined) row.activeSeats = active;
+    if (row.seats === undefined && typeof row.contractTerms === "string") {
+      const m = row.contractTerms.match(/(\d+)\s*(?:seats?|licen[cs]es?|users?)\b/i);
+      if (m) row.seats = Number(m[1]);
+    }
+  });
 }
 
 /**
@@ -237,13 +286,22 @@ export function importSpendRows(rows: SpendRow[], opts: { replace?: boolean } = 
 
 /** One call from file text to database. */
 export function importSpendFile(text: string, filename = "", opts: { replace?: boolean } = {}): ImportResult {
-  const records = parseSpendFile(text, filename);
+  const { records, vendors, workspace } = parseSpendFile(text, filename);
   if (records.length === 0) throw new Error("No rows found. Expected a header row plus at least one data row.");
   const { rows, skipped, warnings } = normaliseRows(records);
   if (rows.length === 0) {
     throw new Error(`None of the ${records.length} rows had a vendor, amount and date. Columns seen: ${Object.keys(records[0]).join(", ")}`);
   }
+  // normaliseRows keeps row order but drops invalid ones; re-pair by index over the kept set.
+  const keptRecords = records.filter((rec) => {
+    const vendor = pick(rec, "vendor");
+    return typeof vendor === "string" && vendor.trim() && toNumber(pick(rec, "amount")) !== undefined && toPeriod(pick(rec, "date"));
+  });
+  mergeVendorMetadata(rows, keptRecords, vendors);
   const written = importSpendRows(rows, opts);
+  if (workspace && typeof workspace.name === "string" && workspace.name.trim()) {
+    setSetting("company_name", workspace.name.trim());
+  }
   if (written.periods < 2) warnings.push("Only one billing period — the price-creep detector needs at least two months per vendor.");
   if (!rows.some((r) => r.seats)) warnings.push("No seats / active_seats columns — the usage-drift detector has nothing to act on.");
   return { ...written, rowsRead: records.length, rowsSkipped: skipped, warnings };

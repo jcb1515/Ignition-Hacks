@@ -74,6 +74,16 @@ export function vendorReply(flag: Flag, vendor: Vendor, ask: number, round: numb
         `Looking at your actual usage (${vendor.activeSeats} active of ${vendor.seats} provisioned), the right fit is a ${vendor.activeSeats + 2}-seat plan at ${formatCurrency(offer)}/mo. That's the floor for your feature set — below that you'd lose SSO and audit logs.` };
     }
 
+    case "billing_spike": {
+      // Investigates, then credits most of the overage.
+      if (round === 1) {
+        return { offerMonthly: cost, stance: "counter", message:
+          `Thanks for flagging this. I've pulled the invoice — the overage came from usage-based metering that month. I can't reverse it outright, but I can apply a partial goodwill credit of ${formatCurrency(r2(ask * 0.5))} to your next bill while we review the metering logs.` };
+      }
+      return { offerMonthly: r2(cost - ask * 0.9), stance: "final", message:
+        `Our billing team confirmed a metering configuration issue on your account that month. We'll credit ${formatCurrency(r2(ask * 0.9))} to your next invoice and have corrected the setting so it won't recur. That's the full amount we can approve.` };
+    }
+
     case "price_creep": {
       // Offers a freeze, then a partial rollback, then a final rollback.
       if (round === 1) {

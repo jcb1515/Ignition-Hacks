@@ -34,6 +34,7 @@ function inferKind(features: FeatureBreakdown[]): Flag["kind"] {
   const names = features.map((f) => f.feature);
   if (names.includes("seat_overlap_vs_headcount")) return "duplicate";
   if (names.includes("period_over_period_growth")) return "price_creep";
+  if (names.includes("spike_vs_median")) return "billing_spike";
   if (names.includes("cost_vs_category_mean")) return "overpriced";
   return "usage_drift";
 }
@@ -43,6 +44,7 @@ const KIND_PHRASE: Record<Flag["kind"], string> = {
   duplicate: "a duplicate of another tool you already pay for",
   usage_drift: "billing for far more seats than are in use",
   price_creep: "creeping up in price with no plan change",
+  billing_spike: "billed far above its normal amount in one period",
 };
 
 interface Ctx {

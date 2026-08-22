@@ -47,6 +47,13 @@ One row per vendor per billing period. Columns (aliases accepted):
 | `function_tag` | no | duplicate detector (guessed from the vendor name if absent) |
 | `contract_terms`, `contact_email` | no | negotiator |
 
+A full workspace export also works — `{ "workspace": {...}, "vendors": [...],
+"transactions": [...] }`. Transactions are the spend; the `vendors` table
+fills in category, contract terms, contact email and seats (`"20 seats"` inside
+free-text terms is picked up); `workspace.name` becomes the company name.
+Any `agent_actions` / `forecast_snapshots` keys are ignored — those are agent
+output, and the agents regenerate them from the raw spend.
+
 Or `POST /api/import` with `multipart/form-data` (`file=`) or a JSON array of rows.
 
 ## How it works
@@ -78,6 +85,7 @@ plausible-sounding one.
 | `duplicate` | Two vendors share a *function tag* and their combined active seats exceed headcount |
 | `usage_drift` | Seat utilisation under 40% on a provisioned tier |
 | `price_creep` | ≥35% growth across billing periods, monotonic, with no plan change |
+| `billing_spike` | One period ≥2× the vendor's median invoice, then back to normal — a one-off overage to query |
 
 Duplicate detection groups on `functionTag`, not billing category. "Productivity"
 covers both a wiki and an issue tracker, and nobody cancels one to keep the

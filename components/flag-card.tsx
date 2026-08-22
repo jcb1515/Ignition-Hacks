@@ -21,6 +21,7 @@ const KIND_LABEL: Record<string, string> = {
   duplicate: "Duplicate tooling",
   usage_drift: "Unused capacity",
   price_creep: "Price creep",
+  billing_spike: "Billing spike",
 };
 
 /**
@@ -59,7 +60,7 @@ export default function FlagCard({ flag }: { flag: FlagView }) {
           </p>
           {typeof flag.savings === "number" && flag.savings > 0 && (
             <p className="mt-1 font-mono text-xs text-[var(--color-series-2)]">
-              save {formatCurrency(flag.savings)}/mo
+              {flag.kind === "billing_spike" ? `recover ${formatCurrency(flag.savings)} credit` : `save ${formatCurrency(flag.savings)}/mo`}
             </p>
           )}
           <ChevronDown

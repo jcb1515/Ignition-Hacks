@@ -74,7 +74,7 @@ export interface Flag {
   transactionId: string;
   vendorId: string;
   vendorName: string;
-  kind: "overpriced" | "duplicate" | "usage_drift" | "price_creep";
+  kind: "overpriced" | "duplicate" | "usage_drift" | "price_creep" | "billing_spike";
   confidence: number;
   features: FeatureBreakdown[];
   /** Deterministic one-line summary. The LLM expands this into prose. */
