@@ -146,5 +146,5 @@ scripts/
   preflight.ts          T-10 gate: env + both suites + live routes
 docs/
   DEMO_SCRIPT.md        what to say and click
-  backup-demo.webm      recorded click path — the fallback if anything fails live
+  backup-demo.mp4/.webm recorded click path — the fallback if anything fails live (play the .mp4)
 ```

@@ -16,8 +16,8 @@ open http://localhost:3000/dashboard
 If preflight prints anything but `PREFLIGHT CLEAR`: **do not debug live.** Play the backup recording.
 
 ```bash
-ls -la docs/backup-demo.webm               # the fallback must exist before you walk in
-open -a "Google Chrome" docs/backup-demo.webm   # and be open in a second tab/window
+ls -la docs/backup-demo.mp4                # the fallback must exist before you walk in
+open docs/backup-demo.mp4                  # QuickTime plays the .mp4 — keep it open, paused at 0:00
 ```
 
 Also: laptop on power, notifications off, browser zoom 110%, backup video open in a second tab.
@@ -111,8 +111,15 @@ renewal dates drive timing, and a feedback loop where rejected drafts tune the t
 
 ## Backup recording — one-take shot list
 
-`docs/backup-demo.webm` is a scripted Playwright capture of the full path (~75 s, real motion,
-real paced stream, real Mailtrap delivery) — it exists and passes preflight. If you want a
+Two copies of the same 62-second scripted capture (real motion, real paced stream, real Mailtrap
+delivery), verified frame-by-frame:
+
+- **`docs/backup-demo.mp4`** — H.264. Plays in QuickTime, Safari, Chrome, Brave, anything. **Use this one.**
+- `docs/backup-demo.webm` — the original VP8 capture. Chrome/Brave/Firefox only; QuickTime and Safari
+  will not open it. Kept because `scripts/record-backup.mjs` regenerates it; convert with
+  `ffmpeg -i backup-demo.webm -c:v libx264 -pix_fmt yuv420p -movflags +faststart backup-demo.mp4`.
+
+Both exist and pass preflight. If you want a
 hand-recorded version instead, follow the shot list below with the presenter — **⌘⇧5 → "Record Selected
 Portion"**, draw the box around the browser, no audio. You narrate over it live. Target ~75 s.
 
