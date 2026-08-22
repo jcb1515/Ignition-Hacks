@@ -6,7 +6,6 @@ import { ArrowUpRight, Play, RotateCcw } from "lucide-react";
 import AgentStream from "@/components/agent-stream";
 import DataSourceBadge from "@/components/data-source-badge";
 import ApprovalQueue, { type QueueItem } from "@/components/approval-queue";
-import AskAgent from "@/components/ask-agent";
 import BurnChart from "@/components/burn-chart";
 import FlagCard, { type FlagView } from "@/components/flag-card";
 import RunwayChart from "@/components/runway-chart";
@@ -22,7 +21,7 @@ interface Scenario {
   label: string; description: string; monthlyBurn: number;
   netBurn: number; runwayMonths: number; path: number[];
 }
-type DataMutation = "import" | "audit" | "reseed" | "decision";
+export type DataMutation = "import" | "audit" | "reseed" | "decision";
 
 interface State {
   company: { name: string; headcount: number; cashOnHand: number; mrr: number };
@@ -444,9 +443,6 @@ export default function Dashboard({
               <div ref={streamRef} className="max-h-[32rem] overflow-y-auto lg:max-h-[calc(100vh-8rem)]">
                 <AgentStream actions={shownActions} running={running || refreshing} status={status} />
               </div>
-            </PointerPanel>
-            <PointerPanel className="mt-6 min-w-0 border border-border-card bg-card-2 p-3 sm:p-4">
-              <AskAgent />
             </PointerPanel>
           </div>
         </div>

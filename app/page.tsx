@@ -16,6 +16,7 @@ import { usePlaid } from "@/lib/use-plaid";
 import ActionLog from "@/components/action-log";
 import AgentDashboard from "@/components/agent-dashboard";
 import BankPanel from "@/components/bank-panel";
+import VoiceAgent from "@/components/voice-agent";
 import BurnChart from "@/components/burn-chart";
 import EmailPreview from "@/components/email-preview";
 import RunwayChart from "@/components/runway-chart";
@@ -444,8 +445,12 @@ export default function Home() {
               <div className="shimmer-host mb-6 h-0.5 w-full bg-ink/10" />
             ) : null}
 
+            <Reveal delay={60}>
+              <VoiceAgent onRunAudit={runAudit} onDataChanged={refreshFromAgent} running={isRunning} />
+            </Reveal>
+
         {/* Top grid */}
-        <div className="mb-6 grid gap-6 lg:grid-cols-3">
+        <div className="my-8 grid gap-6 lg:grid-cols-3">
           <Reveal>
             <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-7">
               <Tabs
