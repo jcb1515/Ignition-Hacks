@@ -18,7 +18,7 @@ An empty database is seeded automatically on first open (6 billing periods of
 spend with four anomalies planted in it). `npm run seed` resets it to the same
 bytes at any time; so does the **Reseed** button on the dashboard.
 
-Open the home page, switch to **Agent dashboard** (or click **Try Runway** in the nav) and press **Run audit**.
+Open the home page, switch to **Agent dashboard** (or click **Try Burn Shield** in the nav) and press **Run audit**.
 
 No API keys are needed. `DEMO_MODE` defaults to on, so the whole product runs
 locally with no network calls and no cost.
@@ -29,7 +29,7 @@ npm run smoke    # 52 assertions — run this before demoing
 
 ## Try it on your own data
 
-Click **Try Runway** in the nav and drop a **CSV or JSON** export of vendor spend on the
+Click **Try Burn Shield** in the nav and drop a **CSV or JSON** export of vendor spend on the
 **Your data** panel (any spreadsheet saved as CSV works — bank, Brex, Ramp,
 QuickBooks). The seeded data is replaced and **Run audit** runs the agents on
 yours. `/sample-spend.csv` is a ready-made spreadsheet with the four anomalies
@@ -63,7 +63,7 @@ Four agents, each with a narrow job, coordinated by a fifth.
 | Agent | Job |
 |---|---|
 | **Classifier** | Finds wasteful spend. Four detectors, scored by a linear model. |
-| **Forecast** | Burn and runway across three scenarios, with a Monte Carlo band. |
+| **Forecast** | Burn and cash horizon across three scenarios, with a Monte Carlo band. |
 | **Negotiator** | Resolves a billing contact, then drafts the ask. Never sends. |
 | **Orchestrator** | Sequences the others, logs reasoning, enforces the approval threshold. |
 

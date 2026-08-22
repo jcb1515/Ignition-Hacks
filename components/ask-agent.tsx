@@ -31,7 +31,7 @@ export default function AskAgent() {
   const [listening, setListening] = useState(false);
   const [speak, setSpeak] = useState(true);
   const recRef = useRef<Recognition | null>(null);
-  const chips = history.at(-1)?.a.suggestions ?? ["Why did you flag Twilio?", "What's our runway?", "What's waiting on me?"];
+  const chips = history.at(-1)?.a.suggestions ?? ["Why did you flag Twilio?", "How many months of cash do we have?", "What's waiting on me?"];
 
   // Client-only capability check without a setState-in-effect.
   const canListen = useSyncExternalStore(() => () => {}, () => Boolean(getRecognition()), () => false);
@@ -92,7 +92,7 @@ export default function AskAgent() {
 
       <div className="max-h-64 space-y-3 overflow-y-auto">
         {history.length === 0 && (
-          <p className="text-xs text-muted">Ask why something was flagged, what runway looks like, or what&apos;s waiting on you.</p>
+          <p className="text-xs text-muted">Ask why something was flagged, what the cash horizon looks like, or what&apos;s waiting on you.</p>
         )}
         {history.map((h, i) => (
           <div key={i}>

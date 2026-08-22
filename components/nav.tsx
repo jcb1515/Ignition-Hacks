@@ -52,7 +52,7 @@ export default function Nav() {
             }}
             className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-fg transition-colors duration-300 hover:border-azure hover:bg-azure hover:text-white"
           >
-            Try Runway
+            Try Burn Shield
           </Link>
         </nav>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">

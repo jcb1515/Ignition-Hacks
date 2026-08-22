@@ -20,7 +20,7 @@ const agents = [
     icon: TrendingDown,
     title: "Forecast",
     description:
-      "Projects current, aggressive-cut, and hiring-freeze scenarios so every decision shows its runway impact.",
+      "Projects current, aggressive-cut, and hiring-freeze scenarios so every decision shows its cash-horizon impact.",
   },
   {
     icon: Bot,

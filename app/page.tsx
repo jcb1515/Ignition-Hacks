@@ -137,7 +137,7 @@ export default function Home() {
   const workflowSummary = !state
     ? "// loading financial workspace"
     : current
-      ? `// ${current.runwayMonths} months runway, ${flagged} ${flagged === 1 ? "flag" : "flags"}, ${formatCurrency(savings)}/mo recoverable`
+      ? `// ${current.runwayMonths} months of cash, ${flagged} ${flagged === 1 ? "flag" : "flags"}, ${formatCurrency(savings)}/mo recoverable`
       : `// ${transactions.length} transactions across ${vendors.length} vendors, ready to forecast`;
 
   const bankBalance = plaid.balance;
@@ -145,7 +145,7 @@ export default function Home() {
   const auditButtonLabel = isRunning
     ? "Scanning..."
     : auditComplete
-      ? "Burn check complete — rerun"
+      ? "Scan complete — rerun"
       : "Run burn check";
 
   /**
@@ -200,7 +200,7 @@ export default function Home() {
     }
   };
 
-  // Deep link: /#try (the nav's "Try Runway" button) opens the agent view and
+  // Deep link: /#try (the nav's "Try Burn Shield" button) opens the agent view and
   // scrolls to it. Also reacts to hash changes while the page is open. The
   // view state is set from the hashchange handler / a scheduled callback, not
   // synchronously in the effect body.
@@ -295,7 +295,7 @@ export default function Home() {
                   Know your
                   <span className="block text-azure">burn.</span>
                   Protect your
-                  <span className="block text-azure">runway.</span>
+                  <span className="block text-azure">cash.</span>
                 </h1>
               </Reveal>
             </div>
@@ -303,7 +303,7 @@ export default function Home() {
               <div className="mt-10 flex flex-col gap-6 sm:mt-14 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
                 <p className="max-w-sm text-lg leading-snug tracking-[-0.025em] text-slate">
                   An agentic financial system for early-stage startups that monitors
-                  burn rate, surfaces waste, and turns every dollar into more runway.
+                  burn rate, surfaces waste, and turns every dollar into more time.
                 </p>
                 <MagneticButton
                   onClick={runAudit}
@@ -349,7 +349,7 @@ export default function Home() {
                 <div className={`grid gap-px overflow-hidden border border-border bg-card-2 ${plaidReady ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-3"}`}>
                   <Metric label="Monthly burn" value={burn} format={formatCurrency} />
                   <Metric label="Flagged vendors" value={flagged} format={(n) => `${Math.round(n)} vendors`} />
-                  <Metric label="Runway savings" value={savings} format={formatCurrency} />
+                  <Metric label="Savings found" value={savings} format={formatCurrency} />
                   {plaidReady ? (
                     <Metric label="Bank balance" value={bankBalance} format={formatCurrency} />
                   ) : null}
@@ -383,7 +383,7 @@ export default function Home() {
               {view === "main" ? (
                 <>
                   <StatPill label="Burn" value={burn} format={formatCurrency} />
-                  <StatPill label="Runway" value={runway} format={(n) => `${Math.round(n)} mo`} />
+                  <StatPill label="Cash horizon" value={runway} format={(n) => `${Math.round(n)} mo`} />
                   <StatPill label="Flags" value={flagged} format={(n) => `${Math.round(n)}`} />
                   <MagneticButton
                     onClick={runAudit}
@@ -437,7 +437,7 @@ export default function Home() {
                         </h3>
                         <div className="mt-10 font-mono text-sm leading-relaxed text-muted">
                           <p>
-                            <span className="text-azure">&gt;</span> runway.
+                            <span className="text-azure">&gt;</span> cash.
                             <span className="text-sky">current</span>();
                           </p>
                           <p className="text-on-card">
@@ -503,7 +503,7 @@ export default function Home() {
                         ) : null}
                         {current ? (
                           <AlertRow
-                            message={`Runway projected at ${current.runwayMonths} months`}
+                            message={`Cash horizon projected at ${current.runwayMonths} months`}
                             tone="good"
                           />
                         ) : null}
@@ -518,7 +518,7 @@ export default function Home() {
           <Reveal delay={90}>
             <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-7">
               <Tabs
-                label="Runway"
+                label="Cash horizon"
                 defaultTab="overview"
                 tabs={[
                   {
@@ -710,7 +710,7 @@ export default function Home() {
         </div>
 
         {/* Utility row */}
-        <div className={`grid gap-6 ${auditComplete ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+        <div className="grid gap-6 md:grid-cols-2">
           <Reveal>
             <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-6">
               <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
@@ -724,32 +724,6 @@ export default function Home() {
               </div>
             </PointerPanel>
           </Reveal>
-          {auditComplete ? (
-            <Reveal delay={90}>
-              <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-6">
-                <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
-                  Top burn flags this month
-                </p>
-                <div className="space-y-3">
-                  {state?.flags.length ? (
-                    state.flags.slice(0, 3).map((flag) => {
-                      const vendor = vendors.find((item) => item.id === flag.vendorId);
-                      return (
-                        <FlagRow
-                          key={flag.transactionId ?? flag.vendorId}
-                          name={flag.vendorName}
-                          amount={flag.monthlyCost ?? vendor?.monthlyCost ?? 0}
-                          reason={flag.headline || "Category flag"}
-                        />
-                      );
-                    })
-                  ) : (
-                    <p className="text-sm text-muted">No burn flags found this month.</p>
-                  )}
-                </div>
-              </PointerPanel>
-            </Reveal>
-          ) : null}
           <Reveal delay={180}>
             <PointerPanel className="h-full min-w-0 border border-border-card bg-card p-4 text-on-card sm:p-6">
               <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
@@ -801,7 +775,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={120}>
                 <p className="mt-12 max-w-md text-lg leading-snug tracking-[-0.025em] text-slate">
-                  Every flag shows the benchmark, confidence, and impact on runway. No
+                  Every flag shows the benchmark, confidence, and impact on the cash horizon. No
                   action runs without your approval.
                 </p>
               </Reveal>
@@ -827,7 +801,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-4 py-12 sm:px-10 sm:py-14 md:flex-row md:items-end lg:px-14 lg:py-16">
           <Reveal>
             <p className="max-w-3xl font-display text-4xl font-medium leading-[0.9] tracking-[-0.055em] sm:text-6xl">
-              Less burn drift. More runway to build what matters.
+              Less burn drift. More time to build what matters.
             </p>
           </Reveal>
           <Reveal delay={120}>
@@ -963,26 +937,6 @@ function HealthBar({ label, value }: { label: string; value: number }) {
       <div className="h-2 w-full bg-card-2">
         <div className="bar-grow h-2 bg-gradient-to-r from-azure to-cyan" style={{ width: `${value}%` }} />
       </div>
-    </div>
-  );
-}
-
-function FlagRow({
-  name,
-  amount,
-  reason,
-}: {
-  name: string;
-  amount: number;
-  reason: string;
-}) {
-  return (
-    <div className="data-row flex items-center justify-between border border-border-card bg-card-2 p-3 hover:border-red">
-      <div>
-        <p className="text-sm font-medium text-on-card">{name}</p>
-        <p className="mt-0.5 font-sans text-xs font-medium uppercase tracking-wider text-muted">{reason}</p>
-      </div>
-      <span className="font-mono text-sm font-medium text-red">{formatCurrency(amount)}</span>
     </div>
   );
 }

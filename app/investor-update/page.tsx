@@ -88,7 +88,7 @@ export default function InvestorUpdatePage() {
 
           <div className="min-w-0 flex flex-col gap-5">
             <div>
-              <p className="mb-2 font-sans text-[10px] uppercase tracking-[0.12em] text-muted">Runway by scenario</p>
+              <p className="mb-2 font-sans text-[10px] uppercase tracking-[0.12em] text-muted">Cash horizon by scenario</p>
               <ul className="space-y-2">
                 {u.runway.scenarios.map((s) => {
                   const max = Math.max(...u.runway.scenarios.map((x) => x.months), 1);

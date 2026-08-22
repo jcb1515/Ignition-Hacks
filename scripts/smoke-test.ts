@@ -101,7 +101,7 @@ async function main() {
   check("three scenarios produced", f.scenarios.length === 3, `got ${f.scenarios.length}`);
   check("savings are positive", f.totalMonthlySavings > 0, `got ${f.totalMonthlySavings}`);
   check(
-    "cutting costs extends runway",
+    "cutting costs extends the cash horizon",
     f.scenarios[1].runwayMonths > f.scenarios[0].runwayMonths,
     `${f.scenarios[1].runwayMonths} vs ${f.scenarios[0].runwayMonths}`
   );
@@ -137,7 +137,7 @@ async function main() {
     check("drafted one email per flag", summary.draftsCreated === 4, `got ${summary.draftsCreated}`);
     check("held the expensive ones for a human", summary.pendingApproval === 2,
       `got ${summary.pendingApproval}; Twilio and Segment should exceed the $${APPROVAL_THRESHOLD} threshold`);
-    check("runway improves after remediation", summary.runwayAfter > summary.runwayBefore,
+    check("cash horizon improves after remediation", summary.runwayAfter > summary.runwayBefore,
       `${summary.runwayBefore} -> ${summary.runwayAfter}`);
   }
 

@@ -1,10 +1,10 @@
 /**
- * Forecast Agent — burn and runway projection.
+ * Forecast Agent — burn and cash-horizon projection.
  *
  * Pure arithmetic, no LLM. Language models are bad at arithmetic and there is
  * no reason to ask one for a number we can compute exactly.
  *
- * Produces three scenarios plus a Monte Carlo band, because a single runway
+ * Produces three scenarios plus a Monte Carlo band, because a single cash-horizon estimate
  * number implies a precision the underlying assumptions do not support.
  */
 import { COMPANY } from "@/lib/company";
@@ -129,7 +129,7 @@ function project(monthlyBurn: number, mrr: number): { runway: number; path: numb
  * persistent burn multiplier once (sigma 12%) and a persistent MRR growth
  * rate once, then adds smaller monthly noise on top.
  *
- * Runway is interpolated within the final month rather than rounded to a whole
+ * Cash horizon is interpolated within the final month rather than rounded to a whole
  * month, otherwise the percentiles quantise onto the same integer.
  *
  * Seeded, so the band is identical on every run.

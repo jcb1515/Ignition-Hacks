@@ -2,7 +2,7 @@
  * Ask the agent — natural-language Q&A over the audit.
  *
  * Deterministic first: a small intent router answers the questions judges
- * actually ask ("why did you flag Twilio?", "what's our runway?", "what's
+ * actually ask ("why did you flag Twilio?", "how many months of cash do we have?", "what's
  * waiting on me?") straight from the action log and forecast, with no network.
  * If an LLM key is configured and the question doesn't match a known intent,
  * the same grounded context is handed to the model with strict instructions to
@@ -132,19 +132,19 @@ const RULES: Rule[] = [
     },
   },
   {
-    intent: "runway",
-    test: (q) => /\brunway\b/.test(q) || /how (long|many months)/.test(q) || /run out of (cash|money)/.test(q),
+    intent: "cash_horizon",
+    test: (q) => /cash horizon/.test(q) || /how (long|many months)/.test(q) || /run out of (cash|money)/.test(q),
     answer: (_q, c) => {
       const [cur, cut, freeze] = c.f.scenarios;
       const mc = c.f.monteCarlo[cur.label];
       const band = mc ? ` The Monte Carlo band on the current path is ${months(mc.p10)} to ${months(mc.p90)} across ${mc.trials.toLocaleString()} trials.` : "";
-      if (!c.flags.length) return `Runway is ${months(cur.runwayMonths)} at ${formatCurrency(cur.netBurn)}/mo net burn with ${formatCurrency(COMPANY.cashOnHand)} in the bank.${band}`;
+      if (!c.flags.length) return `Cash horizon is ${months(cur.runwayMonths)} at ${formatCurrency(cur.netBurn)}/mo net burn with ${formatCurrency(COMPANY.cashOnHand)} in the bank.${band}`;
       return `${months(cur.runwayMonths)} if nothing changes. Acting on every flag takes it to ${months(cut.runwayMonths)}, and a hiring freeze on top gets ${months(freeze.runwayMonths)}.${band}`;
     },
   },
   {
     intent: "savings",
-    test: (q) => /(sav|recover|how much|worth|impact|money)/.test(q) && !/runway/.test(q),
+    test: (q) => /(sav|recover|how much|worth|impact|money)/.test(q),
     answer: (_q, c) => {
       if (!c.flags.length) return "No savings identified yet — run an audit.";
       const per = c.flags.map((f) => `${f.vendorName} ${formatCurrency(f.monthlyCost)}/mo`).join(", ");
@@ -196,14 +196,14 @@ const RULES: Rule[] = [
       if (!c.audited) return "No audit has run yet. Hit Run audit and ask me again.";
       const [cur, cut] = c.f.scenarios;
       const realised = c.actions.filter((a) => a.type === "negotiation_accepted" || a.type === "human_accept").reduce((s, a) => s + a.dollarImpact, 0);
-      return `I audited ${c.vendors.length} vendors and flagged ${c.flags.length}: ${c.flags.map((f) => f.vendorName).join(", ")}. That's ${formatCurrency(c.f.totalMonthlySavings * 12)} a year recoverable${realised > 0 ? `, of which ${formatCurrency(realised * 12)} is already locked in` : ""}, moving runway from ${months(cur.runwayMonths)} to ${months(cut.runwayMonths)}. ${new Set(c.actions.filter((a) => a.approvalRequired && !a.humanApproved).map((a) => a.target)).size} drafts are held for your approval.`;
+      return `I audited ${c.vendors.length} vendors and flagged ${c.flags.length}: ${c.flags.map((f) => f.vendorName).join(", ")}. That's ${formatCurrency(c.f.totalMonthlySavings * 12)} a year recoverable${realised > 0 ? `, of which ${formatCurrency(realised * 12)} is already locked in` : ""}, extending the cash horizon from ${months(cur.runwayMonths)} to ${months(cut.runwayMonths)}. ${new Set(c.actions.filter((a) => a.approvalRequired && !a.humanApproved).map((a) => a.target)).size} drafts are held for your approval.`;
     },
   },
 ];
 
 const SUGGESTIONS = [
   "Why did you flag Twilio?",
-  "What's our runway?",
+  "How many months of cash do we have?",
   "What's waiting on me?",
   "How much can we save?",
   "What's the approval threshold?",
@@ -226,7 +226,7 @@ function contextBlob(c: Ctx): string {
   return [
     `Company: ${COMPANY.name}, ${COMPANY.headcount} people, cash ${formatCurrency(COMPANY.cashOnHand)}, MRR ${formatCurrency(currentMrr())}.`,
     `Burn ${formatCurrency(cur.monthlyBurn)}/mo; vendor spend ${formatCurrency(c.f.vendorSpend)}/mo.`,
-    `Runway: current ${cur.runwayMonths.toFixed(1)} mo, all flags remediated ${cut.runwayMonths.toFixed(1)} mo, plus hiring freeze ${freeze.runwayMonths.toFixed(1)} mo.`,
+    `Cash horizon: current ${cur.runwayMonths.toFixed(1)} mo, all flags remediated ${cut.runwayMonths.toFixed(1)} mo, plus hiring freeze ${freeze.runwayMonths.toFixed(1)} mo.`,
     `Approval threshold ${formatCurrency(APPROVAL_THRESHOLD)}/mo.`,
     `Flags: ${c.flags.map((f) => `${f.vendorName} (${f.kind}, ${Math.round(f.confidence * 100)}%, ${formatCurrency(f.monthlyCost)}/mo; top signal ${f.features[0]?.feature} ${f.features[0]?.value})`).join("; ") || "none"}.`,
     `Drafts: ${c.drafts.map((d) => `${c.vendors.find((v) => v.id === d.vendorId)?.name}: ${d.approved ? "approved" : "held"}`).join("; ") || "none"}.`,
@@ -242,7 +242,7 @@ export async function ask(question: string): Promise<Answer> {
 
   if (routed) return { question: q, answer: routed.text, source: "rule", intent: routed.intent, suggestions };
 
-  const fallback = `I can answer from the audit: why a vendor was flagged, runway, savings, what's waiting on you, or the approval threshold. Try one of those.`;
+  const fallback = `I can answer from the audit: why a vendor was flagged, cash horizon, savings, what's waiting on you, or the approval threshold. Try one of those.`;
   if (DEMO_MODE || !llmAvailable()) {
     return { question: q, answer: fallback, source: "fallback", intent: "unknown", suggestions };
   }

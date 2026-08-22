@@ -49,7 +49,7 @@ if (await negotiate.count()) {
   await snap("negotiation");
 }
 
-const chart = page.getByText(/runway/i).first();                // 0:37 runway chart
+const chart = page.getByText(/cash horizon/i).first();         // 0:37 cash-horizon chart
 if (await chart.count()) await scrollTo(chart);
 await pause(5000);
 

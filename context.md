@@ -2,7 +2,7 @@
 
 ## Overview
 
-Burn Shield is an agentic cash burn auditor and vendor renegotiation copilot for early-stage startups. It watches transactions continuously, flags wasteful or anomalous vendor spend, drafts renegotiation or cancellation emails, and projects financial runway across multiple scenarios. The goal is to catch the slow, quiet cash leakage that kills most startups before it becomes fatal.
+Burn Shield is an agentic cash burn auditor and vendor renegotiation copilot for early-stage startups. It watches transactions continuously, flags wasteful or anomalous vendor spend, drafts renegotiation or cancellation emails, and projects financial cash horizon across multiple scenarios. The goal is to catch the slow, quiet cash leakage that kills most startups before it becomes fatal.
 
 Most startups do not fail from one dramatic mistake. They fail from slow, quiet cash leakage that nobody watches closely enough to catch. By the time a human audits vendor spend, it is often too late to matter. Burn Shield is an agent that watches continuously and only escalates the decisions that actually need a human. That is a genuinely different value proposition than a dashboard someone has to remember to check.
 
@@ -86,7 +86,7 @@ The AgentActions table is not optional. Judges will ask why the agent did someth
 
 - date
 - current_burn_rate
-- current_runway_in_months
+- current_cash_horizon_in_months
 - scenario_label
 
 ## Agent architecture
@@ -140,7 +140,7 @@ Classifier Agent working against seeded transactions, correctly flagging the pla
 ### Hour 10 to 12: MVP lock
 
 - Negotiator Agent drafts a plausible email for one flagged vendor.
-- Forecast Agent produces a basic runway number.
+- Forecast Agent produces a basic cash-horizon number.
 - Orchestrator wires the three together in a single click flow from the dashboard.
 
 Tier 1 is now complete and demoable even if everything else falls apart from here.

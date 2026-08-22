@@ -277,7 +277,7 @@ export default function Dashboard() {
           accent={state.revenue.source === "stripe" ? "good" : "neutral"}
         />
         <StatTile
-          label="Runway"
+          label="Cash horizon"
           value={`${current.runwayMonths} mo`}
           sub={`${mc.p10}–${mc.p90} months across ${mc.trials.toLocaleString()} Monte Carlo trials`}
           accent="warn"
@@ -290,7 +290,7 @@ export default function Dashboard() {
         <StatTile
           label="Identified savings"
           value={`${formatCurrency(state.forecast.totalMonthlySavings)}/mo`}
-          sub={`Takes runway to ${cut.runwayMonths} months if every remediation lands`}
+          sub={`Extends cash to ${cut.runwayMonths} months if every remediation lands`}
           accent="good"
         />
       </div>
@@ -339,7 +339,7 @@ export default function Dashboard() {
                 tabs={[
                   {
                     id: "runway",
-                    label: "Runway scenarios",
+                    label: "Cash-horizon scenarios",
                     content: (
                       <div>
                         <RunwayChart data={runwaySeries} />

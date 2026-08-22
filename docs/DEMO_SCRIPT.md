@@ -70,8 +70,8 @@ Also: laptop on power, notifications off, browser zoom 110%, backup video open i
      when to stop negotiating and hand it back."
    Then ask the agent: *"how did the Segment negotiation go?"*
 
-6. **Runway chart** (20s)
-   "Acting on all four moves runway from 9.4 to 10.1 months — $76,620 a year recovered
+6. **Cash-horizon chart** (20s)
+   "Acting on all four moves the cash horizon from 9.4 to 10.1 months — $76,620 a year recovered
    from tools nobody was looking at."
 
 7. **Ask it out loud** (30s, optional — only if the room is quiet)
@@ -93,7 +93,7 @@ Also: laptop on power, notifications off, browser zoom 110%, backup video open i
 | Vendor spend | $26,422 / mo |
 | Anomalies | 4 (0 false positives) |
 | Recoverable | $6,385 / mo · $76,620 / yr |
-| Runway | 9.4 → 10.1 months (+0.7) |
+| Cash horizon | 9.4 → 10.1 months (+0.7) |
 | Held for approval | 2 of 4 drafts |
 
 ## Likely judge questions
@@ -152,7 +152,7 @@ Browser at `http://localhost:3000/#try`, zoom 110%, window ~1440×900, no other 
 | 0:17 | Click the **Twilio** flag card to expand it. The feature bars (4.00× category mean) are the explainability shot. | 6 s |
 | 0:23 | Scroll to the **approval queue**. Two held drafts. Open **Twilio**; show the email body and `billing@twilio.com`. | 6 s |
 | 0:29 | Click **Approve**. Status flips; if Mailtrap is configured, switch to the Mailtrap tab and show the message in the inbox, then back. | 8 s |
-| 0:37 | Scroll to the **runway chart**: three scenario lines, band, 9.4 → 10.1 mo. | 5 s |
+| 0:37 | Scroll to the **cash-horizon chart**: three scenario lines, band, 9.4 → 10.1 mo. | 5 s |
 | 0:42 | Type **"why did you flag Segment?"** in *Ask the agent* and submit. Let the answer render. | 8 s |
 | 0:50 | Click **Investor update →**. Hold on the slide. | 6 s |
 | 0:56 | ⌘P, show the print preview for 2 s, Esc. End on the slide. | 4 s |
