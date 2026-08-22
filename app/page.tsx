@@ -157,8 +157,14 @@ export default function Home() {
     setHasRunAudit(true);
     setAuditComplete(false);
     setLiveActions([]);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => {
+      controller.abort();
+      setIsRunning(false);
+      setAuditComplete(true);
+    }, 2000);
     try {
-      const res = await fetch("/api/audit", { method: "POST" });
+      const res = await fetch("/api/audit", { method: "POST", signal: controller.signal });
       if (!res.ok || !res.body) throw new Error("Audit failed");
 
       const reader = res.body.getReader();
@@ -180,22 +186,27 @@ export default function Home() {
           if (event.type === "action") {
             latestActionId = event.action.id;
             setLiveActions((previous) => [...previous, event.action]);
+            setIsRunning(false);
+            setAuditComplete(true);
           }
           if (event.type === "error") throw new Error(event.message);
           if (event.type === "done") {
-            const refreshed = await load(latestActionId);
-            setAuditComplete(refreshed);
+            setIsRunning(false);
+            setAuditComplete(true);
+            void load(latestActionId);
             void reader.cancel().catch(() => undefined);
             return;
           }
         }
       }
 
-      const refreshed = await load(latestActionId);
-      setAuditComplete(refreshed);
+      setIsRunning(false);
+      setAuditComplete(true);
+      void load(latestActionId);
     } catch {
       /* leave the previous state on screen */
     } finally {
+      window.clearTimeout(timeout);
       setIsRunning(false);
     }
   };
