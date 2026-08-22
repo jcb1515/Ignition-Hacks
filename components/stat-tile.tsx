@@ -17,7 +17,7 @@ export default function StatTile({
 
   return (
     <div className="bg-card p-5">
-      <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate">{label}</p>
+      <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
       <p
         className="mt-3 font-display text-4xl font-medium leading-none tracking-[-0.05em] text-on-card"
         style={color ? { color } : undefined}

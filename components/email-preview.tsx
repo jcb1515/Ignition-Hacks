@@ -19,12 +19,12 @@ We’d like to explore a tier downgrade or a discounted annual commitment. If we
 Can we schedule 15 minutes this week?
 
 Thanks,
-The Burnshield team`;
+The Burn Shield team`;
 
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between">
-        <p className="text-sm text-muted">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <p className="min-w-0 break-all text-sm text-muted">
           To:{" "}
           <span className="font-medium text-on-card">{vendor.contactEmail}</span>
         </p>
@@ -62,7 +62,7 @@ The Burnshield team`;
         </div>
         <button
           disabled={!approved}
-          className="inline-flex items-center gap-2 rounded-full bg-azure px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-cyan disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-azure px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-cyan disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
         >
           <Send size={14} />
           Send to {vendor.name}

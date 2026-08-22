@@ -80,17 +80,17 @@ export default function NegotiationThread({
   };
 
   return (
-    <div className="border border-border-card bg-card-2 p-4">
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-slate">Negotiation · {vendorName}</p>
+    <div className="min-w-0 border border-border-card bg-card-2 p-3 sm:p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <p className="font-sans text-[10px] uppercase tracking-[0.12em] text-muted">Negotiation · {vendorName}</p>
         <button type="button" onClick={negotiate} disabled={running}
-          className="inline-flex items-center gap-1.5 border border-border-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-on-card transition-colors hover:bg-card-3 disabled:opacity-50">
+          className="inline-flex min-h-10 items-center gap-1.5 border border-border-card px-3 py-2 font-sans text-[10px] uppercase tracking-[0.12em] text-on-card transition-colors hover:bg-card-3 disabled:opacity-50">
           {running ? <Loader2 size={12} className="animate-spin" /> : <Handshake size={12} />}
           {running ? "Negotiating" : hasThread ? "Re-run" : "Negotiate"}
         </button>
       </div>
 
-      {running && status && <p className="mb-3 font-mono text-[11px] text-muted">{status}</p>}
+      {running && status && <p className="mb-3 font-sans text-[11px] text-muted">{status}</p>}
 
       {!hasThread && !running && (
         <p className="text-xs text-muted">The audit sent one ask. Press Negotiate and the agent will run the rest of the conversation — counter, evaluate, accept or escalate — against the vendor.</p>
@@ -102,24 +102,24 @@ export default function NegotiationThread({
           const decision = /accept|escalat|evaluate|opened/.test(a.type);
           return (
             <li key={a.id} className={`flex ${vendorTurn ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] border px-3 py-2 text-xs leading-relaxed ${
+              <div className={`max-w-[95%] break-words border px-3 py-2 text-xs leading-relaxed sm:max-w-[85%] ${
                 vendorTurn ? "border-border-card bg-card text-muted"
                 : decision ? "border-[var(--color-series-3)] bg-card-3 text-on-card"
                 : "border-border-card bg-card-3 text-on-card"}`}>
-                <p className="mb-1 flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.1em] text-slate">
+                <p className="mb-1 flex items-center gap-1 font-sans text-[9px] uppercase tracking-[0.1em] text-muted">
                   {vendorTurn ? <UserRound size={10} /> : <Bot size={10} />}
                   {vendorTurn ? vendorName : "Negotiator"} · {a.type.replace(/^(vendor_|negotiation_)/, "").replaceAll("_", " ")}
                   {a.approvalRequired && !a.humanApproved && <ShieldAlert size={10} style={{ color: "var(--color-series-1)" }} />}
                 </p>
                 {a.reasoning.replace(/^\[[^\]]+\]\s*/, "")}
                 {a.approvalRequired && !a.humanApproved && /^negotiation_(accept_pending|escalated)$/.test(a.type) && (
-                  <div className="mt-2 flex gap-2">
+                  <div className="mt-2 flex flex-wrap gap-2">
                     <button type="button" onClick={() => void decide(a.id, "accept")}
-                      className="inline-flex items-center gap-1 border border-border-card px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-on-card hover:bg-card">
+                      className="inline-flex items-center gap-1 border border-border-card px-2 py-1 font-sans text-[10px] uppercase tracking-[0.1em] text-on-card hover:bg-card">
                       <Check size={11} /> Accept {formatCurrency(a.dollarImpact)}/mo
                     </button>
                     <button type="button" onClick={() => void decide(a.id, "walk")}
-                      className="inline-flex items-center gap-1 border border-border-card px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted hover:bg-card">
+                      className="inline-flex items-center gap-1 border border-border-card px-2 py-1 font-sans text-[10px] uppercase tracking-[0.1em] text-muted hover:bg-card">
                       <X size={11} /> Walk
                     </button>
                   </div>

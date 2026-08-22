@@ -5,7 +5,7 @@ import type { Vendor } from "@/lib/types";
 export default function VendorTable({ vendors }: { vendors: Vendor[] }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="w-full min-w-[520px] text-sm">
         <thead>
           <tr className="border-b border-border-card text-left">
             <th className="pb-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">
@@ -27,7 +27,7 @@ export default function VendorTable({ vendors }: { vendors: Vendor[] }) {
             <tr key={vendor.id} className="data-row hover:bg-card-2">
               <td className="py-3 font-medium text-on-card">{vendor.name}</td>
               <td className="py-3 text-muted">{vendor.category}</td>
-              <td className="py-3 text-right font-mono text-on-card">
+              <td className="py-3 text-right font-sans text-on-card">
                 {formatCurrency(vendor.monthlyCost)}
               </td>
               <td className="py-3 text-center">

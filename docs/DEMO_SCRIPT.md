@@ -10,7 +10,7 @@ cat .env.local | grep DEMO_MODE        # must be unset or "true" on stage
 npm run seed                           # fresh DB: 12 vendors, 6 periods, 0 flags
 npx tsx scripts/preflight.ts           # env sanity + both smoke suites + every demo route
 npm run dev                            # local, not hosted — no cold starts
-open http://localhost:3000/dashboard
+open http://localhost:3000/#try
 ```
 
 If preflight prints anything but `PREFLIGHT CLEAR`: **do not debug live.** Play the backup recording.
@@ -142,7 +142,7 @@ Before pressing record:
 ```bash
 npm run seed && npm run dev          # fresh data, server up
 ```
-Browser at `http://localhost:3000/dashboard`, zoom 110%, window ~1440×900, no other tabs visible.
+Browser at `http://localhost:3000/#try`, zoom 110%, window ~1440×900, no other tabs visible.
 
 | t | Shot | Hold |
 |---|---|---|

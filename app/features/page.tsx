@@ -44,17 +44,17 @@ const agents = [
 
 export default function FeaturesPage() {
   return (
-    <div className="bg-page">
+    <div className="overflow-x-clip bg-page">
       <section className="border-b border-border bg-page text-fg">
-        <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
+        <div className="mx-auto max-w-[1440px] px-4 py-14 sm:px-10 sm:py-20 lg:px-14 lg:py-28">
           <Reveal>
             <p className="font-sans text-xs font-medium uppercase tracking-wider text-azure">
-              Burnshield / fintech workflow
+              Burn Shield / fintech workflow
             </p>
           </Reveal>
           <div className="mt-10 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
             <Reveal delay={80}>
-              <h1 className="max-w-4xl font-display text-[clamp(3.6rem,7.6vw,8.5rem)] font-medium leading-[0.84] tracking-[-0.07em]">
+              <h1 className="max-w-4xl font-display text-[clamp(2.8rem,13vw,8.5rem)] font-medium leading-[0.88] tracking-[-0.055em] sm:text-[clamp(3.6rem,7.6vw,8.5rem)] sm:leading-[0.84] sm:tracking-[-0.07em]">
                 One fintech workflow. Full burn-rate visibility.
               </h1>
             </Reveal>
@@ -75,7 +75,7 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
+      <section className="mx-auto max-w-[1440px] px-4 py-14 sm:px-10 sm:py-20 lg:px-14 lg:py-28">
         <Reveal>
           <div className="mb-10 flex flex-col justify-between gap-5 border-b border-fg/20 pb-6 sm:flex-row sm:items-end">
             <h2 className="font-display text-5xl font-medium leading-none tracking-[-0.055em] sm:text-6xl">
@@ -96,7 +96,7 @@ export default function FeaturesPage() {
       </section>
 
       <section className="border-y border-border bg-card text-fg">
-        <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-16 sm:px-10 lg:grid-cols-[0.8fr_1.2fr] lg:px-14 lg:py-20">
+        <div className="mx-auto grid max-w-[1440px] gap-10 px-4 py-14 sm:px-10 sm:py-16 lg:grid-cols-[0.8fr_1.2fr] lg:px-14 lg:py-20">
           <Reveal>
             <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
               The burn-rate workflow
@@ -111,7 +111,7 @@ export default function FeaturesPage() {
             <Reveal delay={160}>
               <Link
                 href="/"
-                className="group mt-10 inline-flex items-center gap-3 rounded-full border border-fg/20 bg-page px-5 py-4 text-sm font-medium shadow-sm transition-colors duration-300 hover:bg-ink hover:text-white"
+                className="group mt-10 inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-full border border-fg/20 bg-page px-5 py-4 text-center text-sm font-medium shadow-sm transition-colors duration-300 hover:bg-ink hover:text-white sm:w-auto"
               >
                 Open the burn dashboard
                 <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

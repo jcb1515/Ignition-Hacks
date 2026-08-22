@@ -7,12 +7,12 @@ export default function ActionLog({ actions }: { actions: AgentAction[] }) {
     <div className="max-h-[420px] divide-y divide-border-card overflow-y-auto pr-1">
       {actions.map((action) => (
         <div key={action.id} className="group py-4 transition-colors duration-200 first:pt-0 last:pb-0 hover:bg-card-2">
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
               <Bot size={12} className="text-azure" />
               {action.agent}
             </span>
-            <span className="font-sans text-xs font-medium uppercase tracking-wider text-slate">{action.timestamp}</span>
+            <span className="font-sans text-xs font-medium uppercase tracking-wider text-muted">{action.timestamp}</span>
           </div>
           <p className="mb-2 font-sans text-sm font-medium uppercase tracking-wider text-on-card">
             {action.type.replaceAll("_", " ")}
@@ -34,7 +34,7 @@ export default function ActionLog({ actions }: { actions: AgentAction[] }) {
                 </>
               ) : (
                 <>
-                  <XCircle size={12} className="text-slate" /> Pending
+                  <XCircle size={12} className="text-muted" /> Pending
                 </>
               )}
             </span>

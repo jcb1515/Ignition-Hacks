@@ -15,9 +15,9 @@ export default function BurnChart({
   data: { month: string; burn: number; vendorSpend: number }[];
 }) {
   return (
-    <div className="h-64 w-full">
+    <div className="h-56 w-full min-w-0 sm:h-64">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+        <AreaChart data={data} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="colorBurn" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#2d9bd2" stopOpacity={0.4} />
@@ -31,6 +31,7 @@ export default function BurnChart({
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(244, 247, 251, 0.09)" />
           <XAxis dataKey="month" stroke="var(--color-slate)" tick={{ fill: "var(--color-muted)", fontSize: 11 }} />
           <YAxis
+            width={42}
             tickFormatter={(v) => `$${Math.round(Number(v) / 1000)}k`}
             stroke="var(--color-slate)"
             tick={{ fill: "var(--color-muted)", fontSize: 11 }}

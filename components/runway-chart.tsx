@@ -18,12 +18,13 @@ export default function RunwayChart({
   ];
 
   return (
-    <div className="h-64 w-full">
+    <div className="h-64 w-full min-w-0 sm:h-72">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+        <LineChart data={data} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(244, 247, 251, 0.09)" />
           <XAxis dataKey="month" stroke="var(--color-slate)" tick={{ fill: "var(--color-muted)", fontSize: 11 }} />
           <YAxis
+            width={42}
             tickFormatter={(v) => `$${Math.round(Number(v) / 1000)}k`}
             stroke="var(--color-slate)"
             tick={{ fill: "var(--color-muted)", fontSize: 11 }}
