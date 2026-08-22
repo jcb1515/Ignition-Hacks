@@ -5,9 +5,9 @@ import Nav from "@/components/nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Runway Radar — Agentic Cash Burn Auditor",
+  title: "Burnshield — Fintech Burn-Rate Workflow",
   description:
-    "Runway Radar is an agentic cash burn auditor and vendor renegotiation copilot for early-stage startups.",
+    "Burnshield is an agentic financial system for early-stage startups that monitors burn rate and automates spend decisions with human approval.",
 };
 
 export default function RootLayout({

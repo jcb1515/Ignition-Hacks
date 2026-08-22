@@ -6,19 +6,19 @@ export default function Footer() {
       <div className="mx-auto flex max-w-[1440px] flex-col gap-10 px-6 py-10 sm:px-10 md:flex-row md:items-end md:justify-between lg:px-14">
         <div>
           <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
-            Runway Radar / agentic cash operations
+            Burnshield / fintech burn-rate workflow
           </p>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate">
-            Continuous spend monitoring, explainable flags, and a human approval gate on
-            every action that leaves the building.
+            An agentic financial system for early-stage startups that monitors burn rate,
+            surfaces waste, and keeps every spend decision under your control.
           </p>
         </div>
         <div className="flex flex-wrap gap-x-6 gap-y-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">
           <Link href="/features" className="link-sweep transition-colors hover:text-azure">
-            Agents
+            Workflow
           </Link>
           <Link href="/pricing" className="link-sweep transition-colors hover:text-azure">
-            Access
+            Pricing
           </Link>
           <a href="#" className="link-sweep transition-colors hover:text-azure">
             Privacy

@@ -40,17 +40,17 @@ const agentSteps = [
   {
     number: "01",
     title: "Observe",
-    copy: "Every recurring charge, contract, and usage signal is mapped continuously.",
+    copy: "Every bank feed, card transaction, and recurring contract is mapped continuously.",
   },
   {
     number: "02",
     title: "Interrogate",
-    copy: "Anomalies are benchmarked against category norms and scored for confidence.",
+    copy: "Spend is benchmarked against startup category norms and scored by confidence.",
   },
   {
     number: "03",
     title: "Act with you",
-    copy: "The next move is drafted, the reasoning shown, and approval always requested.",
+    copy: "The fix is drafted, the reasoning shown, and your approval requested.",
   },
 ];
 
@@ -80,7 +80,7 @@ export default function Home() {
           agent: "Orchestrator",
           type: "audit_complete",
           reasoning:
-            "Completed full spend audit. Found 3 actionable flags and projected $12,800/mo in savings.",
+            "Completed full burn review. Found 3 actionable flags and projected $12,800/mo in runway savings.",
           humanApproved: false,
           dollarImpact: 12800,
         },
@@ -167,25 +167,25 @@ export default function Home() {
             <div>
               <Reveal delay={80}>
                 <h1 className="max-w-3xl font-display text-[clamp(4rem,8.4vw,9rem)] font-medium leading-[0.84] tracking-[-0.075em]">
-                  Find what is
-                  <span className="block text-azure">leaking.</span>
-                  Keep what
-                  <span className="block text-azure">matters.</span>
+                  Know your
+                  <span className="block text-azure">burn.</span>
+                  Protect your
+                  <span className="block text-azure">runway.</span>
                 </h1>
               </Reveal>
             </div>
             <Reveal delay={160}>
               <div className="mt-14 flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
                 <p className="max-w-sm text-lg leading-snug tracking-[-0.025em] text-slate">
-                  An agentic cash burn auditor that finds waste, drafts the fix, and
-                  turns it into another month of runway.
+                  An agentic financial system for early-stage startups that monitors
+                  burn rate, surfaces waste, and turns every dollar into more runway.
                 </p>
                 <MagneticButton
                   onClick={runAudit}
                   disabled={isRunning}
                   className="group inline-flex shrink-0 items-center justify-between gap-8 rounded-full border border-border bg-card px-5 py-4 text-sm font-medium text-on-card shadow-sm transition-colors hover:border-azure hover:bg-azure hover:text-white disabled:cursor-wait disabled:opacity-60"
                 >
-                  <span>{isRunning ? "Auditing..." : "Run a live audit"}</span>
+                  <span>{isRunning ? "Scanning..." : "Run a burn check"}</span>
                   <ArrowUpRight size={18} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </MagneticButton>
               </div>
@@ -197,8 +197,8 @@ export default function Home() {
             <PointerPanel className="relative h-full min-h-[430px] overflow-hidden border border-border bg-card p-5 sm:p-7">
               <div className="relative flex h-full flex-col justify-between">
                 <div className="flex items-start justify-between border-b border-border pb-4 font-sans text-xs font-medium uppercase tracking-wider text-muted">
-                  <span>Runway radar / live</span>
-                  <span className="text-azure">{isRunning ? "Scanning" : "Nominal"}</span>
+                  <span>Burn monitor / live</span>
+                  <span className="text-azure">{isRunning ? "Scanning" : "On track"}</span>
                 </div>
                 <div className="relative mx-auto flex h-64 w-64 items-center justify-center sm:h-72 sm:w-72">
                   <div className="absolute inset-0 rounded-full border border-fg/10" />
@@ -221,8 +221,8 @@ export default function Home() {
                 </div>
                 <div className={`grid gap-px overflow-hidden border border-border bg-card-2 ${plaidReady ? "grid-cols-4" : "grid-cols-3"}`}>
                   <Metric label="Monthly burn" value={burn} format={formatCurrency} />
-                  <Metric label="Flagged" value={flagged} format={(n) => `${Math.round(n)} vendors`} />
-                  <Metric label="Savings found" value={savings} format={formatCurrency} />
+                  <Metric label="Flagged vendors" value={flagged} format={(n) => `${Math.round(n)} vendors`} />
+                  <Metric label="Runway savings" value={savings} format={formatCurrency} />
                   {plaidReady ? (
                     <Metric label="Bank balance" value={bankBalance} format={formatCurrency} />
                   ) : null}
@@ -235,13 +235,13 @@ export default function Home() {
         <div className="border-t border-border py-3">
           <Marquee
             items={[
-              "Plaid sandbox connected",
-              "Stripe test mode synced",
-              "3 anomalies flagged",
+              "Bank feed connected",
+              "Spend signals synced",
+              "3 burn anomalies flagged",
               "Twilio 2.3x category average",
-              "Confluence duplicates Notion",
+              "Duplicate tools detected",
               "Segment usage flatlined",
-              "Human approval required",
+              "Approval required",
             ]}
             className="text-muted"
           />
@@ -254,10 +254,10 @@ export default function Home() {
           <div className="mb-8 flex flex-col justify-between gap-6 border-b border-fg/20 pb-6 sm:flex-row sm:items-end">
             <div>
               <p className="font-sans text-xs font-medium uppercase tracking-wider text-fg/50">
-                Live agent dashboard
+                Live burn dashboard
               </p>
               <h2 className="mt-4 font-display text-5xl font-medium leading-none tracking-[-0.055em] sm:text-6xl">
-                Runway Radar
+                Burn dashboard
               </h2>
             </div>
             <div className="flex flex-wrap items-center gap-8">
@@ -270,7 +270,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3.5 text-sm font-medium text-white hover:bg-azure disabled:opacity-60"
               >
                 <Play size={15} />
-                {isRunning ? "Running..." : "Run audit"}
+                {isRunning ? "Scanning..." : "Run burn check"}
               </MagneticButton>
             </div>
           </div>
@@ -285,7 +285,7 @@ export default function Home() {
           <Reveal>
             <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card">
               <Tabs
-                label="Agent status"
+                label="Workflow status"
                 defaultTab="status"
                 tabs={[
                   {
@@ -294,7 +294,7 @@ export default function Home() {
                     content: (
                       <div className="flex h-full flex-col justify-between">
                         <h3 className="font-display text-5xl font-light leading-none tracking-[-0.03em] text-on-card/15 sm:text-6xl">
-                          hello founder
+                          burn flow
                         </h3>
                         <div className="mt-10 font-mono text-sm leading-relaxed text-muted">
                           <p>
@@ -302,7 +302,7 @@ export default function Home() {
                             <span className="text-sky">current</span>();
                           </p>
                           <p className="text-on-card">
-                            <Typewriter text="// 8 months, 3 flags, $12.8k recoverable" />
+                            <Typewriter text="// 8 months runway, 3 flags, $12.8k recoverable" />
                           </p>
                           <p>
                             <span className="text-azure">&gt;</span> agents.
@@ -314,7 +314,7 @@ export default function Home() {
                   },
                   {
                     id: "agents",
-                    label: "Agents",
+                    label: "Workflow",
                     content: (
                       <div className="space-y-3">
                         <AgentRow icon={BarChart3} name="Classifier" status="Online" />
@@ -377,7 +377,7 @@ export default function Home() {
                     content: (
                       <div>
                         <p className="mb-2 text-center text-sm text-muted">
-                          Current, aggressive cut, and hiring freeze
+                          Current, aggressive cut, and hiring-freeze scenarios
                         </p>
                         <RunwayChart data={runwaySeries} />
                       </div>
@@ -411,7 +411,7 @@ export default function Home() {
           <Reveal delay={180}>
             <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card">
               <Tabs
-                label="Vendor matrix"
+                label="Spend matrix"
                 defaultTab="vendors"
                 tabs={[
                   {
@@ -451,7 +451,7 @@ export default function Home() {
           <Reveal>
             <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card">
               <Tabs
-                label="Burn lab"
+                label="Burn analysis"
                 defaultTab="trend"
                 tabs={[
                   {
@@ -500,7 +500,7 @@ export default function Home() {
           <Reveal delay={90}>
             <PointerPanel className="h-full border border-border-card bg-card p-7 text-on-card">
               <Tabs
-                label="Agent console"
+                label="Workflow console"
                 defaultTab="log"
                 tabs={[
                   { id: "log", label: "Log", content: <ActionLog actions={actions} /> },
@@ -528,7 +528,7 @@ export default function Home() {
           <Reveal>
             <PointerPanel className="h-full border border-border-card bg-card p-6 text-on-card">
               <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
-                Agent health
+                System health
               </p>
               <div className="space-y-4">
                 <HealthBar label="Classifier" value={94} />
@@ -541,7 +541,7 @@ export default function Home() {
           <Reveal delay={90}>
             <PointerPanel className="h-full border border-border-card bg-card p-6 text-on-card">
               <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
-                Top flags this month
+                Top burn flags this month
               </p>
               <div className="space-y-3">
                 {billing.vendors
@@ -578,7 +578,7 @@ export default function Home() {
           <Reveal>
             <PointerPanel className="border border-border-card bg-card p-6 text-on-card">
               <p className="mb-5 font-sans text-xs font-medium uppercase tracking-wider text-muted">
-                Bank account
+                Bank connection
               </p>
               <BankPanel />
             </PointerPanel>
@@ -594,17 +594,17 @@ export default function Home() {
               <Reveal>
                 <div>
                   <p className="font-sans text-xs font-medium uppercase tracking-wider text-muted">
-                    Agentic, not automatic
+                    Workflow, not wizardry
                   </p>
                   <h2 className="mt-7 max-w-xl font-display text-5xl font-medium leading-[0.9] tracking-[-0.06em] sm:text-7xl">
-                    Clear reasoning. <span className="text-azure">Human control.</span>
+                    Burn clarity. <span className="text-azure">Human control.</span>
                   </h2>
                 </div>
               </Reveal>
               <Reveal delay={120}>
                 <p className="mt-12 max-w-md text-lg leading-snug tracking-[-0.025em] text-slate">
-                  Every flag carries its benchmark, confidence, and dollar impact. Nothing
-                  leaves the building without your approval.
+                  Every flag shows the benchmark, confidence, and impact on runway. No
+                  action runs without your approval.
                 </p>
               </Reveal>
             </div>
@@ -629,12 +629,12 @@ export default function Home() {
         <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-6 py-14 sm:px-10 md:flex-row md:items-end lg:px-14 lg:py-16">
           <Reveal>
             <p className="max-w-3xl font-display text-4xl font-medium leading-[0.9] tracking-[-0.055em] sm:text-6xl">
-              Less cash leakage. More time to build something that lasts.
+              Less burn drift. More runway to build what matters.
             </p>
           </Reveal>
           <Reveal delay={120}>
             <div className="flex items-center gap-3 font-sans text-xs font-medium uppercase tracking-wider text-muted">
-              <Bot size={15} /> Runway Radar / 2026
+              <Bot size={15} /> Burnshield / 2026
             </div>
           </Reveal>
         </div>

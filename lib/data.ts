@@ -246,7 +246,7 @@ export const actions: AgentAction[] = [
     type: "flag_anomaly",
     target: "Twilio",
     reasoning:
-      "Twilio monthly cost of $6,400 is 2.3x the communication category average ($2,700). No corresponding usage spike observed.",
+      "Twilio monthly cost of $6,400 is 2.3x the communication category average for startups ($2,700). No corresponding usage spike observed.",
     humanApproved: true,
     dollarImpact: -6400,
   },
@@ -257,7 +257,7 @@ export const actions: AgentAction[] = [
     type: "flag_duplicate",
     target: "Confluence",
     reasoning:
-      "Confluence and Notion both serve as team knowledge bases. 89% feature overlap and 12 active users on both.",
+      "Confluence and Notion both serve as team knowledge bases. 89% feature overlap and 12 active users on both tools.",
     humanApproved: true,
     dollarImpact: -420,
   },
@@ -268,7 +268,7 @@ export const actions: AgentAction[] = [
     type: "draft_email",
     target: "Twilio",
     reasoning:
-      "Drafted a rate renegotiation email citing category benchmarking and requesting a tier review.",
+      "Drafted a rate renegotiation email citing burn-rate benchmarking and requesting a tier review.",
     humanApproved: false,
     dollarImpact: 0,
   },
@@ -278,7 +278,7 @@ export const actions: AgentAction[] = [
     agent: "Forecast",
     type: "runway_projection",
     reasoning:
-      "Burn rate $38.4k/mo at current spend. Aggressive vendor cuts extend runway from 8 to 14 months.",
+      "Burn rate is $38.4k/mo at current spend. Aggressive vendor cuts extend runway from 8 to 14 months.",
     humanApproved: true,
     dollarImpact: 0,
   },

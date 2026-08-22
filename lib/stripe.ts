@@ -7,7 +7,7 @@ export function getStripe(): Stripe | null {
   }
   return new Stripe(key, {
     appInfo: {
-      name: "Runway Radar",
+      name: "Burnshield",
     },
   });
 }

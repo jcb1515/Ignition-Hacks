@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Runway Radar surfaces — light mode default */
+  /* Burnshield surfaces — light mode default */
   --color-page: #ffffff;
   --color-card: #ffffff;
   --color-card-2: #f8fafc;

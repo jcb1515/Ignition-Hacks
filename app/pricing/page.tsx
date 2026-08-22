@@ -6,22 +6,22 @@ const tiers = [
   {
     name: "Seed",
     price: "$0",
-    description: "For startups building a disciplined cash operating system.",
+    description: "For startups building a disciplined burn-rate workflow.",
     features: [
       "Up to $50k monthly spend",
-      "Classifier and Forecast agents",
-      "Five vendor reviews monthly",
+      "Connect and forecast workflow",
+      "Five spend reviews monthly",
       "Shared action log",
     ],
-    cta: "Start observing",
+    cta: "Start tracking",
   },
   {
     name: "Growth",
     price: "$99",
-    description: "For teams with enough moving parts to need a second set of eyes.",
+    description: "For teams with enough moving spend to need a second set of eyes.",
     features: [
       "Up to $500k monthly spend",
-      "All four agents",
+      "Full fintech workflow",
       "Unlimited renegotiation drafts",
       "Slack-ready alerts",
       "Priority support",
@@ -32,7 +32,7 @@ const tiers = [
   {
     name: "Scale",
     price: "Custom",
-    description: "For multi-entity operations needing custom policy and control.",
+    description: "For multi-entity operations with custom burn policies and controls.",
     features: [
       "Unlimited spend scanning",
       "Custom thresholds and policies",
@@ -50,19 +50,18 @@ export default function PricingPage() {
         <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
           <Reveal>
             <p className="font-sans text-xs font-medium uppercase tracking-wider text-azure">
-              Access / runway radar
+              Pricing / burn-rate workflow
             </p>
           </Reveal>
           <div className="mt-10 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
             <Reveal delay={80}>
               <h1 className="max-w-4xl font-display text-[clamp(3.6rem,7.6vw,8.5rem)] font-medium leading-[0.84] tracking-[-0.07em]">
-                Price your runway in months, not missed signals.
+                Pricing that keeps burn rate visible from day one.
               </h1>
             </Reveal>
             <Reveal delay={160}>
               <p className="max-w-md text-xl leading-snug tracking-[-0.025em] text-slate">
-                Start with visibility, then expand the agent system as your operations
-                get more complex.
+                Start tracking burn, then expand the workflow as your team grows.
               </p>
             </Reveal>
           </div>
